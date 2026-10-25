@@ -1,7 +1,5 @@
 import SwiftUI
 import UIKit
-import CoreImage
-import CoreImage.CIFilterBuiltins
 
 /// Draws one page: the section name at the top, the text, the drop cap and the page number.
 /// A section's first page shows just the section's name.
@@ -112,76 +110,18 @@ final class BookPageView: UIView {
     }
 }
 
+/// Hosts one page inside the page curl controller. Taps in the middle of the page show or
+/// hide the reading controls; taps near the edges turn the page.
+final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
+    let index: Int
+    private let book: Book
+    private let initialShowsTotal: Bool
+    var onCenterTap: (() -> Void)?
 
-/// Draws the page curl with Core Image. UIKit's built-in curl adds a bright white shine that
-/// can't be turned off, which looks wrong on dark pages. Here we choose the lighting, so a page
-/// curls like paper in Apple Books: the back is the page color with its text faintly showing through.
-final class CurlRenderer {
-    private let context = CIContext(options: [.cacheIntermediates: false])
-    private let filter = CIFilter.pageCurlTransition()
-    private var extent: CGRect = .zero
-
-    func prepare(from: CGImage, to: CGImage, back: CGImage, angle: CGFloat) {
-        let front = CIImage(cgImage: from)
-        extent = front.extent
-        filter.inputImage = front
-        filter.targetImage = CIImage(cgImage: to)
-        filter.backsideImage = CIImage(cgImage: back)
-        // The shading image is the shine on the curl. A clear one means no shine at all.
-        filter.shadingImage = CIImage(color: .clear).cropped(to: extent)
-        filter.extent = extent
-        filter.angle = Float(angle)
-        filter.radius = Float(extent.width * 0.12)
-    }
-
-    /// The curl at a moment of the turn, from 0 (flat) to 1 (turned over).
-    func frame(at time: CGFloat) -> CGImage? {
-        filter.time = Float(min(max(time, 0), 1))
-        guard let output = filter.outputImage?.cropped(to: extent) else { return nil }
-        return context.createCGImage(output, from: extent)
-    }
-}
-
-/// Shows one page at a time and turns pages with a curl that follows your finger.
-/// Taps near the edges turn the page; taps in the middle show or hide the reading controls.
-/// With Reduce Motion turned on, pages fade instead of curling.
-final class BookReaderController: UIViewController, UIGestureRecognizerDelegate {
-    private(set) var book: Book
-    private(set) var index: Int
-    var reduceMotion = false
-    var showsTotal = false {
-        didSet { pageView?.showsTotal = showsTotal }
-    }
-    var onCenterTap: () -> Void = {}
-    var onPageTurn: () -> Void = {}
-    var onPageChange: (Int) -> Void = { _ in }
-
-    private var pageView: BookPageView?
-    private let curlView = UIView()
-    private let renderer = CurlRenderer()
-    private var turn: Turn?
-    private var animation: TurnAnimation?
-    private var displayLink: CADisplayLink?
-
-    private struct Turn {
-        let target: Int
-        let forward: Bool
-        /// 0 shows the earlier page flat, 1 shows it turned over, revealing the later page.
-        var time: CGFloat
-        /// The time at which the target page is fully showing.
-        var doneTime: CGFloat { forward ? 1 : 0 }
-    }
-
-    private struct TurnAnimation {
-        let from: CGFloat
-        let to: CGFloat
-        let start: CFTimeInterval
-        let duration: CFTimeInterval
-    }
-
-    init(book: Book, index: Int) {
+    init(book: Book, index: Int, showsTotal: Bool) {
         self.book = book
-        self.index = min(max(index, 0), book.pages.count - 1)
+        self.index = index
+        self.initialShowsTotal = showsTotal
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -189,245 +129,67 @@ final class BookReaderController: UIViewController, UIGestureRecognizerDelegate 
         fatalError("init(coder:) is not used")
     }
 
+    override func loadView() {
+        view = BookPageView(book: book, index: index, showsTotal: initialShowsTotal)
+    }
+
+    var showsTotal: Bool {
+        get { (viewIfLoaded as? BookPageView)?.showsTotal ?? initialShowsTotal }
+        set { (viewIfLoaded as? BookPageView)?.showsTotal = newValue }
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = Typography.pageColor
-
-        curlView.isHidden = true
-        curlView.isUserInteractionEnabled = false
-        curlView.layer.contentsGravity = .resize
-        view.addSubview(curlView)
-        showPage()
-
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
+        tap.delegate = self
         view.addGestureRecognizer(tap)
-
-        let pan = UIPanGestureRecognizer(target: self, action: #selector(handlePan))
-        pan.delegate = self
-        view.addGestureRecognizer(pan)
     }
 
-    override func viewDidLayoutSubviews() {
-        super.viewDidLayoutSubviews()
-        pageView?.frame = view.bounds
-        curlView.frame = view.bounds
-    }
-
-    /// Shows a book paginated again (new font, size or languages), without a turn.
-    func setBook(_ book: Book, index: Int) {
-        endTurn(completed: false)
-        self.book = book
-        self.index = min(max(index, 0), book.pages.count - 1)
-        showPage()
-    }
-
-    /// Turns to a page chosen from Contents, Bookmarks or Search, or by tapping an edge.
-    func turn(to page: Int) {
-        finishTurnNow()
-        let target = min(max(page, 0), book.pages.count - 1)
-        guard target != index else { return }
-        if reduceMotion {
-            fade(to: target)
-        } else if beginTurn(to: target, touchY: 0.75), let turn {
-            animate(to: turn.doneTime, duration: 0.55)
-        } else {
-            commit(target)
-        }
-    }
-
-    // MARK: Gestures
-
-    @objc private func handleTap(_ tap: UITapGestureRecognizer) {
-        let x = tap.location(in: view).x / max(view.bounds.width, 1)
-        if x < 0.25 {
-            turn(to: index - 1)
-        } else if x > 0.75 {
-            turn(to: index + 1)
-        } else {
-            onCenterTap()
-        }
+    @objc private func handleTap() {
+        onCenterTap?()
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        guard let pan = gestureRecognizer as? UIPanGestureRecognizer else { return true }
-        let velocity = pan.velocity(in: view)
-        return abs(velocity.x) > abs(velocity.y)
-    }
-
-    @objc private func handlePan(_ pan: UIPanGestureRecognizer) {
-        let dx = pan.translation(in: view).x
-        let distance = max(view.bounds.width * 0.85, 1)
-
-        switch pan.state {
-        case .began:
-            finishTurnNow()
-            let target = dx < 0 ? index + 1 : index - 1
-            guard book.pages.indices.contains(target) else { return }
-            if reduceMotion { return }
-            let touchY = pan.location(in: view).y / max(view.bounds.height, 1)
-            _ = beginTurn(to: target, touchY: touchY)
-
-        case .changed:
-            guard let turn, animation == nil else { return }
-            let progress = min(max((turn.forward ? -dx : dx) / distance, 0), 1)
-            setTime(turn.forward ? progress : 1 - progress)
-
-        case .ended, .cancelled, .failed:
-            let velocity = pan.velocity(in: view).x
-            if reduceMotion {
-                let target = dx < 0 ? index + 1 : index - 1
-                if pan.state == .ended, abs(dx) > 40, book.pages.indices.contains(target) {
-                    fade(to: target)
-                }
-                return
-            }
-            guard let turn, animation == nil else { return }
-            // How far the page has turned toward the new page, from 0 to 1.
-            let turned = turn.forward ? turn.time : 1 - turn.time
-            let flick = turn.forward ? -velocity : velocity
-            let completes = pan.state == .ended && (flick > 300 || (turned > 0.4 && flick > -300))
-            let goal = completes ? turn.doneTime : 1 - turn.doneTime
-            animate(to: goal, duration: max(0.18, 0.4 * abs(goal - turn.time)))
-
-        default:
-            break
-        }
-    }
-
-    // MARK: Turning
-
-    /// Takes pictures of the two pages and sets up the curl. The earlier page is always the one
-    /// that curls: turning forward it curls away, turning back it uncurls into place.
-    private func beginTurn(to target: Int, touchY: CGFloat) -> Bool {
-        let forward = target > index
-        let earlier = forward ? index : target
-        let later = forward ? target : index
-        guard let front = snapshot(of: earlier),
-              let revealed = snapshot(of: later)?.cgImage,
-              let back = backSnapshot(of: front),
-              let frontImage = front.cgImage else { return false }
-
-        // Curl along a slight diagonal, led by the corner nearest your finger, like a real page.
-        let angle = CGFloat.pi - (touchY - 0.5) * 0.5
-        renderer.prepare(from: frontImage, to: revealed, back: back, angle: angle)
-        turn = Turn(target: target, forward: forward, time: forward ? 0 : 1)
-        onPageTurn()
-        setTime(forward ? 0 : 1)
-        curlView.isHidden = false
-        return true
-    }
-
-    private func setTime(_ time: CGFloat) {
-        guard turn != nil else { return }
-        turn?.time = time
-        curlView.layer.contents = renderer.frame(at: time)
-    }
-
-    private func animate(to goal: CGFloat, duration: CFTimeInterval) {
-        guard let turn else { return }
-        animation = TurnAnimation(from: turn.time, to: goal, start: CACurrentMediaTime(), duration: duration)
-        if displayLink == nil {
-            let link = CADisplayLink(target: self, selector: #selector(step))
-            link.add(to: .main, forMode: .common)
-            displayLink = link
-        }
-    }
-
-    @objc private func step(_ link: CADisplayLink) {
-        guard let animation, let turn else {
-            endTurn(completed: false)
-            return
-        }
-        let progress = min((CACurrentMediaTime() - animation.start) / animation.duration, 1)
-        let eased = 1 - pow(1 - progress, 3)
-        setTime(animation.from + (animation.to - animation.from) * eased)
-        if progress >= 1 {
-            endTurn(completed: animation.to == turn.doneTime)
-        }
-    }
-
-    /// Jumps a turn that's still animating straight to its end.
-    private func finishTurnNow() {
-        guard let turn else { return }
-        endTurn(completed: animation?.to == turn.doneTime)
-    }
-
-    private func endTurn(completed: Bool) {
-        displayLink?.invalidate()
-        displayLink = nil
-        animation = nil
-        let target = turn?.target
-        turn = nil
-        if completed, let target {
-            commit(target)
-        }
-        curlView.isHidden = true
-        curlView.layer.contents = nil
-    }
-
-    private func commit(_ target: Int) {
-        index = target
-        showPage()
-        onPageChange(target)
-    }
-
-    private func fade(to target: Int) {
-        onPageTurn()
-        UIView.transition(with: view, duration: 0.25, options: [.transitionCrossDissolve, .allowUserInteraction]) {
-            self.index = target
-            self.showPage()
-        }
-        onPageChange(target)
-    }
-
-    private func showPage() {
-        let page = BookPageView(book: book, index: index, showsTotal: showsTotal)
-        page.frame = view.bounds
-        page.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        view.insertSubview(page, belowSubview: curlView)
-        pageView?.removeFromSuperview()
-        pageView = page
-    }
-
-    // MARK: Pictures of pages
-
-    private var snapshotFormat: UIGraphicsImageRendererFormat {
-        let format = UIGraphicsImageRendererFormat()
-        // Twice the point size keeps the curl smooth; the page itself stays full sharpness.
-        format.scale = min(traitCollection.displayScale, 2)
-        format.opaque = true
-        return format
-    }
-
-    private func snapshot(of index: Int) -> UIImage? {
-        let size = book.metrics.size
-        guard size.width > 0, size.height > 0 else { return nil }
-        let page = BookPageView(book: book, index: index, showsTotal: false)
-        page.overrideUserInterfaceStyle = traitCollection.userInterfaceStyle
-        return UIGraphicsImageRenderer(size: size, format: snapshotFormat).image { context in
-            traitCollection.performAsCurrent {
-                Typography.pageColor.setFill()
-                context.fill(CGRect(origin: .zero, size: size))
-                page.draw(page.bounds)
-            }
-        }
-    }
-
-    /// The back of a page: the page color with its text faintly showing through.
-    /// Core Image mirrors it as the page turns over, like real paper.
-    private func backSnapshot(of front: UIImage) -> CGImage? {
-        let size = front.size
-        return UIGraphicsImageRenderer(size: size, format: snapshotFormat).image { context in
-            traitCollection.performAsCurrent {
-                Typography.pageColor.setFill()
-                context.fill(CGRect(origin: .zero, size: size))
-                front.draw(at: .zero, blendMode: .normal, alpha: 0.1)
-            }
-        }.cgImage
+        let x = gestureRecognizer.location(in: view).x
+        let width = view.bounds.width
+        return x > width * 0.25 && x < width * 0.75
     }
 }
 
-/// The book reader, brought into SwiftUI.
+/// The back of a page, seen while it curls over. Like a real sheet of paper (and Apple Books),
+/// it's the page color with the front's text faintly showing through, mirrored.
+final class BackPageViewController: UIViewController {
+    let index: Int
+    private let book: Book
+
+    init(book: Book, index: Int) {
+        self.book = book
+        self.index = index
+        super.init(nibName: nil, bundle: nil)
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) is not used")
+    }
+
+    override func loadView() {
+        let container = UIView(frame: CGRect(origin: .zero, size: book.metrics.size))
+        container.backgroundColor = Typography.pageColor
+
+        let showThrough = BookPageView(book: book, index: index, showsTotal: false)
+        showThrough.frame = container.bounds
+        showThrough.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        showThrough.transform = CGAffineTransform(scaleX: -1, y: 1)
+        showThrough.alpha = 0.12
+        showThrough.isAccessibilityElement = false
+        container.addSubview(showThrough)
+
+        view = container
+    }
+}
+
+/// Apple's real page curl (the same one Apple Books uses), brought into SwiftUI.
+/// With Reduce Motion turned on, pages slide instead of curling.
 struct PageCurlView: UIViewControllerRepresentable {
     let book: Book
     @Binding var currentPage: Int
@@ -436,27 +198,113 @@ struct PageCurlView: UIViewControllerRepresentable {
     var onCenterTap: () -> Void
     var onPageTurn: () -> Void
 
-    func makeUIViewController(context: Context) -> BookReaderController {
-        let controller = BookReaderController(book: book, index: currentPage)
-        configure(controller)
+    func makeCoordinator() -> Coordinator {
+        Coordinator(parent: self)
+    }
+
+    func makeUIViewController(context: Context) -> UIPageViewController {
+        var options: [UIPageViewController.OptionsKey: Any] = [:]
+        if !reduceMotion {
+            options[.spineLocation] = UIPageViewController.SpineLocation.min.rawValue
+        }
+        let controller = UIPageViewController(
+            transitionStyle: reduceMotion ? .scroll : .pageCurl,
+            navigationOrientation: .horizontal,
+            options: options
+        )
+        // Double-sided so the back of a curling page is a real, dark-in-dark-mode page.
+        controller.isDoubleSided = !reduceMotion
+        controller.dataSource = context.coordinator
+        controller.delegate = context.coordinator
+        controller.view.backgroundColor = Typography.pageColor
+        context.coordinator.bookID = book.id
+        context.coordinator.show(currentPage, in: controller, from: nil, animated: false)
         return controller
     }
 
-    func updateUIViewController(_ controller: BookReaderController, context: Context) {
-        configure(controller)
-        if controller.book !== book {
-            controller.setBook(book, index: currentPage)
-        } else if controller.index != currentPage {
-            controller.turn(to: currentPage)
+    func updateUIViewController(_ controller: UIPageViewController, context: Context) {
+        let coordinator = context.coordinator
+        coordinator.parent = self
+
+        for case let page as PageViewController in controller.viewControllers ?? [] {
+            page.showsTotal = showsTotal
+        }
+
+        if coordinator.bookID != book.id {
+            // The book was paginated again (new font, size or languages).
+            coordinator.bookID = book.id
+            coordinator.show(currentPage, in: controller, from: nil, animated: false)
+        } else if let shown = coordinator.shownIndex(in: controller), shown != currentPage {
+            // Jump to a page chosen from Contents, Bookmarks or Search.
+            coordinator.show(currentPage, in: controller, from: shown, animated: true)
         }
     }
 
-    private func configure(_ controller: BookReaderController) {
-        controller.reduceMotion = reduceMotion
-        controller.showsTotal = showsTotal
-        controller.onCenterTap = onCenterTap
-        controller.onPageTurn = onPageTurn
-        let currentPage = $currentPage
-        controller.onPageChange = { currentPage.wrappedValue = $0 }
+    final class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+        var parent: PageCurlView
+        var bookID: UUID?
+
+        init(parent: PageCurlView) {
+            self.parent = parent
+        }
+
+        private var pageCount: Int { parent.book.pages.count }
+
+        private func clamped(_ index: Int) -> Int {
+            min(max(index, 0), pageCount - 1)
+        }
+
+        func makePage(_ index: Int) -> PageViewController {
+            let page = PageViewController(book: parent.book, index: clamped(index), showsTotal: parent.showsTotal)
+            page.onCenterTap = { [weak self] in self?.parent.onCenterTap() }
+            return page
+        }
+
+        func makeBack(_ index: Int) -> BackPageViewController {
+            BackPageViewController(book: parent.book, index: clamped(index))
+        }
+
+        func shownIndex(in controller: UIPageViewController) -> Int? {
+            (controller.viewControllers?.first as? PageViewController)?.index
+        }
+
+        func show(_ index: Int, in controller: UIPageViewController, from previous: Int?, animated: Bool) {
+            let forward = previous.map { index > $0 } ?? true
+            var controllers: [UIViewController] = [makePage(index)]
+            // A double-sided curl needs the back of the turning page, but only when the
+            // change is animated. Without animation UIKit takes just the front page.
+            if controller.isDoubleSided && animated {
+                controllers.append(makeBack(forward ? (previous ?? index - 1) : index))
+            }
+            controller.setViewControllers(controllers, direction: forward ? .forward : .reverse, animated: animated)
+        }
+
+        func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
+            if let back = viewController as? BackPageViewController {
+                return makePage(back.index)
+            }
+            guard let page = viewController as? PageViewController, page.index > 0 else { return nil }
+            return pageViewController.isDoubleSided ? makeBack(page.index - 1) : makePage(page.index - 1)
+        }
+
+        func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
+            if let back = viewController as? BackPageViewController {
+                return back.index + 1 < pageCount ? makePage(back.index + 1) : nil
+            }
+            guard let page = viewController as? PageViewController else { return nil }
+            if pageViewController.isDoubleSided {
+                return page.index + 1 < pageCount ? makeBack(page.index) : nil
+            }
+            return page.index + 1 < pageCount ? makePage(page.index + 1) : nil
+        }
+
+        func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+            parent.onPageTurn()
+        }
+
+        func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+            guard completed, let index = shownIndex(in: pageViewController) else { return }
+            parent.currentPage = index
+        }
     }
 }
