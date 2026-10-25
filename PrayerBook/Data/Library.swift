@@ -77,7 +77,7 @@ final class Library {
     }
 
     /// Alphabetical, ignoring a leading "The", like the original app.
-    private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {
+    nonisolated private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {
         func key(_ name: String) -> String {
             name.hasPrefix("The ") ? String(name.dropFirst(4)) : name
         }
