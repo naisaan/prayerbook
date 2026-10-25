@@ -270,12 +270,9 @@ struct PageCurlView: UIViewControllerRepresentable {
 
         func show(_ index: Int, in controller: UIPageViewController, from previous: Int?, animated: Bool) {
             let forward = previous.map { index > $0 } ?? true
-            var controllers: [UIViewController] = [makePage(index)]
-            if controller.isDoubleSided {
-                // With a double-sided curl, UIKit also wants the back of the page being turned.
-                controllers.append(makeBack(forward ? (previous ?? index - 1) : index))
-            }
-            controller.setViewControllers(controllers, direction: forward ? .forward : .reverse, animated: animated)
+            // With the spine on the edge, UIKit takes only the front page here, even for a
+            // double-sided curl. It asks the data source for the backs as pages turn.
+            controller.setViewControllers([makePage(index)], direction: forward ? .forward : .reverse, animated: animated)
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
