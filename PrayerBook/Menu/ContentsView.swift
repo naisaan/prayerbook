@@ -9,15 +9,26 @@ struct ContentsView: View {
     let progress: Int
     let onOpen: (Int) -> Void
 
+    @State private var confirmingReset = false
+
     var body: some View {
         NavigationStack {
             List {
                 Section {
                     ProgressView(value: Double(progress), total: 100) {
-                        Text("\(progress)% read")
-                            .font(.subheadline)
-                            .foregroundStyle(.secondary)
+                        HStack {
+                            Text("\(progress)% read")
+                            Spacer()
+                            if progress > 0 {
+                                Button("Start Over") { confirmingReset = true }
+                                    .buttonStyle(.borderless)
+                            }
+                        }
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
                     }
+                } footer: {
+                    Text("A prayer counts as read once you reach its last page.")
                 }
                 ForEach(library.enabledLanguages) { language in
                     Section {
@@ -45,6 +56,11 @@ struct ContentsView: View {
                 }
             }
             .navigationTitle("Contents")
+            .confirmationDialog("Start reading progress over?", isPresented: $confirmingReset, titleVisibility: .visible) {
+                Button("Start Over", role: .destructive) { library.resetProgress() }
+            } message: {
+                Text("Your bookmarks and recent prayers are kept.")
+            }
             .navigationDestination(for: BookSection.self) { section in
                 SectionPrayersView(section: section, currentPrayerID: currentPrayerID, onOpen: onOpen)
             }
@@ -58,6 +74,7 @@ struct ContentsView: View {
 }
 
 private struct SectionPrayersView: View {
+    @Environment(Library.self) private var library
     let section: BookSection
     let currentPrayerID: Int?
     let onOpen: (Int) -> Void
@@ -65,7 +82,7 @@ private struct SectionPrayersView: View {
     var body: some View {
         List(section.prayers) { prayer in
             Button { onOpen(prayer.id) } label: {
-                PrayerRow(prayer: prayer, showsSection: false, isCurrent: prayer.id == currentPrayerID)
+                PrayerRow(prayer: prayer, showsSection: false, isCurrent: prayer.id == currentPrayerID, isRead: library.isRead(prayer.id))
             }
             .tint(.primary)
         }
@@ -79,6 +96,7 @@ struct PrayerRow: View {
     let prayer: Prayer
     var showsSection = true
     var isCurrent = false
+    var isRead = false
 
     var body: some View {
         HStack(alignment: .firstTextBaseline) {
@@ -96,6 +114,11 @@ struct PrayerRow: View {
                 Image(systemName: "book.fill")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
+            } else if isRead {
+                Image(systemName: "checkmark")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+                    .accessibilityLabel("Read")
             }
         }
         .padding(.vertical, 2)

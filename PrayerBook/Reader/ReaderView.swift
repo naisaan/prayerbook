@@ -34,13 +34,14 @@ struct ReaderView: View {
             )
 
             ZStack(alignment: .bottomTrailing) {
-                Color(uiColor: .systemBackground)
+                Color(uiColor: Typography.pageColor)
                     .ignoresSafeArea()
 
                 if let book, !book.pages.isEmpty {
                     PageCurlView(
                         book: book,
                         currentPage: $currentPage,
+                        showsTotal: showsControls,
                         reduceMotion: reduceMotion,
                         onCenterTap: toggleControls,
                         onPageTurn: hideControls
@@ -60,9 +61,8 @@ struct ReaderView: View {
                         .onTapGesture { setMenu(open: false) }
                 }
 
-                if showsControls, book != nil {
+                if book != nil {
                     controls
-                        .transition(.opacity)
                 }
             }
             .task(id: BookKey(metrics: metrics, typography: settings.typography, languages: library.enabledLanguageCodes)) {
@@ -88,33 +88,53 @@ struct ReaderView: View {
 
     private var controls: some View {
         VStack(alignment: .trailing, spacing: 12) {
-            if menuOpen, let prayer = currentPrayer {
+            if menuOpen {
                 ReaderMenu(
                     progress: progress,
                     bookmarkCount: library.bookmarkedPrayers.count,
-                    isBookmarked: library.isBookmarked(prayer.id),
-                    shareText: prayer.shareText,
+                    isBookmarked: isCurrentBookmarked,
+                    shareText: currentPrayer?.shareText,
                     onSelect: { choice in
                         setMenu(open: false)
                         sheet = choice
                     },
-                    onToggleBookmark: {
-                        library.toggleBookmark(prayer.id)
-                        bookmarkFeedback += 1
-                    }
+                    onToggleBookmark: toggleBookmarkAction
                 )
                 .transition(menuTransition)
             }
 
-            MenuButton(
-                isOpen: menuOpen,
-                isBookmarked: currentPrayer.map { library.isBookmarked($0.id) } ?? false
-            ) {
+            // The menu button only shows with the other controls, but a bookmarked page
+            // always shows its red bookmark badge in the same spot.
+            MenuButton(isOpen: menuOpen) {
                 setMenu(open: !menuOpen)
             }
+            .opacity(showsControls ? 1 : 0)
+            .allowsHitTesting(showsControls)
+            .overlay(alignment: .topTrailing) {
+                if isCurrentBookmarked && !menuOpen {
+                    BookmarkBadge()
+                        .offset(x: 6, y: -6)
+                        .onTapGesture(perform: toggleControls)
+                        .transition(.scale(scale: 0.5).combined(with: .opacity))
+                }
+            }
+            .animation(.spring(duration: 0.3, bounce: 0), value: isCurrentBookmarked)
         }
         .padding(.trailing, 20)
         .padding(.bottom, 4)
+    }
+
+    /// Nil on a section title page, where there's no prayer to bookmark.
+    private var toggleBookmarkAction: (() -> Void)? {
+        guard let prayer = currentPrayer else { return nil }
+        return {
+            library.toggleBookmark(prayer.id)
+            bookmarkFeedback += 1
+        }
+    }
+
+    private var isCurrentBookmarked: Bool {
+        currentPrayer.map { library.isBookmarked($0.id) } ?? false
     }
 
     private var menuTransition: AnyTransition {
@@ -193,32 +213,30 @@ struct ReaderView: View {
         return book.pages[currentPage].prayer
     }
 
+    /// The share of the book's prayers that have been read to the end.
     private var progress: Int {
-        guard let book, !book.pages.isEmpty else { return 0 }
-        return Int((Double(currentPage + 1) / Double(book.pages.count) * 100).rounded())
+        guard let book else { return 0 }
+        return library.percentRead(of: book.prayerIDs)
     }
 
     private func pageDidChange(_ page: Int) {
-        guard let book, book.pages.indices.contains(page) else { return }
-        let bookPage = book.pages[page]
-        settings.lastPrayerID = bookPage.prayer.id
-        settings.lastCharacterIndex = bookPage.characterRange.location
-        library.noteOpened(bookPage.prayer.id)
+        guard let book, let anchor = book.anchor(forPage: page) else { return }
+        settings.lastPrayerID = anchor.prayerID
+        settings.lastCharacterIndex = anchor.characterIndex
+        if let prayerPage = book.pages[page].prayerPage {
+            library.noteOpened(prayerPage.prayer.id)
+            if prayerPage.isLastPage {
+                library.markRead(prayerPage.prayer.id)
+            }
+        }
     }
 
     /// Paginates the book again, keeping the reader on the same spot in the same prayer.
     private func rebuildBook(metrics: PageMetrics) async {
         guard metrics.size.width > 0, metrics.size.height > 0 else { return }
 
-        let anchorPrayer: Int?
-        let anchorCharacter: Int
-        if let book, book.pages.indices.contains(currentPage) {
-            anchorPrayer = book.pages[currentPage].prayer.id
-            anchorCharacter = book.pages[currentPage].characterRange.location
-        } else {
-            anchorPrayer = settings.lastPrayerID
-            anchorCharacter = settings.lastCharacterIndex
-        }
+        let anchor = book?.anchor(forPage: currentPage)
+            ?? settings.lastPrayerID.map { BookAnchor(prayerID: $0, characterIndex: settings.lastCharacterIndex) }
 
         guard let newBook = await Paginator.makeBook(
             sections: library.sections,
@@ -226,7 +244,7 @@ struct ReaderView: View {
             metrics: metrics
         ) else { return }
 
-        let page = anchorPrayer.flatMap { newBook.page(of: $0, characterIndex: anchorCharacter) } ?? 0
+        let page = anchor.flatMap { newBook.page(for: $0) } ?? 0
         book = newBook
         currentPage = min(page, max(newBook.pages.count - 1, 0))
     }

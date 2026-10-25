@@ -12,7 +12,7 @@ struct AboutView: View {
             List {
                 Section {
                     VStack(spacing: 6) {
-                        Text("Prayer Book")
+                        Text("Bahá’í Prayer Book")
                             .font(ReaderFont.newYork.font(size: 30).weight(.semibold))
                         Text("Version \(version)")
                             .font(.footnote)
@@ -23,9 +23,10 @@ struct AboutView: View {
                 }
 
                 Section("Credits") {
-                    Text("Based on the Prayer Book app by Arash Payan, which provides the prayers and their translations.")
+                    Text("Based on the Source Code of the Original Prayer Book app by Arash Payan")
+                    Text("This interface was Vibe-Coded and made with love by [Naisaan Nadimi](https://naisaannadimi.net)")
                     Link("Original Prayer Book source code", destination: URL(string: "https://github.com/arashpayan/prayer-book")!)
-                    Link("Prayer Book website", destination: URL(string: "https://www.prayerbook.app/")!)
+                    Link("Arash Payan’s Prayer Book Website", destination: URL(string: "https://www.prayerbook.app/")!)
                 }
 
                 Section("Sources") {

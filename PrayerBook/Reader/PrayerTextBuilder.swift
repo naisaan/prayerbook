@@ -4,6 +4,16 @@ import UIKit
 struct PrayerTextBuilder {
     let typography: Typography
     let isRightToLeft: Bool
+    let showsTitle: Bool
+
+    /// Most prayers start straight away. Only these sections, and the Prayer for the Dead,
+    /// show each prayer's title above it.
+    static let titledSections: Set<String> = ["Huqúqu'lláh", "Occasional Prayers", "Special Tablets", "Obligatory"]
+
+    static func showsTitle(for prayer: Prayer) -> Bool {
+        titledSections.contains(prayer.category)
+            || prayer.title.localizedCaseInsensitiveCompare("Prayer for the Dead") == .orderedSame
+    }
 
     struct Result {
         let text: NSAttributedString
@@ -17,29 +27,33 @@ struct PrayerTextBuilder {
         let text = NSMutableAttributedString()
         let size = typography.size
 
-        // Title, centered and italic, like a chapter title in Apple Books.
-        let titleStyle = NSMutableParagraphStyle()
-        titleStyle.alignment = .center
-        titleStyle.lineHeightMultiple = 1.05
-        titleStyle.paragraphSpacing = size * 0.5
-        titleStyle.baseWritingDirection = writingDirection
-        text.append(NSAttributedString(string: prayer.title + "\n", attributes: [
-            .font: typography.font.uiFont(size: size * 1.25, weight: .semibold, italic: !isRightToLeft),
-            .foregroundColor: Typography.textColor,
-            .paragraphStyle: titleStyle,
-            .kern: -0.2,
-        ]))
+        if showsTitle {
+            // Title, centered and italic, like a chapter title in Apple Books.
+            let titleStyle = NSMutableParagraphStyle()
+            titleStyle.alignment = .center
+            titleStyle.lineHeightMultiple = 1.05
+            titleStyle.paragraphSpacing = size * 0.5
+            titleStyle.baseWritingDirection = writingDirection
+            text.append(NSAttributedString(string: prayer.title + "\n", attributes: [
+                .font: typography.font.uiFont(size: size * 1.25, weight: .semibold, italic: !isRightToLeft),
+                .foregroundColor: Typography.textColor,
+                .paragraphStyle: titleStyle,
+                .kern: -0.2,
+            ]))
 
-        // A small ornament under the title.
-        let ornamentStyle = NSMutableParagraphStyle()
-        ornamentStyle.alignment = .center
-        ornamentStyle.paragraphSpacing = size * 1.1
-        text.append(NSAttributedString(string: "——  ❦  ——\n", attributes: [
-            .font: typography.font.uiFont(size: size * 0.75),
-            .foregroundColor: Typography.secondaryColor,
-            .paragraphStyle: ornamentStyle,
-            .kern: 1.5,
-        ]))
+            // A short, thin, solid line under the title. The dashes themselves are invisible:
+            // only their strikethrough shows, which draws one unbroken line.
+            let lineStyle = NSMutableParagraphStyle()
+            lineStyle.alignment = .center
+            lineStyle.paragraphSpacing = size * 0.9
+            text.append(NSAttributedString(string: "\u{2014}\u{2014}\u{2014}\u{2014}\n", attributes: [
+                .font: typography.font.uiFont(size: size * 0.9),
+                .foregroundColor: UIColor.clear,
+                .strikethroughStyle: NSUnderlineStyle.single.rawValue,
+                .strikethroughColor: Typography.secondaryColor,
+                .paragraphStyle: lineStyle,
+            ]))
+        }
 
         var dropCapLetter: String?
         var dropCapLocation = 0

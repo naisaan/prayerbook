@@ -1,34 +1,59 @@
 import SwiftUI
 
-/// The round glass button in the bottom corner. Shows a red bookmark when the prayer is saved.
+/// The round glass menu button in the bottom corner, with Apple Books' icon:
+/// two lines over three dots.
 struct MenuButton: View {
     let isOpen: Bool
-    let isBookmarked: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            Image(systemName: isOpen ? "xmark" : "line.3.horizontal")
-                .font(.system(size: 19, weight: .semibold))
-                .contentTransition(.symbolEffect(.replace))
-                .frame(width: 52, height: 52)
-                .contentShape(.circle)
+            ZStack {
+                if isOpen {
+                    Image(systemName: "xmark")
+                        .font(.system(size: 19, weight: .semibold))
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                } else {
+                    MenuGlyph()
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
+            }
+            .frame(width: 52, height: 52)
+            .contentShape(.circle)
         }
-        .buttonStyle(.plain)
+        .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .glassEffect(.regular.interactive(), in: .circle)
-        .overlay(alignment: .topTrailing) {
-            if isBookmarked && !isOpen {
-                Image(systemName: "bookmark.fill")
-                    .font(.system(size: 10, weight: .bold))
-                    .foregroundStyle(.white)
-                    .frame(width: 22, height: 22)
-                    .background(.red, in: .circle)
-                    .offset(x: 4, y: -4)
-                    .transition(.scale.combined(with: .opacity))
-            }
-        }
         .accessibilityLabel(isOpen ? "Close menu" : "Menu")
+    }
+}
+
+/// Two short lines above three dots.
+private struct MenuGlyph: View {
+    var body: some View {
+        VStack(spacing: 4) {
+            Capsule().frame(width: 20, height: 2.5)
+            Capsule().frame(width: 20, height: 2.5)
+            HStack(spacing: 4) {
+                ForEach(0..<3, id: \.self) { _ in
+                    Circle().frame(width: 4, height: 4)
+                }
+            }
+            .padding(.top, 1)
+        }
+    }
+}
+
+/// The red bookmark badge shown on bookmarked pages.
+struct BookmarkBadge: View {
+    var body: some View {
+        Image(systemName: "bookmark.fill")
+            .font(.system(size: 12, weight: .bold))
+            .foregroundStyle(.white)
+            .frame(width: 26, height: 26)
+            .background(.red, in: .circle)
+            .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
+            .accessibilityLabel("Bookmarked")
     }
 }
 
@@ -37,9 +62,10 @@ struct ReaderMenu: View {
     let progress: Int
     let bookmarkCount: Int
     let isBookmarked: Bool
-    let shareText: String
+    /// Nil on a section title page, where there's no prayer to share or bookmark.
+    let shareText: String?
     let onSelect: (ReaderSheet) -> Void
-    let onToggleBookmark: () -> Void
+    let onToggleBookmark: (() -> Void)?
 
     var body: some View {
         GlassEffectContainer(spacing: 8) {
@@ -61,12 +87,14 @@ struct ReaderMenu: View {
                 }
 
                 HStack(spacing: 8) {
-                    ShareLink(item: shareText) {
-                        CircleIcon(systemImage: "square.and.arrow.up")
+                    if let shareText {
+                        ShareLink(item: shareText) {
+                            CircleIcon(systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                        .glassEffect(.regular.interactive(), in: .circle)
+                        .accessibilityLabel("Share prayer")
                     }
-                    .buttonStyle(PressableButtonStyle())
-                    .glassEffect(.regular.interactive(), in: .circle)
-                    .accessibilityLabel("Share prayer")
 
                     Button { onSelect(.about) } label: {
                         CircleIcon(systemImage: "info")
@@ -75,13 +103,15 @@ struct ReaderMenu: View {
                     .glassEffect(.regular.interactive(), in: .circle)
                     .accessibilityLabel("About")
 
-                    Button(action: onToggleBookmark) {
-                        CircleIcon(systemImage: isBookmarked ? "bookmark.fill" : "bookmark")
-                            .foregroundStyle(isBookmarked ? Color.white : Color.primary)
+                    if let onToggleBookmark {
+                        Button(action: onToggleBookmark) {
+                            CircleIcon(systemImage: isBookmarked ? "bookmark.fill" : "bookmark")
+                                .foregroundStyle(isBookmarked ? Color.white : Color.primary)
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                        .glassEffect(isBookmarked ? Glass.regular.tint(.red).interactive() : Glass.regular.interactive(), in: .circle)
+                        .accessibilityLabel(isBookmarked ? "Remove bookmark" : "Bookmark this prayer")
                     }
-                    .buttonStyle(PressableButtonStyle())
-                    .glassEffect(isBookmarked ? Glass.regular.tint(.red).interactive() : Glass.regular.interactive(), in: .circle)
-                    .accessibilityLabel(isBookmarked ? "Remove bookmark" : "Bookmark this prayer")
                 }
             }
         }

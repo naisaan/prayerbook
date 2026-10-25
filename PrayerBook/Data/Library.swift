@@ -21,6 +21,8 @@ final class Library {
     private(set) var bookmarks: [Int]
     private(set) var recents: [Int]
     private(set) var recentSearches: [String]
+    /// Prayers read to their last page. Used for the "% read" progress.
+    private(set) var readPrayers: Set<Int>
     private(set) var prayersByID: [Int: Prayer] = [:]
 
     init() {
@@ -29,6 +31,7 @@ final class Library {
         bookmarks = defaults.array(forKey: Keys.bookmarks) as? [Int] ?? []
         recents = defaults.array(forKey: Keys.recents) as? [Int] ?? []
         recentSearches = defaults.stringArray(forKey: Keys.recentSearches) ?? []
+        readPrayers = Set(defaults.array(forKey: Keys.readPrayers) as? [Int] ?? [])
         reload()
     }
 
@@ -127,6 +130,34 @@ final class Library {
         recents.compactMap { prayersByID[$0] }
     }
 
+    // MARK: Reading progress
+
+    func isRead(_ prayerID: Int) -> Bool {
+        readPrayers.contains(prayerID)
+    }
+
+    func markRead(_ prayerID: Int) {
+        guard !readPrayers.contains(prayerID) else { return }
+        readPrayers.insert(prayerID)
+        defaults.set(Array(readPrayers), forKey: Keys.readPrayers)
+    }
+
+    /// Whole-number percentage of the given prayers that have been read.
+    func percentRead(of prayerIDs: [Int]) -> Int {
+        guard !prayerIDs.isEmpty else { return 0 }
+        let read = prayerIDs.filter { readPrayers.contains($0) }.count
+        let percent = Int((Double(read) / Double(prayerIDs.count) * 100).rounded())
+        // Show at least 1% as soon as one prayer is read, and 100% only when all are.
+        if read > 0 && percent == 0 { return 1 }
+        if read < prayerIDs.count && percent == 100 { return 99 }
+        return percent
+    }
+
+    func resetProgress() {
+        readPrayers = []
+        defaults.set([Int](), forKey: Keys.readPrayers)
+    }
+
     // MARK: Search
 
     /// Prayers containing every word of the query, in book order.
@@ -178,5 +209,6 @@ final class Library {
         static let bookmarks = "bookmarks"
         static let recents = "recents"
         static let recentSearches = "recentSearches"
+        static let readPrayers = "readPrayers"
     }
 }

@@ -52,6 +52,11 @@ struct Typography: Equatable {
     }
     static let secondaryColor = UIColor.secondaryLabel
 
+    /// Pure white in light mode, pure black in dark mode.
+    static let pageColor = UIColor { traits in
+        traits.userInterfaceStyle == .dark ? .black : .white
+    }
+
     var bodyFont: UIFont { font.uiFont(size: size) }
 
     /// Every body line is exactly this tall, so pages and the drop cap line up perfectly.

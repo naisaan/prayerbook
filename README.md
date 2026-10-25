@@ -1,4 +1,4 @@
-# Prayer Book
+# Bahá’í Prayer Book
 
 A prayer book for iPhone that reads like Apple Books: a real page curl, light and dark mode,
 a choice of San Francisco, New York or Helvetica, and a drop cap on each prayer. Each section's
@@ -31,7 +31,8 @@ by Arash Payan.
 ## How to use the app
 
 - Swipe or tap near the edge of the page to turn it.
-- Tap the middle of the page to show the menu button, then tap it for Contents,
+- Each section opens with its own title page.
+- Tap the middle of the page to show the menu button and the "12 of 340" page count. Tap the button for Contents,
   Bookmarks & Recents, Search Book, Themes & Settings, Languages, Share and About.
 
 ## How the code is organized

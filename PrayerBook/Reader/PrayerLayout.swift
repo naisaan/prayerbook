@@ -17,7 +17,11 @@ final class PrayerLayout {
     private let pageSize: CGSize
 
     init(prayer: Prayer, isRightToLeft: Bool, typography: Typography, pageSize: CGSize) {
-        let built = PrayerTextBuilder(typography: typography, isRightToLeft: isRightToLeft).build(prayer)
+        let built = PrayerTextBuilder(
+            typography: typography,
+            isRightToLeft: isRightToLeft,
+            showsTitle: PrayerTextBuilder.showsTitle(for: prayer)
+        ).build(prayer)
         self.pageSize = pageSize
         storage = NSTextStorage(attributedString: built.text)
         storage.addLayoutManager(layoutManager)
