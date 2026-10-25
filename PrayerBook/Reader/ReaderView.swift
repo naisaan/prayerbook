@@ -1,0 +1,240 @@
+import SwiftUI
+
+enum ReaderSheet: String, Identifiable {
+    case contents, bookmarks, search, settings, languages, about
+    var id: String { rawValue }
+}
+
+/// The main screen: the book, with a floating menu button in the corner.
+struct ReaderView: View {
+    @Environment(Library.self) private var library
+    @Environment(ReaderSettings.self) private var settings
+    @Environment(\.accessibilityReduceMotion) private var reduceMotion
+
+    @State private var book: Book?
+    @State private var currentPage = 0
+    @State private var showsControls = true
+    @State private var menuOpen = false
+    @State private var sheet: ReaderSheet?
+    @State private var bookmarkFeedback = 0
+
+    var body: some View {
+        GeometryReader { proxy in
+            let metrics = PageMetrics(
+                size: CGSize(
+                    width: proxy.size.width + proxy.safeAreaInsets.leading + proxy.safeAreaInsets.trailing,
+                    height: proxy.size.height + proxy.safeAreaInsets.top + proxy.safeAreaInsets.bottom
+                ),
+                safeArea: UIEdgeInsets(
+                    top: proxy.safeAreaInsets.top,
+                    left: proxy.safeAreaInsets.leading,
+                    bottom: proxy.safeAreaInsets.bottom,
+                    right: proxy.safeAreaInsets.trailing
+                )
+            )
+
+            ZStack(alignment: .bottomTrailing) {
+                Color(uiColor: .systemBackground)
+                    .ignoresSafeArea()
+
+                if let book, !book.pages.isEmpty {
+                    PageCurlView(
+                        book: book,
+                        currentPage: $currentPage,
+                        reduceMotion: reduceMotion,
+                        onCenterTap: toggleControls,
+                        onPageTurn: hideControls
+                    )
+                    .id(reduceMotion)
+                    .ignoresSafeArea()
+                } else {
+                    ProgressView()
+                        .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+
+                if menuOpen {
+                    // Tapping anywhere outside the menu closes it.
+                    Color.clear
+                        .contentShape(Rectangle())
+                        .ignoresSafeArea()
+                        .onTapGesture { setMenu(open: false) }
+                }
+
+                if showsControls, book != nil {
+                    controls
+                        .transition(.opacity)
+                }
+            }
+            .task(id: BookKey(metrics: metrics, typography: settings.typography, languages: library.enabledLanguageCodes)) {
+                await rebuildBook(metrics: metrics)
+            }
+        }
+        .ignoresSafeArea(.keyboard)
+        .sheet(item: $sheet) { sheet in
+            sheetContent(sheet)
+                .environment(library)
+                .environment(settings)
+        }
+        .onChange(of: currentPage) { _, page in
+            pageDidChange(page)
+        }
+        .onAppear {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
+    }
+
+    // MARK: Controls
+
+    private var controls: some View {
+        VStack(alignment: .trailing, spacing: 12) {
+            if menuOpen, let prayer = currentPrayer {
+                ReaderMenu(
+                    progress: progress,
+                    bookmarkCount: library.bookmarkedPrayers.count,
+                    isBookmarked: library.isBookmarked(prayer.id),
+                    shareText: prayer.shareText,
+                    onSelect: { choice in
+                        setMenu(open: false)
+                        sheet = choice
+                    },
+                    onToggleBookmark: {
+                        library.toggleBookmark(prayer.id)
+                        bookmarkFeedback += 1
+                    }
+                )
+                .transition(menuTransition)
+            }
+
+            MenuButton(
+                isOpen: menuOpen,
+                isBookmarked: currentPrayer.map { library.isBookmarked($0.id) } ?? false
+            ) {
+                setMenu(open: !menuOpen)
+            }
+        }
+        .padding(.trailing, 20)
+        .padding(.bottom, 4)
+    }
+
+    private var menuTransition: AnyTransition {
+        reduceMotion
+            ? .opacity
+            : .scale(scale: 0.8, anchor: .bottomTrailing).combined(with: .opacity)
+    }
+
+    private var menuAnimation: Animation {
+        reduceMotion ? .easeOut(duration: 0.2) : .spring(duration: 0.35, bounce: 0)
+    }
+
+    private func setMenu(open: Bool) {
+        withAnimation(menuAnimation) {
+            menuOpen = open
+        }
+    }
+
+    private func toggleControls() {
+        withAnimation(.easeOut(duration: 0.2)) {
+            showsControls.toggle()
+            if !showsControls { menuOpen = false }
+        }
+    }
+
+    private func hideControls() {
+        guard showsControls else { return }
+        withAnimation(.easeOut(duration: 0.2)) {
+            showsControls = false
+            menuOpen = false
+        }
+    }
+
+    // MARK: Sheets
+
+    @ViewBuilder
+    private func sheetContent(_ sheet: ReaderSheet) -> some View {
+        switch sheet {
+        case .contents:
+            ContentsView(currentPrayerID: currentPrayer?.id, progress: progress, onOpen: openPrayer)
+        case .bookmarks:
+            BookmarksView(onOpen: openPrayer)
+        case .search:
+            SearchView(onOpen: { prayerID, query in
+                closeSheetAndTurn(to: book?.page(of: prayerID, matching: query))
+            })
+        case .settings:
+            SettingsSheet()
+        case .languages:
+            LanguagesView()
+        case .about:
+            AboutView()
+        }
+    }
+
+    private func openPrayer(_ prayerID: Int) {
+        closeSheetAndTurn(to: book?.firstPage(of: prayerID))
+    }
+
+    /// Closes the sheet, then turns to the page once the sheet is out of the way.
+    private func closeSheetAndTurn(to page: Int?) {
+        sheet = nil
+        menuOpen = false
+        showsControls = false
+        guard let page else { return }
+        Task {
+            try? await Task.sleep(for: .milliseconds(350))
+            currentPage = page
+        }
+    }
+
+    // MARK: Book
+
+    private var currentPrayer: Prayer? {
+        guard let book, book.pages.indices.contains(currentPage) else { return nil }
+        return book.pages[currentPage].prayer
+    }
+
+    private var progress: Int {
+        guard let book, !book.pages.isEmpty else { return 0 }
+        return Int((Double(currentPage + 1) / Double(book.pages.count) * 100).rounded())
+    }
+
+    private func pageDidChange(_ page: Int) {
+        guard let book, book.pages.indices.contains(page) else { return }
+        let bookPage = book.pages[page]
+        settings.lastPrayerID = bookPage.prayer.id
+        settings.lastCharacterIndex = bookPage.characterRange.location
+        library.noteOpened(bookPage.prayer.id)
+    }
+
+    /// Paginates the book again, keeping the reader on the same spot in the same prayer.
+    private func rebuildBook(metrics: PageMetrics) async {
+        guard metrics.size.width > 0, metrics.size.height > 0 else { return }
+
+        let anchorPrayer: Int?
+        let anchorCharacter: Int
+        if let book, book.pages.indices.contains(currentPage) {
+            anchorPrayer = book.pages[currentPage].prayer.id
+            anchorCharacter = book.pages[currentPage].characterRange.location
+        } else {
+            anchorPrayer = settings.lastPrayerID
+            anchorCharacter = settings.lastCharacterIndex
+        }
+
+        guard let newBook = await Paginator.makeBook(
+            sections: library.sections,
+            typography: settings.typography,
+            metrics: metrics
+        ) else { return }
+
+        let page = anchorPrayer.flatMap { newBook.page(of: $0, characterIndex: anchorCharacter) } ?? 0
+        book = newBook
+        currentPage = min(page, max(newBook.pages.count - 1, 0))
+    }
+}
+
+/// Everything that requires the book to be paginated again when it changes.
+private struct BookKey: Equatable {
+    let metrics: PageMetrics
+    let typography: Typography
+    let languages: [String]
+}
