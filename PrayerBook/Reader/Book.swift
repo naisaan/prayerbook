@@ -42,6 +42,9 @@ struct BookPage {
         /// A page with just the section's name, before its first prayer.
         case sectionTitle
         case prayer(PrayerPage)
+        /// The book's opening page: its title with a verse beneath, and any page the verse
+        /// runs on to.
+        case opening(PrayerPage)
     }
 
     let sectionName: String
@@ -55,6 +58,65 @@ struct BookPage {
     }
 
     var prayer: Prayer? { prayerPage?.prayer }
+
+    /// The text on this page, for a prayer or the opening verse.
+    var textPage: PrayerPage? {
+        switch content {
+        case .prayer(let page), .opening(let page): page
+        case .sectionTitle: nil
+        }
+    }
+}
+
+/// The large title of a section's title page or of the book's opening page.
+enum TitlePage {
+    static let bookTitle = "Bahá’í Prayers"
+
+    /// The verse on the opening page, set like a prayer.
+    static let openingVerse = Prayer(
+        id: -1,
+        category: "",
+        html: "<p class=\"opening\"><span class=\"versal\">I</span>ntone, O My servant, the verses of God that have been received by thee, as intoned by them who have drawn nigh unto Him, that the sweetness of thy melody may kindle thine own soul, and attract the hearts of all men. Whoso reciteth, in the privacy of his chamber, the verses revealed by God, the scattering angels of the Almighty shall scatter abroad the fragrance of the words uttered by his mouth, and shall cause the heart of every righteous man to throb. Though he may, at first, remain unaware of its effect, yet the virtue of the grace vouchsafed unto him must needs sooner or later exercise its influence upon his soul. Thus have the mysteries of the Revelation of God been decreed by virtue of the Will of Him Who is the Source of power and wisdom.</p>",
+        title: bookTitle,
+        citation: "",
+        author: "Bahá’u’lláh",
+        languageCode: "en",
+        wordCount: 150,
+        searchText: ""
+    )
+
+    static func title(_ name: String, typography: Typography) -> NSAttributedString {
+        let style = NSMutableParagraphStyle()
+        style.alignment = .center
+        style.lineHeightMultiple = 1.05
+        return NSAttributedString(string: name, attributes: [
+            .font: typography.font.uiFont(size: typography.size * 1.9),
+            .foregroundColor: Typography.textColor,
+            .paragraphStyle: style,
+            .kern: -0.4,
+        ])
+    }
+
+    static func height(of title: NSAttributedString, width: CGFloat) -> CGFloat {
+        ceil(title.boundingRect(
+            with: CGSize(width: width, height: .greatestFiniteMagnitude),
+            options: [.usesLineFragmentOrigin, .usesFontLeading],
+            context: nil
+        ).height)
+    }
+
+    /// The space between a title and the thin line beneath it.
+    static func lineGap(_ typography: Typography) -> CGFloat { typography.size * 1.1 }
+
+    /// Where the opening page's title starts, measured from the top of the text area.
+    static func openingTitleOffset(textHeight: CGFloat) -> CGFloat { (textHeight * 0.03).rounded() }
+
+    /// How much of the opening page's text area the title and line take up, above the verse.
+    static func openingHeaderHeight(typography: Typography, metrics: PageMetrics) -> CGFloat {
+        let textRect = metrics.textRect
+        let titleHeight = height(of: title(bookTitle, typography: typography), width: textRect.width)
+        return openingTitleOffset(textHeight: textRect.height) + titleHeight + lineGap(typography) + 1 + typography.size * 2
+    }
 }
 
 /// A spot in the book that survives paginating again: a prayer and how far into it.
@@ -134,8 +196,19 @@ enum Paginator {
     /// Lays out every prayer of every section. Pauses now and then so the app stays responsive,
     /// and gives up (returns nil) if the settings change while it's working.
     static func makeBook(sections: [BookSection], typography: Typography, metrics: PageMetrics) async -> Book? {
-        // The book opens with its own title page, like the title page of a printed book.
-        var pages: [BookPage] = [BookPage(sectionName: "Bahá’í Prayers", sectionFirstPrayerID: nil, content: .sectionTitle)]
+        // The book opens with its own title page, like a printed book, with a verse beneath the title.
+        var pages: [BookPage] = []
+        let opening = PrayerLayout(
+            prayer: TitlePage.openingVerse,
+            isRightToLeft: false,
+            typography: typography,
+            pageSize: metrics.textRect.size,
+            firstPageTop: TitlePage.openingHeaderHeight(typography: typography, metrics: metrics)
+        )
+        for index in 0..<opening.pageCount {
+            let page = PrayerPage(layout: opening, pageInPrayer: index, prayer: TitlePage.openingVerse, characterRange: opening.characterRange(forPage: index))
+            pages.append(BookPage(sectionName: TitlePage.bookTitle, sectionFirstPrayerID: nil, content: .opening(page)))
+        }
         var count = 0
         for section in sections {
             let firstPrayerID = section.prayers.first?.id

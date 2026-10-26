@@ -15,14 +15,17 @@ final class PrayerLayout {
     private(set) var containers: [NSTextContainer] = []
     private(set) var dropCap: DropCap?
     private let pageSize: CGSize
+    /// Space kept free at the top of the first page, for a title drawn above the text.
+    private let firstPageTop: CGFloat
 
-    init(prayer: Prayer, isRightToLeft: Bool, typography: Typography, pageSize: CGSize) {
+    init(prayer: Prayer, isRightToLeft: Bool, typography: Typography, pageSize: CGSize, firstPageTop: CGFloat = 0) {
         let built = PrayerTextBuilder(
             typography: typography,
             isRightToLeft: isRightToLeft,
             showsTitle: PrayerTextBuilder.showsTitle(for: prayer)
         ).build(prayer)
         self.pageSize = pageSize
+        self.firstPageTop = firstPageTop
         storage = NSTextStorage(attributedString: built.text)
         storage.addLayoutManager(layoutManager)
         fillPages()
@@ -46,6 +49,9 @@ final class PrayerLayout {
             if index == containers.count {
                 let container = NSTextContainer(size: pageSize)
                 container.lineFragmentPadding = 0
+                if containers.isEmpty && firstPageTop > 0 {
+                    container.exclusionPaths = [UIBezierPath(rect: CGRect(x: 0, y: 0, width: pageSize.width, height: firstPageTop))]
+                }
                 layoutManager.addTextContainer(container)
                 containers.append(container)
             }
@@ -101,12 +107,12 @@ final class PrayerLayout {
         let letterWidth = ceil(letterString.size().width)
         let gap = (bodyFont.pointSize * 0.3).rounded()
 
-        container.exclusionPaths = [UIBezierPath(rect: CGRect(
+        container.exclusionPaths.append(UIBezierPath(rect: CGRect(
             x: 0,
             y: lineRect.minY,
             width: letterWidth + gap,
             height: lines * lineHeight - 1
-        ))]
+        )))
         dropCap = DropCap(
             containerIndex: containerIndex,
             origin: CGPoint(x: 0, y: lastBaseline - capFont.ascender),

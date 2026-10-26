@@ -23,8 +23,8 @@ final class BookPageView: UIView {
 
         let page = book.pages[index]
         isAccessibilityElement = true
-        if let prayerPage = page.prayerPage {
-            accessibilityLabel = (prayerPage.layout.storage.string as NSString).substring(with: prayerPage.characterRange)
+        if let textPage = page.textPage {
+            accessibilityLabel = (textPage.layout.storage.string as NSString).substring(with: textPage.characterRange)
         } else {
             accessibilityLabel = page.sectionName
             accessibilityTraits = .header
@@ -46,10 +46,17 @@ final class BookPageView: UIView {
 
         switch page.content {
         case .sectionTitle:
-            drawSectionTitle(page.sectionName)
+            drawTitle(page.sectionName, opening: false)
         case .prayer(let prayerPage):
             drawPrayerPage(prayerPage, origin: metrics.textRect.origin)
             drawCentered(page.sectionName, in: metrics.headerRect, font: .systemFont(ofSize: 13, weight: .medium))
+        case .opening(let prayerPage):
+            if prayerPage.pageInPrayer == 0 {
+                drawTitle(page.sectionName, opening: true)
+            } else {
+                drawCentered(page.sectionName, in: metrics.headerRect, font: .systemFont(ofSize: 13, weight: .medium))
+            }
+            drawPrayerPage(prayerPage, origin: metrics.textRect.origin)
         }
 
         let number = showsTotal ? "\(index + 1) of \(book.pages.count)" : "\(index + 1)"
@@ -86,32 +93,23 @@ final class BookPageView: UIView {
         }
     }
 
-    /// The section's name, large and centered, with a thin line beneath it.
-    private func drawSectionTitle(_ name: String) {
+    /// A title, large and centered, with a thin line beneath it. A section's title sits a little
+    /// above the middle of the page, like a chapter opening; the book's title sits near the top,
+    /// above the opening verse.
+    private func drawTitle(_ name: String, opening: Bool) {
         let typography = book.typography
         let textRect = book.metrics.textRect
 
-        let style = NSMutableParagraphStyle()
-        style.alignment = .center
-        style.lineHeightMultiple = 1.05
-        let title = NSAttributedString(string: name, attributes: [
-            .font: typography.font.uiFont(size: typography.size * 1.9),
-            .foregroundColor: Typography.textColor,
-            .paragraphStyle: style,
-            .kern: -0.4,
-        ])
-        let bounds = title.boundingRect(
-            with: CGSize(width: textRect.width, height: .greatestFiniteMagnitude),
-            options: [.usesLineFragmentOrigin, .usesFontLeading],
-            context: nil
-        )
-        // Sit a little above the middle of the page, like a chapter opening.
-        let top = textRect.minY + textRect.height * 0.38 - bounds.height / 2
-        title.draw(with: CGRect(x: textRect.minX, y: top, width: textRect.width, height: ceil(bounds.height)),
+        let title = TitlePage.title(name, typography: typography)
+        let height = TitlePage.height(of: title, width: textRect.width)
+        let top = opening
+            ? textRect.minY + TitlePage.openingTitleOffset(textHeight: textRect.height)
+            : textRect.minY + textRect.height * 0.38 - height / 2
+        title.draw(with: CGRect(x: textRect.minX, y: top, width: textRect.width, height: height),
                    options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
         let lineWidth: CGFloat = 44
-        let lineY = top + ceil(bounds.height) + typography.size * 1.1
+        let lineY = top + height + TitlePage.lineGap(typography)
         let line = UIBezierPath(rect: CGRect(x: textRect.midX - lineWidth / 2, y: lineY, width: lineWidth, height: 1))
         Typography.secondaryColor.setFill()
         line.fill()
