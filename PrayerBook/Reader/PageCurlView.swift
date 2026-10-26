@@ -56,6 +56,25 @@ final class BookPageView: UIView {
         drawCentered(number, in: metrics.footerRect, font: .monospacedDigitSystemFont(ofSize: 13, weight: .regular))
     }
 
+    /// The prayer a link at this point opens, if there's a link there.
+    func prayerLink(at point: CGPoint) -> Int? {
+        guard let prayerPage = book.pages[index].prayerPage else { return nil }
+        let layout = prayerPage.layout
+        let container = layout.containers[prayerPage.pageInPrayer]
+        let origin = book.metrics.textRect.origin
+        let local = CGPoint(x: point.x - origin.x, y: point.y - origin.y)
+        let glyph = layout.layoutManager.glyphIndex(for: local, in: container)
+        let character = layout.layoutManager.characterIndexForGlyph(at: glyph)
+        guard character < layout.storage.length,
+              let prayerID = layout.storage.attribute(.prayerLink, at: character, effectiveRange: nil) as? Int
+        else { return nil }
+        // Only count taps on the link itself, with a little room around it for a fingertip.
+        let box = layout.layoutManager.boundingRect(forGlyphRange: NSRange(location: glyph, length: 1), in: container)
+        let lineRange = layout.layoutManager.lineFragmentUsedRect(forGlyphAt: glyph, effectiveRange: nil)
+        let target = box.union(lineRange).insetBy(dx: -12, dy: -12)
+        return target.contains(local) ? prayerID : nil
+    }
+
     private func drawPrayerPage(_ prayerPage: PrayerPage, origin: CGPoint) {
         let layout = prayerPage.layout
         let glyphs = layout.layoutManager.glyphRange(for: layout.containers[prayerPage.pageInPrayer])
@@ -117,6 +136,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     private let book: Book
     private let initialShowsTotal: Bool
     var onCenterTap: (() -> Void)?
+    var onOpenPrayer: ((Int) -> Void)?
 
     init(book: Book, index: Int, showsTotal: Bool) {
         self.book = book
@@ -145,11 +165,21 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addGestureRecognizer(tap)
     }
 
-    @objc private func handleTap() {
-        onCenterTap?()
+    /// The prayer a link at this point opens, if there's a link there.
+    func prayerLink(at point: CGPoint) -> Int? {
+        (viewIfLoaded as? BookPageView)?.prayerLink(at: point)
+    }
+
+    @objc private func handleTap(_ tap: UITapGestureRecognizer) {
+        if let prayerID = prayerLink(at: tap.location(in: view)) {
+            onOpenPrayer?(prayerID)
+        } else {
+            onCenterTap?()
+        }
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if prayerLink(at: gestureRecognizer.location(in: view)) != nil { return true }
         let x = gestureRecognizer.location(in: view).x
         let width = view.bounds.width
         return x > width * 0.25 && x < width * 0.75
@@ -197,6 +227,7 @@ struct PageCurlView: UIViewControllerRepresentable {
     var reduceMotion: Bool
     var onCenterTap: () -> Void
     var onPageTurn: () -> Void
+    var onOpenPrayer: (Int) -> Void
 
     func makeCoordinator() -> Coordinator {
         Coordinator(parent: self)
@@ -217,6 +248,11 @@ struct PageCurlView: UIViewControllerRepresentable {
         controller.dataSource = context.coordinator
         controller.delegate = context.coordinator
         controller.view.backgroundColor = Typography.pageColor
+        // A tap on a link opens it instead of turning the page.
+        for case let tap as UITapGestureRecognizer in controller.gestureRecognizers {
+            tap.delegate = context.coordinator
+        }
+        context.coordinator.pageController = controller
         context.coordinator.bookID = book.id
         context.coordinator.show(currentPage, in: controller, from: nil, animated: false)
         return controller
@@ -240,9 +276,10 @@ struct PageCurlView: UIViewControllerRepresentable {
         }
     }
 
-    final class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate {
+    final class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIGestureRecognizerDelegate {
         var parent: PageCurlView
         var bookID: UUID?
+        weak var pageController: UIPageViewController?
 
         init(parent: PageCurlView) {
             self.parent = parent
@@ -257,11 +294,18 @@ struct PageCurlView: UIViewControllerRepresentable {
         func makePage(_ index: Int) -> PageViewController {
             let page = PageViewController(book: parent.book, index: clamped(index), showsTotal: parent.showsTotal)
             page.onCenterTap = { [weak self] in self?.parent.onCenterTap() }
+            page.onOpenPrayer = { [weak self] in self?.parent.onOpenPrayer($0) }
             return page
         }
 
         func makeBack(_ index: Int) -> BackPageViewController {
             BackPageViewController(book: parent.book, index: clamped(index))
+        }
+
+        /// Stops the page curl's own taps from turning the page when the tap is on a link.
+        func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+            guard let page = pageController?.viewControllers?.first as? PageViewController else { return true }
+            return page.prayerLink(at: gestureRecognizer.location(in: page.view)) == nil
         }
 
         func shownIndex(in controller: UIPageViewController) -> Int? {

@@ -17,6 +17,7 @@ struct ReaderView: View {
     @State private var menuOpen = false
     @State private var sheet: ReaderSheet?
     @State private var bookmarkFeedback = 0
+    @State private var showsSplash = true
 
     var body: some View {
         GeometryReader { proxy in
@@ -44,7 +45,11 @@ struct ReaderView: View {
                         showsTotal: showsControls,
                         reduceMotion: reduceMotion,
                         onCenterTap: toggleControls,
-                        onPageTurn: hideControls
+                        onPageTurn: hideControls,
+                        onOpenPrayer: { prayerID in
+                            hideControls()
+                            if let page = book.firstPage(of: prayerID) { currentPage = page }
+                        }
                     )
                     .id(reduceMotion)
                     .ignoresSafeArea()
@@ -64,6 +69,12 @@ struct ReaderView: View {
                 if book != nil {
                     controls
                 }
+
+                if showsSplash {
+                    SplashView()
+                        .transition(.opacity)
+                        .zIndex(1)
+                }
             }
             .task(id: BookKey(metrics: metrics, typography: settings.typography, languages: library.enabledLanguageCodes)) {
                 await rebuildBook(metrics: metrics)
@@ -80,6 +91,16 @@ struct ReaderView: View {
         }
         .onAppear {
             UIApplication.shared.isIdleTimerDisabled = true
+        }
+        .task {
+            // Show the splash screen for at least a moment, then fade it out once the book is ready.
+            try? await Task.sleep(for: .seconds(1.2))
+            while book == nil {
+                try? await Task.sleep(for: .milliseconds(100))
+            }
+            withAnimation(.easeOut(duration: 0.5)) {
+                showsSplash = false
+            }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
     }
@@ -247,6 +268,21 @@ struct ReaderView: View {
         let page = anchor.flatMap { newBook.page(for: $0) } ?? 0
         book = newBook
         currentPage = min(page, max(newBook.pages.count - 1, 0))
+    }
+}
+
+/// The gold star on black, shown while the book opens.
+private struct SplashView: View {
+    var body: some View {
+        ZStack {
+            Color.black
+            Image("Splash")
+                .resizable()
+                .scaledToFit()
+                .containerRelativeFrame(.horizontal) { width, _ in width * 0.44 }
+                .accessibilityLabel("Bahá’í Prayer Book")
+        }
+        .ignoresSafeArea()
     }
 }
 

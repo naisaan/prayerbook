@@ -134,7 +134,8 @@ enum Paginator {
     /// Lays out every prayer of every section. Pauses now and then so the app stays responsive,
     /// and gives up (returns nil) if the settings change while it's working.
     static func makeBook(sections: [BookSection], typography: Typography, metrics: PageMetrics) async -> Book? {
-        var pages: [BookPage] = []
+        // The book opens with its own title page, like the title page of a printed book.
+        var pages: [BookPage] = [BookPage(sectionName: "Bahá’í Prayers", sectionFirstPrayerID: nil, content: .sectionTitle)]
         var count = 0
         for section in sections {
             let firstPrayerID = section.prayers.first?.id

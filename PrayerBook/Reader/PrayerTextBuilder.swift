@@ -1,5 +1,10 @@
 import UIKit
 
+extension NSAttributedString.Key {
+    /// Marks text that opens another prayer when tapped. The value is that prayer's id.
+    static let prayerLink = NSAttributedString.Key("PrayerBookPrayerLink")
+}
+
 /// Turns a prayer into styled text: title, ornament, instructions, the prayer itself and its author.
 struct PrayerTextBuilder {
     let typography: Typography
@@ -14,6 +19,11 @@ struct PrayerTextBuilder {
         titledSections.contains(prayer.category)
             || prayer.title.localizedCaseInsensitiveCompare("Prayer for the Dead") == .orderedSame
     }
+
+    /// Links shown at the end of a prayer: the Tablet of Ahmad after the Long Obligatory Prayer.
+    static let shortcuts: [Int: (title: String, prayerID: Int)] = [
+        1233817157: ("Tablet of Ahmad", 1233817420),
+    ]
 
     struct Result {
         let text: NSAttributedString
@@ -89,6 +99,23 @@ struct PrayerTextBuilder {
                 .font: typography.font.uiFont(size: size * 0.95, italic: !isRightToLeft),
                 .foregroundColor: Typography.textColor,
                 .paragraphStyle: authorStyle,
+            ]))
+        }
+
+        // A link to the prayer that's often said next, under the author.
+        if let shortcut = Self.shortcuts[prayer.id] {
+            let linkStyle = NSMutableParagraphStyle()
+            linkStyle.alignment = isRightToLeft ? .left : .right
+            linkStyle.paragraphSpacingBefore = size * 0.6
+            linkStyle.paragraphSpacing = size * 0.6
+            linkStyle.baseWritingDirection = writingDirection
+            text.append(NSAttributedString(string: shortcut.title + "\n", attributes: [
+                .font: typography.font.uiFont(size: size * 0.95, weight: .semibold),
+                .foregroundColor: Typography.textColor,
+                .underlineStyle: NSUnderlineStyle.single.rawValue,
+                .underlineColor: Typography.secondaryColor,
+                .paragraphStyle: linkStyle,
+                .prayerLink: shortcut.prayerID,
             ]))
         }
 
