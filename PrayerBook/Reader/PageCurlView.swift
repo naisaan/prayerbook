@@ -173,19 +173,79 @@ final class BackPageViewController: UIViewController {
     }
 
     override func loadView() {
-        let container = UIView(frame: CGRect(origin: .zero, size: book.metrics.size))
+        let container = PageBackView(frame: CGRect(origin: .zero, size: book.metrics.size))
         container.backgroundColor = Typography.pageColor
 
         let showThrough = BookPageView(book: book, index: index, showsTotal: false)
         showThrough.frame = container.bounds
         showThrough.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         showThrough.transform = CGAffineTransform(scaleX: -1, y: 1)
-        showThrough.alpha = 0.12
+        showThrough.alpha = 0.28
         showThrough.isAccessibilityElement = false
         container.addSubview(showThrough)
 
         view = container
     }
+}
+
+/// The view behind a page's back, so the shading softener knows to leave it alone.
+final class PageBackView: UIView {}
+
+/// Apple's page curl lights the curling page with a white shine. That suits white paper, but on
+/// a black page it looks like a glare. In dark mode, while a page turns, this finds the curl's
+/// shading layers and turns them down, so the page curls like Apple Books: a dark back with its
+/// text faintly showing through.
+enum CurlShading {
+    /// How much of the shine is left in dark mode.
+    static let strength: Float = 0.12
+
+    private static let shadingWords = ["shadow", "gradient", "highlight", "shine", "shading", "gloss"]
+    private static let softenedKey = "prayerBookSoftenedOpacity"
+
+    /// Softens every shading layer inside `layer`. Returns whether `layer` holds one of our pages,
+    /// which are never touched.
+    @discardableResult
+    static func soften(_ layer: CALayer) -> Bool {
+        if let view = layer.delegate as? UIView, view is BookPageView || view is PageBackView {
+            return true
+        }
+        var holdsPage = false
+        for sublayer in layer.sublayers ?? [] where soften(sublayer) {
+            holdsPage = true
+        }
+        if !holdsPage && isShading(layer) {
+            dim(layer)
+        }
+        return holdsPage
+    }
+
+    private static func isShading(_ layer: CALayer) -> Bool {
+        if layer is CAGradientLayer { return true }
+        var names = [String(describing: type(of: layer))]
+        if let delegate = layer.delegate { names.append(String(describing: type(of: delegate))) }
+        if let name = layer.name { names.append(name) }
+        let text = names.joined(separator: " ").lowercased()
+        return shadingWords.contains { text.contains($0) }
+    }
+
+    /// Turns a layer down once. If UIKit sets its opacity again, it's turned down again.
+    private static func dim(_ layer: CALayer) {
+        if let softened = layer.value(forKey: softenedKey) as? Float, softened == layer.opacity { return }
+        layer.opacity *= strength
+        layer.setValue(layer.opacity, forKey: softenedKey)
+    }
+
+    #if DEBUG
+    /// Prints the layers of a turning page to Xcode's console, to help tune the shading.
+    static func printLayers(_ layer: CALayer, depth: Int = 0) {
+        var line = String(repeating: "  ", count: depth) + String(describing: type(of: layer))
+        if let delegate = layer.delegate { line += " (" + String(describing: type(of: delegate)) + ")" }
+        line += " opacity \(layer.opacity)"
+        if layer.contents != nil { line += " has-image" }
+        print("PageCurl: " + line)
+        for sublayer in layer.sublayers ?? [] { printLayers(sublayer, depth: depth + 1) }
+    }
+    #endif
 }
 
 /// Apple's real page curl (the same one Apple Books uses), brought into SwiftUI.
@@ -244,6 +304,14 @@ struct PageCurlView: UIViewControllerRepresentable {
         var parent: PageCurlView
         var bookID: UUID?
 
+        private weak var turningController: UIPageViewController?
+        private var shadingLink: CADisplayLink?
+        private var shadingStart: CFTimeInterval = 0
+        private var shadingStop: CFTimeInterval?
+        #if DEBUG
+        private var printedLayers = false
+        #endif
+
         init(parent: PageCurlView) {
             self.parent = parent
         }
@@ -276,7 +344,49 @@ struct PageCurlView: UIViewControllerRepresentable {
             if controller.isDoubleSided && animated {
                 controllers.append(makeBack(forward ? (previous ?? index - 1) : index))
             }
-            controller.setViewControllers(controllers, direction: forward ? .forward : .reverse, animated: animated)
+            if animated { startSoftening(in: controller) }
+            controller.setViewControllers(controllers, direction: forward ? .forward : .reverse, animated: animated) { [weak self] _ in
+                self?.stopSoftening()
+            }
+        }
+
+        // MARK: Dark mode shading
+
+        /// Softens the curl's shine on every frame while a page turns.
+        private func startSoftening(in controller: UIPageViewController) {
+            guard controller.transitionStyle == .pageCurl else { return }
+            turningController = controller
+            shadingStart = CACurrentMediaTime()
+            shadingStop = nil
+            if shadingLink == nil {
+                let link = CADisplayLink(target: self, selector: #selector(softenShading))
+                link.add(to: .main, forMode: .common)
+                shadingLink = link
+            }
+        }
+
+        private func stopSoftening() {
+            // Keep going a moment longer, while the page settles.
+            shadingStop = CACurrentMediaTime() + 0.15
+        }
+
+        @objc private func softenShading() {
+            let now = CACurrentMediaTime()
+            guard let controller = turningController,
+                  now - shadingStart < 10,
+                  shadingStop.map({ now < $0 }) ?? true else {
+                shadingLink?.invalidate()
+                shadingLink = nil
+                return
+            }
+            guard controller.traitCollection.userInterfaceStyle == .dark else { return }
+            #if DEBUG
+            if !printedLayers && now - shadingStart > 0.1 {
+                printedLayers = true
+                CurlShading.printLayers(controller.view.layer)
+            }
+            #endif
+            CurlShading.soften(controller.view.layer)
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
@@ -299,10 +409,12 @@ struct PageCurlView: UIViewControllerRepresentable {
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
+            startSoftening(in: pageViewController)
             parent.onPageTurn()
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, didFinishAnimating finished: Bool, previousViewControllers: [UIViewController], transitionCompleted completed: Bool) {
+            stopSoftening()
             guard completed, let index = shownIndex(in: pageViewController) else { return }
             parent.currentPage = index
         }
