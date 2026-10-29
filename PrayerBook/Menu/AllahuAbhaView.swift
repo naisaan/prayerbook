@@ -14,10 +14,11 @@ struct AllahuAbhaView: View {
 
     var body: some View {
         GeometryReader { proxy in
-            let diameter = min(proxy.size.width - 48, proxy.size.height * 0.55)
-            VStack(spacing: 24) {
+            let diameter = min(proxy.size.width * 0.7, proxy.size.height * 0.45)
+            // The circle sits in the middle of the screen, with the instruction above it.
+            ZStack {
                 instructionText
-                Spacer(minLength: 0)
+                    .frame(maxHeight: .infinity, alignment: .top)
                 Button(action: tap) {
                     Circle()
                         .fill(Color(uiColor: Typography.textColor))
@@ -34,7 +35,6 @@ struct AllahuAbhaView: View {
                 .accessibilityLabel("Alláh-u-Abhá counter")
                 .accessibilityValue("\(count) of \(Self.goal)")
                 .accessibilityHint(count < Self.goal ? "Double-tap to count one more" : "")
-                Spacer(minLength: 0)
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
