@@ -1469,6 +1469,64 @@
         }
       }
     },
+    "Dedications": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Widmung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dedicatoria"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dédicace"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dedica"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opdracht"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tileinkun"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Věnování"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Venovanie"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تقدیم"
+          }
+        }
+      }
+    },
     "Delete List": {
       "localizations": {
         "de": {
@@ -1701,6 +1759,64 @@
         }
       }
     },
+    "I dedicate this app to my parents Bahman and Jalal, to the Iranian Bahá’í Community, and the Italian Bahá’í Community.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ich widme diese App meinen Eltern Bahman und Jalal, der iranischen Bahá’í-Gemeinde und der italienischen Bahá’í-Gemeinde."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dedico esta app a mis padres, Bahman y Jalal, a la comunidad bahá’í de Irán y a la comunidad bahá’í de Italia."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je dédie cette app à mes parents, Bahman et Jalal, à la communauté bahá’íe d’Iran et à la communauté bahá’íe d’Italie."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dedico questa app ai miei genitori, Bahman e Jalal, alla comunità bahá’í iraniana e alla comunità bahá’í italiana."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ik draag deze app op aan mijn ouders Bahman en Jalal, aan de Iraanse bahá’í-gemeenschap en aan de Italiaanse bahá’í-gemeenschap."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ég tileinka foreldrum mínum, Bahman og Jalal, þetta forrit, og einnig íranska bahá’í-samfélaginu og ítalska bahá’í-samfélaginu."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tuto aplikaci věnuji svým rodičům Bahmanovi a Jalalovi, íránskému bahá’í společenství a italskému bahá’í společenství."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Túto aplikáciu venujem svojim rodičom Bahmanovi a Jalalovi, iránskemu bahá’í spoločenstvu a talianskemu bahá’í spoločenstvu."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "این برنامه را به پدر و مادرم، بهمن و جلال، به جامعهٔ بهائی ایران و به جامعهٔ بهائی ایتالیا تقدیم می‌کنم."
+          }
+        }
+      }
+    },
     "In this book": {
       "localizations": {
         "de": {
@@ -1871,6 +1987,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "متن بزرگ‌تر"
+          }
+        }
+      }
+    },
+    "Licensed under the GNU General Public License, version 3 or later.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lizenziert unter der GNU General Public License, Version 3 oder neuer."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Con licencia GNU General Public License, versión 3 o posterior."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sous licence GNU General Public License, version 3 ou ultérieure."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Distribuita con licenza GNU General Public License, versione 3 o successiva."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gelicentieerd onder de GNU General Public License, versie 3 of later."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gefið út með GNU General Public License, útgáfu 3 eða síðari."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licencováno pod GNU General Public License, verze 3 nebo novější."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Licencované pod GNU General Public License, verzia 3 alebo novšia."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "منتشرشده با پروانهٔ عمومی همگانی گنو (GPL)، نسخهٔ ۳ یا بالاتر."
           }
         }
       }
@@ -2513,6 +2687,64 @@
         }
       }
     },
+    "Privacy Policy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Datenschutzerklärung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Política de privacidad"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Politique de confidentialité"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Informativa sulla privacy"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Privacybeleid"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Persónuverndarstefna"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zásady ochrany osobních údajů"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zásady ochrany osobných údajov"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سیاست حریم خصوصی"
+          }
+        }
+      }
+    },
     "Read": {
       "localizations": {
         "de": {
@@ -2567,6 +2799,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "خوانده شده"
+          }
+        }
+      }
+    },
+    "Read the full Privacy Policy": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vollständige Datenschutzerklärung lesen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leer la política de privacidad completa"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lire la politique de confidentialité complète"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Leggi l’informativa completa sulla privacy"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lees het volledige privacybeleid"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lesa alla persónuverndarstefnuna"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přečíst celé zásady ochrany osobních údajů"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prečítať celé zásady ochrany osobných údajov"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "خواندن متن کامل سیاست حریم خصوصی"
           }
         }
       }
@@ -3499,60 +3789,176 @@
         }
       }
     },
-    "This interface was Vibe-Coded and made with love by [Naisaan Nadimi](https://naisaannadimi.net)": {
+    "This app does not collect, store, or share any personal information. It has no accounts, ads, analytics, or tracking. Your bookmarks, reading progress, and settings are saved only on your device and are never sent anywhere.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Diese Oberfläche wurde mit Vibe-Coding und viel Liebe von [Naisaan Nadimi](https://naisaannadimi.net) gestaltet"
+            "value": "Diese App erfasst, speichert und teilt keine persönlichen Daten. Sie hat keine Konten, keine Werbung, keine Analysen und kein Tracking. Deine Lesezeichen, dein Lesefortschritt und deine Einstellungen werden nur auf deinem Gerät gespeichert und nirgendwohin gesendet."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Esta interfaz fue creada con vibe coding y con mucho cariño por [Naisaan Nadimi](https://naisaannadimi.net)"
+            "value": "Esta app no recopila, almacena ni comparte ninguna información personal. No tiene cuentas, anuncios, análisis ni seguimiento. Tus marcadores, tu progreso de lectura y tus ajustes se guardan solo en tu dispositivo y nunca se envían a ningún sitio."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cette interface a été créée en vibe coding, avec amour, par [Naisaan Nadimi](https://naisaannadimi.net)"
+            "value": "Cette app ne collecte, ne stocke et ne partage aucune donnée personnelle. Elle n’a ni compte, ni publicité, ni statistiques, ni suivi. Vos signets, votre progression de lecture et vos réglages sont enregistrés uniquement sur votre appareil et ne sont jamais envoyés ailleurs."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Questa interfaccia è stata creata in vibe coding, con amore, da [Naisaan Nadimi](https://naisaannadimi.net)"
+            "value": "Questa app non raccoglie, conserva né condivide alcuna informazione personale. Non ha account, pubblicità, statistiche né tracciamento. I tuoi segnalibri, i progressi di lettura e le impostazioni restano solo sul tuo dispositivo e non vengono mai inviati altrove."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Deze interface is met vibe-coding en met liefde gemaakt door [Naisaan Nadimi](https://naisaannadimi.net)"
+            "value": "Deze app verzamelt, bewaart en deelt geen persoonlijke gegevens. Er zijn geen accounts, advertenties, analyses of tracking. Je bladwijzers, leesvoortgang en instellingen worden alleen op je apparaat bewaard en nooit ergens naartoe gestuurd."
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Þetta viðmót var vibe-kóðað og gert af ást af [Naisaan Nadimi](https://naisaannadimi.net)"
+            "value": "Þetta forrit safnar hvorki, geymir né deilir neinum persónuupplýsingum. Það hefur enga aðganga, auglýsingar, greiningar eða rakningu. Bókamerki þín, lestrarframvinda og stillingar eru aðeins vistuð í tækinu þínu og aldrei send neitt."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto rozhraní vzniklo vibe-codingem a s láskou od [Naisaana Nadimiho](https://naisaannadimi.net)"
+            "value": "Tato aplikace neshromažďuje, neukládá ani nesdílí žádné osobní údaje. Nemá účty, reklamy, analytiku ani sledování. Vaše záložky, postup čtení a nastavení se ukládají jen ve vašem zařízení a nikam se neodesílají."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Toto rozhranie vzniklo vibe-codingom a s láskou od [Naisaana Nadimiho](https://naisaannadimi.net)"
+            "value": "Táto aplikácia nezhromažďuje, neukladá ani nezdieľa žiadne osobné údaje. Nemá účty, reklamy, analytiku ani sledovanie. Vaše záložky, postup čítania a nastavenia sa ukladajú iba vo vašom zariadení a nikam sa neodosielajú."
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "این رابط کاربری با «وایب‌کدینگ» و با عشق ساخته شده است، به دست [نیسان ندیمی](https://naisaannadimi.net)"
+            "value": "این برنامه هیچ اطلاعات شخصی‌ای را جمع‌آوری، ذخیره یا هم‌رسانی نمی‌کند. حساب کاربری، تبلیغات، تحلیل آماری یا ردیابی ندارد. نشانک‌ها، پیشرفت خواندن و تنظیمات شما فقط روی دستگاه خودتان ذخیره می‌شوند و به هیچ جا فرستاده نمی‌شوند."
+          }
+        }
+      }
+    },
+    "This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese App wurde mit Vibe-Coding und mit Liebe von [Naisaan Nadimi](https://naisaannadimi.net) gemacht"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta app fue creada con vibe coding y con amor por [Naisaan Nadimi](https://naisaannadimi.net)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette app a été créée en vibe coding, avec amour, par [Naisaan Nadimi](https://naisaannadimi.net)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa app è stata creata in vibe coding, con amore, da [Naisaan Nadimi](https://naisaannadimi.net)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze app is met vibe-coding en met liefde gemaakt door [Naisaan Nadimi](https://naisaannadimi.net)"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Þetta forrit var vibe-kóðað og gert af ást af [Naisaan Nadimi](https://naisaannadimi.net)"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato aplikace vznikla vibe-codingem a s láskou od [Naisaana Nadimiho](https://naisaannadimi.net)"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Táto aplikácia vznikla vibe-codingom a s láskou od [Naisaana Nadimiho](https://naisaannadimi.net)"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "این برنامه با «وایب‌کدینگ» و با عشق ساخته شده است، به دست [نیسان ندیمی](https://naisaannadimi.net)"
+          }
+        }
+      }
+    },
+    "This app’s source code": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quellcode dieser App"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Código fuente de esta app"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Code source de cette app"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Codice sorgente di questa app"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Broncode van deze app"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Frumkóði þessa forrits"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdrojový kód této aplikace"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zdrojový kód tejto aplikácie"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "کد منبع این برنامه"
           }
         }
       }

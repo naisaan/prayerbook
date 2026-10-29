@@ -24,14 +24,27 @@ struct AboutView: View {
 
                 Section("Credits") {
                     Text("Based on the Source Code of the Original Prayer Book app by Arash Payan")
-                    Text("This interface was Vibe-Coded and made with love by [Naisaan Nadimi](https://naisaannadimi.net)")
+                    Text("This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)")
                     Link("Original Prayer Book source code", destination: URL(string: "https://github.com/arashpayan/prayer-book")!)
                     Link("Arash Payan’s Prayer Book Website", destination: URL(string: "https://www.prayerbook.app/")!)
+                    Link("This app’s source code", destination: URL(string: "https://github.com/naisaan/prayerbook")!)
+                    Text("Licensed under the GNU General Public License, version 3 or later.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+
+                Section("Dedications") {
+                    Text("I dedicate this app to my parents Bahman and Jalal, to the Iranian Bahá’í Community, and the Italian Bahá’í Community.")
                 }
 
                 Section("Sources") {
                     Text("All Bahá’í sacred writings copyright Bahá’í International Community.")
                     Link("Bahá’í Reference Library", destination: URL(string: "https://www.bahai.org/library/authoritative-texts/prayers/")!)
+                }
+
+                Section("Privacy Policy") {
+                    Text("This app does not collect, store, or share any personal information. It has no accounts, ads, analytics, or tracking. Your bookmarks, reading progress, and settings are saved only on your device and are never sent anywhere.")
+                    Link("Read the full Privacy Policy", destination: URL(string: "https://github.com/naisaan/prayerbook/blob/main/PRIVACY.md")!)
                 }
             }
             .navigationTitle("About")

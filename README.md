@@ -44,3 +44,9 @@ by Arash Payan.
 | `PrayerBook/Reader` | Pages, typography, the drop cap and the page curl |
 | `PrayerBook/Menu` | The floating menu and its screens |
 | `PrayerBook/Resources` | `pbdb.db`, the prayer database from the original app |
+
+## License
+
+This app is based on the [original Prayer Book app](https://github.com/arashpayan/prayer-book) by Arash Payan, which is licensed under the GPLv3 or later. This app is released under the same license: the GNU General Public License, version 3 or later. See [LICENSE](LICENSE).
+
+Privacy Policy: [PRIVACY.md](PRIVACY.md)
