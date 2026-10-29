@@ -10,6 +10,7 @@ struct ContentsView: View {
     let onOpen: (Int) -> Void
 
     @State private var confirmingReset = false
+    @State private var showsBookmarks = false
 
     var body: some View {
         NavigationStack {
@@ -47,6 +48,27 @@ struct ContentsView: View {
                             .tint(.primary)
                         }
                         NavigationLink("Alláh-u-Abhá (95 Times)", value: ContentsDestination.allahuAbha)
+                    }
+                }
+                if !library.bookmarkedPrayers.isEmpty {
+                    Section {
+                        DisclosureGroup(isExpanded: $showsBookmarks) {
+                            ForEach(library.bookmarkedPrayers) { prayer in
+                                Button { onOpen(prayer.id) } label: {
+                                    PrayerRow(prayer: prayer, isCurrent: prayer.id == currentPrayerID)
+                                }
+                                .tint(.primary)
+                            }
+                            .onDelete { library.removeBookmarks(at: $0) }
+                        } label: {
+                            HStack {
+                                Label("Bookmarks", systemImage: "bookmark")
+                                Spacer()
+                                Text("\(library.bookmarkedPrayers.count)")
+                                    .monospacedDigit()
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
                     }
                 }
                 ForEach(library.enabledLanguages) { language in
