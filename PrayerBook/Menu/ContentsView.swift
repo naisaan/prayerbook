@@ -10,7 +10,10 @@ struct ContentsView: View {
     let onOpen: (Int) -> Void
 
     @State private var confirmingReset = false
-    @State private var showsBookmarks = false
+    @State private var expandedBookmarks: Set<String> = []
+    @State private var renamingList: BookmarkList?
+    @State private var renameText = ""
+    @State private var deletingList: BookmarkList?
 
     var body: some View {
         NavigationStack {
@@ -52,26 +55,35 @@ struct ContentsView: View {
                 }
                 if !library.bookmarkedPrayers.isEmpty {
                     Section {
-                        DisclosureGroup(isExpanded: $showsBookmarks) {
-                            ForEach(library.bookmarkedPrayers) { prayer in
-                                Button { onOpen(prayer.id) } label: {
-                                    PrayerRow(prayer: prayer, isCurrent: prayer.id == currentPrayerID)
-                                }
-                                .tint(.primary)
+                        BookmarkGroup(
+                            name: "Bookmarks",
+                            color: .red,
+                            prayers: library.bookmarkedPrayers,
+                            currentPrayerID: currentPrayerID,
+                            isExpanded: expansion("bookmarks"),
+                            onOpen: onOpen,
+                            onDelete: { library.removeBookmarks(at: $0) }
+                        )
+                    }
+                }
+                ForEach(library.bookmarkLists) { list in
+                    Section {
+                        BookmarkGroup(
+                            name: list.name,
+                            color: list.color,
+                            prayers: library.prayers(in: list),
+                            currentPrayerID: currentPrayerID,
+                            isExpanded: expansion(list.id.uuidString),
+                            onOpen: onOpen,
+                            onDelete: { library.removePrayers(at: $0, from: list) }
+                        )
+                        .contextMenu {
+                            Button("Rename", systemImage: "pencil") {
+                                renameText = list.name
+                                renamingList = list
                             }
-                            .onDelete { library.removeBookmarks(at: $0) }
-                        } label: {
-                            HStack {
-                                Label {
-                                    Text("Bookmarks")
-                                } icon: {
-                                    BookmarkBadge(size: 28)
-                                        .accessibilityHidden(true)
-                                }
-                                Spacer()
-                                Text("\(library.bookmarkedPrayers.count)")
-                                    .monospacedDigit()
-                                    .foregroundStyle(.secondary)
+                            Button("Delete List", systemImage: "trash", role: .destructive) {
+                                deletingList = list
                             }
                         }
                     }
@@ -110,6 +122,24 @@ struct ContentsView: View {
             .navigationDestination(for: BookSection.self) { section in
                 SectionPrayersView(section: section, currentPrayerID: currentPrayerID, onOpen: onOpen)
             }
+            .alert("Rename List", isPresented: isPresenting($renamingList)) {
+                TextField("Name", text: $renameText)
+                Button("Cancel", role: .cancel) {}
+                Button("Rename") {
+                    if let renamingList { library.renameBookmarkList(renamingList.id, to: renameText) }
+                }
+            }
+            .confirmationDialog(
+                "Delete “\(deletingList?.name ?? "")”?",
+                isPresented: isPresenting($deletingList),
+                titleVisibility: .visible
+            ) {
+                Button("Delete List", role: .destructive) {
+                    if let deletingList { library.deleteBookmarkList(deletingList.id) }
+                }
+            } message: {
+                Text("The prayers stay in the book; only this list is removed.")
+            }
             .navigationDestination(for: ContentsDestination.self) { _ in
                 AllahuAbhaView()
             }
@@ -121,6 +151,19 @@ struct ContentsView: View {
         }
     }
 
+    private func expansion(_ key: String) -> Binding<Bool> {
+        Binding(
+            get: { expandedBookmarks.contains(key) },
+            set: { isOn in
+                if isOn { expandedBookmarks.insert(key) } else { expandedBookmarks.remove(key) }
+            }
+        )
+    }
+
+    private func isPresenting(_ item: Binding<BookmarkList?>) -> Binding<Bool> {
+        Binding(get: { item.wrappedValue != nil }, set: { if !$0 { item.wrappedValue = nil } })
+    }
+
     /// The English obligatory prayers, pinned to the top with the Alláh-u-Abhá counter.
     private var obligatory: BookSection? {
         library.sections.first { $0.language.code == "en" && $0.name == "Obligatory Prayers" }
@@ -129,6 +172,47 @@ struct ContentsView: View {
 
 private enum ContentsDestination: Hashable {
     case allahuAbha
+}
+
+/// A bookmark list that opens on tap to show its prayers.
+private struct BookmarkGroup: View {
+    let name: String
+    let color: BookmarkColor
+    let prayers: [Prayer]
+    let currentPrayerID: Int?
+    @Binding var isExpanded: Bool
+    let onOpen: (Int) -> Void
+    let onDelete: (IndexSet) -> Void
+
+    var body: some View {
+        DisclosureGroup(isExpanded: $isExpanded) {
+            if prayers.isEmpty {
+                Text("Tap this list’s bookmark button in the menu while reading to add a prayer.")
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+            }
+            ForEach(prayers) { prayer in
+                Button { onOpen(prayer.id) } label: {
+                    PrayerRow(prayer: prayer, isCurrent: prayer.id == currentPrayerID)
+                }
+                .tint(.primary)
+            }
+            .onDelete(perform: onDelete)
+        } label: {
+            HStack {
+                Label {
+                    Text(name)
+                } icon: {
+                    BookmarkBadge(size: 28, color: color)
+                        .accessibilityHidden(true)
+                }
+                Spacer()
+                Text("\(prayers.count)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
+            }
+        }
+    }
 }
 
 private struct SectionPrayersView: View {

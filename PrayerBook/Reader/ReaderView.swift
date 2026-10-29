@@ -17,6 +17,8 @@ struct ReaderView: View {
     @State private var menuOpen = false
     @State private var sheet: ReaderSheet?
     @State private var bookmarkFeedback = 0
+    @State private var namingList = false
+    @State private var newListName = ""
     @State private var showsSplash = true
 
     var body: some View {
@@ -103,6 +105,13 @@ struct ReaderView: View {
             }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
+        .alert("New Bookmark List", isPresented: $namingList) {
+            TextField("Name", text: $newListName)
+            Button("Cancel", role: .cancel) {}
+            Button("Add") { library.addBookmarkList(named: newListName) }
+        } message: {
+            Text("What would you like to call this list?")
+        }
     }
 
     // MARK: Controls
@@ -119,7 +128,17 @@ struct ReaderView: View {
                         setMenu(open: false)
                         sheet = choice
                     },
-                    onToggleBookmark: toggleBookmarkAction
+                    onToggleBookmark: toggleBookmarkAction,
+                    currentPrayerID: toggleBookmarkAction == nil ? nil : currentPrayer?.id,
+                    onToggleList: { listID in
+                        guard let prayer = currentPrayer else { return }
+                        library.toggleBookmark(prayer.id, in: listID)
+                        bookmarkFeedback += 1
+                    },
+                    onAddList: {
+                        newListName = ""
+                        namingList = true
+                    }
                 )
                 .transition(menuTransition)
             }
@@ -139,20 +158,20 @@ struct ReaderView: View {
                 .opacity(showsControls ? 1 : 0)
                 .allowsHitTesting(showsControls)
                 .overlay(alignment: .topTrailing) {
-                    if isCurrentBookmarked && showsControls && !menuOpen {
-                        BookmarkBadge()
+                    if let currentBookmarkColor, showsControls && !menuOpen {
+                        BookmarkBadge(color: currentBookmarkColor)
                             .offset(x: 6, y: -6)
                             .allowsHitTesting(false)
                             .transition(.scale(scale: 0.5).combined(with: .opacity))
                     }
                 }
-                if isCurrentBookmarked && !showsControls {
-                    BookmarkBadge(size: 52)
+                if let currentBookmarkColor, !showsControls {
+                    BookmarkBadge(size: 52, color: currentBookmarkColor)
                         .onTapGesture(perform: toggleControls)
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
             }
-            .animation(.spring(duration: 0.3, bounce: 0), value: isCurrentBookmarked)
+            .animation(.spring(duration: 0.3, bounce: 0), value: currentBookmarkColor)
             .animation(.spring(duration: 0.3, bounce: 0), value: showsControls)
         }
         .padding(.trailing, 20)
@@ -166,6 +185,11 @@ struct ReaderView: View {
             library.toggleBookmark(prayer.id)
             bookmarkFeedback += 1
         }
+    }
+
+    /// The color of the badge on this page, if the prayer is in any bookmark list.
+    private var currentBookmarkColor: BookmarkColor? {
+        currentPrayer.flatMap { library.bookmarkColor(for: $0.id) }
     }
 
     private var isCurrentBookmarked: Bool {

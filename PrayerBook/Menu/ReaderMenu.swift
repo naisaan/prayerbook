@@ -44,16 +44,28 @@ private struct MenuGlyph: View {
     }
 }
 
-/// The red bookmark badge shown on bookmarked pages.
+extension BookmarkColor {
+    var color: Color {
+        switch self {
+        case .red: .red
+        case .blue: .blue
+        case .green: .green
+        case .purple: .purple
+        }
+    }
+}
+
+/// The bookmark badge shown on bookmarked pages, in the color of the prayer's bookmark list.
 struct BookmarkBadge: View {
     var size: CGFloat = 26
+    var color: BookmarkColor = .red
 
     var body: some View {
         Image(systemName: "bookmark.fill")
             .font(.system(size: size * 0.46, weight: .bold))
             .foregroundStyle(.white)
             .frame(width: size, height: size)
-            .background(.red, in: .circle)
+            .background(color.color, in: .circle)
             .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
             .accessibilityLabel("Bookmarked")
     }
@@ -61,6 +73,8 @@ struct BookmarkBadge: View {
 
 /// The stack of glass buttons that grows out of the menu button, like Apple Books.
 struct ReaderMenu: View {
+    @Environment(Library.self) private var library
+
     let progress: Int
     let bookmarkCount: Int
     let isBookmarked: Bool
@@ -68,6 +82,10 @@ struct ReaderMenu: View {
     let shareText: String?
     let onSelect: (ReaderSheet) -> Void
     let onToggleBookmark: (() -> Void)?
+    /// Nil on a section title page, like `onToggleBookmark`.
+    let currentPrayerID: Int?
+    let onToggleList: (UUID) -> Void
+    let onAddList: () -> Void
 
     var body: some View {
         GlassEffectContainer(spacing: 8) {
@@ -89,22 +107,29 @@ struct ReaderMenu: View {
                 }
 
                 HStack(spacing: 8) {
-                    // Its job comes later; for now it's only a placeholder.
-                    Button {} label: {
-                        CircleIcon(systemImage: "plus")
-                    }
-                    .buttonStyle(PressableButtonStyle())
-                    .glassEffect(.regular.interactive(), in: .circle)
-                    .accessibilityLabel("Add")
-
-                    if let onToggleBookmark {
-                        Button(action: onToggleBookmark) {
-                            CircleIcon(systemImage: isBookmarked ? "bookmark.fill" : "bookmark")
-                                .foregroundStyle(isBookmarked ? Color.white : Color.primary)
+                    // The + makes a new bookmark list. It stays on the outside, and each new
+                    // list's button appears between it and the older ones.
+                    if library.canAddBookmarkList {
+                        Button(action: onAddList) {
+                            CircleIcon(systemImage: "plus")
                         }
                         .buttonStyle(PressableButtonStyle())
-                        .glassEffect(isBookmarked ? Glass.regular.tint(.red).interactive() : Glass.regular.interactive(), in: .circle)
-                        .accessibilityLabel(isBookmarked ? "Remove bookmark" : "Bookmark this prayer")
+                        .glassEffect(.regular.interactive(), in: .circle)
+                        .accessibilityLabel("New bookmark list")
+                    }
+
+                    if let onToggleBookmark, let currentPrayerID {
+                        // Once there's more than one list, each button shows its color even when off.
+                        let showsColors = !library.bookmarkLists.isEmpty
+                        ForEach(Array(library.bookmarkLists.reversed())) { list in
+                            BookmarkToggle(
+                                color: list.color,
+                                isOn: list.prayerIDs.contains(currentPrayerID),
+                                showsColor: true,
+                                name: list.name
+                            ) { onToggleList(list.id) }
+                        }
+                        BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: "Bookmarks", action: onToggleBookmark)
                     }
 
                     if let shareText {
@@ -148,6 +173,25 @@ private struct MenuRow: View {
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .glassEffect(.regular.interactive(), in: .capsule)
+    }
+}
+
+/// A bookmark button for one list: filled with the list's color when the prayer is in it.
+private struct BookmarkToggle: View {
+    let color: BookmarkColor
+    let isOn: Bool
+    let showsColor: Bool
+    let name: String
+    let action: () -> Void
+
+    var body: some View {
+        Button(action: action) {
+            CircleIcon(systemImage: isOn ? "bookmark.fill" : "bookmark")
+                .foregroundStyle(isOn ? Color.white : showsColor ? color.color : Color.primary)
+        }
+        .buttonStyle(PressableButtonStyle())
+        .glassEffect(isOn ? Glass.regular.tint(color.color).interactive() : Glass.regular.interactive(), in: .circle)
+        .accessibilityLabel(isOn ? "Remove from \(name)" : "Add to \(name)")
     }
 }
 

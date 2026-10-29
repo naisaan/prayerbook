@@ -8,6 +8,20 @@ struct SearchResult: Identifiable {
     var id: Int { prayer.id }
 }
 
+/// The color of a bookmark list. The original list is red; the reader's own lists take blue,
+/// green and purple, in that order.
+enum BookmarkColor: String, Codable, CaseIterable {
+    case red, blue, green, purple
+}
+
+/// One of the reader's own bookmark lists, made with the + button in the menu.
+struct BookmarkList: Identifiable, Codable, Hashable {
+    let id: UUID
+    var name: String
+    var color: BookmarkColor
+    var prayerIDs: [Int]
+}
+
 /// Everything the app knows about the prayers: which languages are on, the sections in book
 /// order, bookmarks, recently read prayers and recent searches.
 @Observable
@@ -19,6 +33,8 @@ final class Library {
     /// The whole book: sections grouped by language, prayers shortest to longest.
     private(set) var sections: [BookSection] = []
     private(set) var bookmarks: [Int]
+    /// The reader's own bookmark lists, oldest first. There can be up to three.
+    private(set) var bookmarkLists: [BookmarkList]
     private(set) var recents: [Int]
     private(set) var recentSearches: [String]
     /// Prayers read to their last page. Used for the "% read" progress.
@@ -29,6 +45,8 @@ final class Library {
         let defaults = UserDefaults.standard
         enabledLanguageCodes = defaults.stringArray(forKey: Keys.languages) ?? [Language.english.code]
         bookmarks = defaults.array(forKey: Keys.bookmarks) as? [Int] ?? []
+        bookmarkLists = defaults.data(forKey: Keys.bookmarkLists)
+            .flatMap { try? JSONDecoder().decode([BookmarkList].self, from: $0) } ?? []
         recents = defaults.array(forKey: Keys.recents) as? [Int] ?? []
         recentSearches = defaults.stringArray(forKey: Keys.recentSearches) ?? []
         readPrayers = Set(defaults.array(forKey: Keys.readPrayers) as? [Int] ?? [])
@@ -115,6 +133,72 @@ final class Library {
     /// Bookmarked prayers in the languages that are turned on.
     var bookmarkedPrayers: [Prayer] {
         bookmarks.compactMap { prayersByID[$0] }
+    }
+
+    // MARK: Bookmark lists
+
+    static let maxBookmarkLists = 3
+
+    var canAddBookmarkList: Bool { bookmarkLists.count < Self.maxBookmarkLists }
+
+    /// Makes a new list with the next free color.
+    func addBookmarkList(named name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let used = Set(bookmarkLists.map(\.color))
+        guard canAddBookmarkList, !trimmed.isEmpty,
+              let color = [BookmarkColor.blue, .green, .purple].first(where: { !used.contains($0) })
+        else { return }
+        bookmarkLists.append(BookmarkList(id: UUID(), name: trimmed, color: color, prayerIDs: []))
+        saveBookmarkLists()
+    }
+
+    func renameBookmarkList(_ listID: UUID, to name: String) {
+        let trimmed = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty, let index = bookmarkLists.firstIndex(where: { $0.id == listID }) else { return }
+        bookmarkLists[index].name = trimmed
+        saveBookmarkLists()
+    }
+
+    func deleteBookmarkList(_ listID: UUID) {
+        bookmarkLists.removeAll { $0.id == listID }
+        saveBookmarkLists()
+    }
+
+    func isBookmarked(_ prayerID: Int, in listID: UUID) -> Bool {
+        bookmarkLists.first { $0.id == listID }?.prayerIDs.contains(prayerID) ?? false
+    }
+
+    func toggleBookmark(_ prayerID: Int, in listID: UUID) {
+        guard let index = bookmarkLists.firstIndex(where: { $0.id == listID }) else { return }
+        if let position = bookmarkLists[index].prayerIDs.firstIndex(of: prayerID) {
+            bookmarkLists[index].prayerIDs.remove(at: position)
+        } else {
+            bookmarkLists[index].prayerIDs.insert(prayerID, at: 0)
+        }
+        saveBookmarkLists()
+    }
+
+    /// The prayers in a list, in the languages that are turned on.
+    func prayers(in list: BookmarkList) -> [Prayer] {
+        list.prayerIDs.compactMap { prayersByID[$0] }
+    }
+
+    func removePrayers(at offsets: IndexSet, from list: BookmarkList) {
+        let visible = prayers(in: list).map(\.id)
+        let removed = Set(offsets.map { visible[$0] })
+        guard let index = bookmarkLists.firstIndex(where: { $0.id == list.id }) else { return }
+        bookmarkLists[index].prayerIDs.removeAll { removed.contains($0) }
+        saveBookmarkLists()
+    }
+
+    /// The color of the first list holding this prayer (red first), for the badge on its page.
+    func bookmarkColor(for prayerID: Int) -> BookmarkColor? {
+        if isBookmarked(prayerID) { return .red }
+        return bookmarkLists.first { $0.prayerIDs.contains(prayerID) }?.color
+    }
+
+    private func saveBookmarkLists() {
+        defaults.set(try? JSONEncoder().encode(bookmarkLists), forKey: Keys.bookmarkLists)
     }
 
     // MARK: Recents
@@ -213,6 +297,7 @@ final class Library {
     private enum Keys {
         static let languages = "enabledLanguages"
         static let bookmarks = "bookmarks"
+        static let bookmarkLists = "bookmarkLists"
         static let recents = "recents"
         static let recentSearches = "recentSearches"
         static let readPrayers = "readPrayers"
