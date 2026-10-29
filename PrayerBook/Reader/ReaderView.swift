@@ -129,7 +129,12 @@ struct ReaderView: View {
             // the menu button (with a small badge) when tapped.
             ZStack {
                 MenuButton(isOpen: menuOpen) {
-                    setMenu(open: !menuOpen)
+                    if menuOpen {
+                        setMenu(open: false)
+                        sheet = .about
+                    } else {
+                        setMenu(open: true)
+                    }
                 }
                 .opacity(showsControls ? 1 : 0)
                 .allowsHitTesting(showsControls)

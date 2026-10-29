@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The round glass menu button in the bottom corner, with Apple Books' icon:
-/// two lines over three dots.
+/// two lines over three dots. While the menu is open it becomes the About button.
 struct MenuButton: View {
     let isOpen: Bool
     let action: () -> Void
@@ -10,7 +10,7 @@ struct MenuButton: View {
         Button(action: action) {
             ZStack {
                 if isOpen {
-                    Image(systemName: "xmark")
+                    Image(systemName: "info")
                         .font(.system(size: 19, weight: .semibold))
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                 } else {
@@ -24,7 +24,7 @@ struct MenuButton: View {
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .glassEffect(.regular.interactive(), in: .circle)
-        .accessibilityLabel(isOpen ? "Close menu" : "Menu")
+        .accessibilityLabel(isOpen ? "About" : "Menu")
     }
 }
 
@@ -89,21 +89,13 @@ struct ReaderMenu: View {
                 }
 
                 HStack(spacing: 8) {
-                    if let shareText {
-                        ShareLink(item: shareText) {
-                            CircleIcon(systemImage: "square.and.arrow.up")
-                        }
-                        .buttonStyle(PressableButtonStyle())
-                        .glassEffect(.regular.interactive(), in: .circle)
-                        .accessibilityLabel("Share prayer")
-                    }
-
-                    Button { onSelect(.about) } label: {
-                        CircleIcon(systemImage: "info")
+                    // Its job comes later; for now it's only a placeholder.
+                    Button {} label: {
+                        CircleIcon(systemImage: "plus")
                     }
                     .buttonStyle(PressableButtonStyle())
                     .glassEffect(.regular.interactive(), in: .circle)
-                    .accessibilityLabel("About")
+                    .accessibilityLabel("Add")
 
                     if let onToggleBookmark {
                         Button(action: onToggleBookmark) {
@@ -113,6 +105,15 @@ struct ReaderMenu: View {
                         .buttonStyle(PressableButtonStyle())
                         .glassEffect(isBookmarked ? Glass.regular.tint(.red).interactive() : Glass.regular.interactive(), in: .circle)
                         .accessibilityLabel(isBookmarked ? "Remove bookmark" : "Bookmark this prayer")
+                    }
+
+                    if let shareText {
+                        ShareLink(item: shareText) {
+                            CircleIcon(systemImage: "square.and.arrow.up")
+                        }
+                        .buttonStyle(PressableButtonStyle())
+                        .glassEffect(.regular.interactive(), in: .circle)
+                        .accessibilityLabel("Share prayer")
                     }
                 }
             }
