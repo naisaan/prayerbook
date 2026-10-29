@@ -10,7 +10,6 @@ struct ReaderView: View {
     @Environment(Library.self) private var library
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.layoutDirection) private var layoutDirection
 
     @State private var book: Book?
     @State private var currentPage = 0
@@ -269,10 +268,10 @@ struct ReaderView: View {
 
     // MARK: Book
 
-    /// The book turns like a Persian book (pages in reverse order) when the iPhone or app is set to
-    /// Persian, or when Persian is the only language turned on.
+    /// The book turns like a Persian book (pages in reverse order) only when Persian is the only
+    /// language turned on. With any other language on too, it opens the Western way.
     private var bookIsRightToLeft: Bool {
-        layoutDirection == .rightToLeft || library.enabledLanguageCodes == ["fa"]
+        library.enabledLanguageCodes == ["fa"]
     }
 
     private var currentPrayer: Prayer? {
