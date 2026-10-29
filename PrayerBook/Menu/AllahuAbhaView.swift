@@ -34,10 +34,6 @@ struct AllahuAbhaView: View {
                 .accessibilityLabel("Alláh-u-Abhá counter")
                 .accessibilityValue("\(count) of \(Self.goal)")
                 .accessibilityHint(count < Self.goal ? "Double-tap to count one more" : "")
-                Text(count < Self.goal ? "\(Self.goal - count) to go" : "Complete")
-                    .font(settings.font.font(size: 17))
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText(value: Double(count)))
                 Spacer(minLength: 0)
             }
             .padding(.horizontal, 24)
@@ -77,6 +73,7 @@ struct AllahuAbhaView: View {
     }
 
     private func tap() {
+        // Past ninety-five a tap does nothing, so no haptic plays either.
         guard count < Self.goal else { return }
         withAnimation(.snappy(duration: 0.2)) { count += 1 }
         if count == Self.goal { haptics.play() }

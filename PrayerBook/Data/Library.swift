@@ -76,8 +76,14 @@ final class Library {
         sections = result
     }
 
-    /// Alphabetical, ignoring a leading "The", like the original app.
+    /// The obligatory prayers open the book, right after its title page.
+    nonisolated private static let firstSections: Set<String> = ["Obligatory Prayers", "Preghiere obbligatorie"]
+
+    /// The obligatory prayers first, then alphabetical, ignoring a leading "The", like the original app.
     nonisolated private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {
+        if firstSections.contains(lhs) != firstSections.contains(rhs) {
+            return firstSections.contains(lhs)
+        }
         func key(_ name: String) -> String {
             name.hasPrefix("The ") ? String(name.dropFirst(4)) : name
         }
