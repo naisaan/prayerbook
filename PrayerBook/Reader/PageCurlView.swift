@@ -131,14 +131,18 @@ final class BookPageView: UIView {
 /// hide the reading controls; taps near the edges turn the page.
 final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     let index: Int
+    /// Where the page sits in the page curl. The same as `index`, except in a right-to-left
+    /// book, where the order is reversed.
+    let displayIndex: Int
     private let book: Book
     private let initialShowsTotal: Bool
     var onCenterTap: (() -> Void)?
     var onOpenPrayer: ((Int) -> Void)?
 
-    init(book: Book, index: Int, showsTotal: Bool) {
+    init(book: Book, index: Int, displayIndex: Int, showsTotal: Bool) {
         self.book = book
         self.index = index
+        self.displayIndex = displayIndex
         self.initialShowsTotal = showsTotal
         super.init(nibName: nil, bundle: nil)
     }
@@ -188,11 +192,13 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
 /// it's the page color with the front's text faintly showing through, mirrored.
 final class BackPageViewController: UIViewController {
     let index: Int
+    let displayIndex: Int
     private let book: Book
 
-    init(book: Book, index: Int) {
+    init(book: Book, index: Int, displayIndex: Int) {
         self.book = book
         self.index = index
+        self.displayIndex = displayIndex
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -218,9 +224,12 @@ final class BackPageViewController: UIViewController {
 
 /// Apple's real page curl (the same one Apple Books uses), brought into SwiftUI.
 /// With Reduce Motion turned on, pages slide instead of curling.
+/// A right-to-left book (Persian) uses the same curl with the pages in reverse order, so it
+/// opens at the back from a Western point of view and each page turns to the right.
 struct PageCurlView: UIViewControllerRepresentable {
     let book: Book
     @Binding var currentPage: Int
+    var isReversed: Bool
     var showsTotal: Bool
     var reduceMotion: Bool
     var onCenterTap: () -> Void
@@ -252,6 +261,7 @@ struct PageCurlView: UIViewControllerRepresentable {
         }
         context.coordinator.pageController = controller
         context.coordinator.bookID = book.id
+        context.coordinator.isReversed = isReversed
         context.coordinator.show(currentPage, in: controller, from: nil, animated: false)
         return controller
     }
@@ -264,9 +274,10 @@ struct PageCurlView: UIViewControllerRepresentable {
             page.showsTotal = showsTotal
         }
 
-        if coordinator.bookID != book.id {
-            // The book was paginated again (new font, size or languages).
+        if coordinator.bookID != book.id || coordinator.isReversed != isReversed {
+            // The book was paginated again (new font, size or languages), or changed direction.
             coordinator.bookID = book.id
+            coordinator.isReversed = isReversed
             coordinator.show(currentPage, in: controller, from: nil, animated: false)
         } else if let shown = coordinator.shownIndex(in: controller), shown != currentPage {
             // Jump to a page chosen from Contents, Bookmarks or Search.
@@ -277,6 +288,7 @@ struct PageCurlView: UIViewControllerRepresentable {
     final class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIGestureRecognizerDelegate {
         var parent: PageCurlView
         var bookID: UUID?
+        var isReversed = false
         weak var pageController: UIPageViewController?
 
         init(parent: PageCurlView) {
@@ -289,15 +301,24 @@ struct PageCurlView: UIViewControllerRepresentable {
             min(max(index, 0), pageCount - 1)
         }
 
-        func makePage(_ index: Int) -> PageViewController {
-            let page = PageViewController(book: parent.book, index: clamped(index), showsTotal: parent.showsTotal)
+        /// Turns a position in the page curl into a page of the book, or back again.
+        private func bookIndex(_ displayIndex: Int) -> Int {
+            isReversed ? pageCount - 1 - displayIndex : displayIndex
+        }
+
+        /// Everything below works in page curl positions; only the pages and `currentPage`
+        /// deal in book pages.
+        func makePage(_ displayIndex: Int) -> PageViewController {
+            let display = clamped(displayIndex)
+            let page = PageViewController(book: parent.book, index: bookIndex(display), displayIndex: display, showsTotal: parent.showsTotal)
             page.onCenterTap = { [weak self] in self?.parent.onCenterTap() }
             page.onOpenPrayer = { [weak self] in self?.parent.onOpenPrayer($0) }
             return page
         }
 
-        func makeBack(_ index: Int) -> BackPageViewController {
-            BackPageViewController(book: parent.book, index: clamped(index))
+        func makeBack(_ displayIndex: Int) -> BackPageViewController {
+            let display = clamped(displayIndex)
+            return BackPageViewController(book: parent.book, index: bookIndex(display), displayIndex: display)
         }
 
         /// Stops the page curl's own taps from turning the page when the tap is on a link.
@@ -306,11 +327,15 @@ struct PageCurlView: UIViewControllerRepresentable {
             return page.prayerLink(at: gestureRecognizer.location(in: page.view)) == nil
         }
 
+        /// The book page on screen.
         func shownIndex(in controller: UIPageViewController) -> Int? {
             (controller.viewControllers?.first as? PageViewController)?.index
         }
 
-        func show(_ index: Int, in controller: UIPageViewController, from previous: Int?, animated: Bool) {
+        /// Shows a book page, turning toward it from the book page `previous` when animated.
+        func show(_ bookPage: Int, in controller: UIPageViewController, from previousPage: Int?, animated: Bool) {
+            let index = bookIndex(bookPage)
+            let previous = previousPage.map(bookIndex)
             let forward = previous.map { index > $0 } ?? true
             var controllers: [UIViewController] = [makePage(index)]
             // A double-sided curl needs the back of the turning page, but only when the
@@ -323,21 +348,21 @@ struct PageCurlView: UIViewControllerRepresentable {
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerBefore viewController: UIViewController) -> UIViewController? {
             if let back = viewController as? BackPageViewController {
-                return makePage(back.index)
+                return makePage(back.displayIndex)
             }
-            guard let page = viewController as? PageViewController, page.index > 0 else { return nil }
-            return pageViewController.isDoubleSided ? makeBack(page.index - 1) : makePage(page.index - 1)
+            guard let page = viewController as? PageViewController, page.displayIndex > 0 else { return nil }
+            return pageViewController.isDoubleSided ? makeBack(page.displayIndex - 1) : makePage(page.displayIndex - 1)
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, viewControllerAfter viewController: UIViewController) -> UIViewController? {
             if let back = viewController as? BackPageViewController {
-                return back.index + 1 < pageCount ? makePage(back.index + 1) : nil
+                return back.displayIndex + 1 < pageCount ? makePage(back.displayIndex + 1) : nil
             }
             guard let page = viewController as? PageViewController else { return nil }
             if pageViewController.isDoubleSided {
-                return page.index + 1 < pageCount ? makeBack(page.index) : nil
+                return page.displayIndex + 1 < pageCount ? makeBack(page.displayIndex) : nil
             }
-            return page.index + 1 < pageCount ? makePage(page.index + 1) : nil
+            return page.displayIndex + 1 < pageCount ? makePage(page.displayIndex + 1) : nil
         }
 
         func pageViewController(_ pageViewController: UIPageViewController, willTransitionTo pendingViewControllers: [UIViewController]) {
