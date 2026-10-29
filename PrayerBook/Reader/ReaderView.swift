@@ -124,22 +124,31 @@ struct ReaderView: View {
                 .transition(menuTransition)
             }
 
-            // The menu button only shows with the other controls, but a bookmarked page
-            // always shows its red bookmark badge in the same spot.
-            MenuButton(isOpen: menuOpen) {
-                setMenu(open: !menuOpen)
-            }
-            .opacity(showsControls ? 1 : 0)
-            .allowsHitTesting(showsControls)
-            .overlay(alignment: .topTrailing) {
-                if isCurrentBookmarked && !menuOpen {
-                    BookmarkBadge()
-                        .offset(x: 6, y: -6)
+            // The menu button only shows with the other controls. On a bookmarked page a large
+            // red bookmark takes its place while the controls are hidden, and turns back into
+            // the menu button (with a small badge) when tapped.
+            ZStack {
+                MenuButton(isOpen: menuOpen) {
+                    setMenu(open: !menuOpen)
+                }
+                .opacity(showsControls ? 1 : 0)
+                .allowsHitTesting(showsControls)
+                .overlay(alignment: .topTrailing) {
+                    if isCurrentBookmarked && showsControls && !menuOpen {
+                        BookmarkBadge()
+                            .offset(x: 6, y: -6)
+                            .allowsHitTesting(false)
+                            .transition(.scale(scale: 0.5).combined(with: .opacity))
+                    }
+                }
+                if isCurrentBookmarked && !showsControls {
+                    BookmarkBadge(size: 52)
                         .onTapGesture(perform: toggleControls)
-                        .transition(.scale(scale: 0.5).combined(with: .opacity))
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
             }
             .animation(.spring(duration: 0.3, bounce: 0), value: isCurrentBookmarked)
+            .animation(.spring(duration: 0.3, bounce: 0), value: showsControls)
         }
         .padding(.trailing, 20)
         .padding(.bottom, 4)

@@ -46,11 +46,13 @@ private struct MenuGlyph: View {
 
 /// The red bookmark badge shown on bookmarked pages.
 struct BookmarkBadge: View {
+    var size: CGFloat = 26
+
     var body: some View {
         Image(systemName: "bookmark.fill")
-            .font(.system(size: 12, weight: .bold))
+            .font(.system(size: size * 0.46, weight: .bold))
             .foregroundStyle(.white)
-            .frame(width: 26, height: 26)
+            .frame(width: size, height: size)
             .background(.red, in: .circle)
             .shadow(color: .black.opacity(0.15), radius: 3, y: 1)
             .accessibilityLabel("Bookmarked")

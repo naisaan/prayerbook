@@ -62,7 +62,12 @@ struct ContentsView: View {
                             .onDelete { library.removeBookmarks(at: $0) }
                         } label: {
                             HStack {
-                                Label("Bookmarks", systemImage: "bookmark")
+                                Label {
+                                    Text("Bookmarks")
+                                } icon: {
+                                    BookmarkBadge(size: 28)
+                                        .accessibilityHidden(true)
+                                }
                                 Spacer()
                                 Text("\(library.bookmarkedPrayers.count)")
                                     .monospacedDigit()
