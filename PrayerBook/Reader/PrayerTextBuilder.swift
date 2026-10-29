@@ -14,10 +14,10 @@ struct PrayerTextBuilder {
     /// Most prayers start straight away. Only these sections, and the Prayer for the Dead,
     /// show each prayer's title above it. The Italian names follow the English ones.
     static let titledSections: Set<String> = [
-        "Huqúqu'lláh", "Occasional Prayers", "Special Tablets", "Obligatory",
+        "Huqúqu'lláh", "Occasional Prayers", "Special Tablets", "Obligatory Prayers", "The Holy Land", "Holy Days",
         "Ḥuqúqu’lláh", "Tavole speciali", "Preghiere obbligatorie",
     ]
-    static let titledPrayers: Set<String> = ["Prayer for the Dead", "Preghiera dei defunti", "Midnight"]
+    static let titledPrayers: Set<String> = ["Prayer for the Dead", "Preghiera dei defunti", "Midnight", "The Nineteen Day Feast"]
 
     static func showsTitle(for prayer: Prayer) -> Bool {
         titledSections.contains(prayer.category)
