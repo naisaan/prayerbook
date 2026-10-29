@@ -10,7 +10,6 @@ struct ReaderView: View {
     @Environment(Library.self) private var library
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
-    @Environment(\.layoutDirection) private var layoutDirection
 
     @State private var book: Book?
     @State private var currentPage = 0
@@ -45,7 +44,6 @@ struct ReaderView: View {
                     PageCurlView(
                         book: book,
                         currentPage: $currentPage,
-                        isRightToLeft: bookIsRightToLeft,
                         showsTotal: showsControls,
                         reduceMotion: reduceMotion,
                         onCenterTap: toggleControls,
@@ -187,12 +185,6 @@ struct ReaderView: View {
             library.toggleBookmark(prayer.id)
             bookmarkFeedback += 1
         }
-    }
-
-    /// The book turns right to left, like a Persian book, when the iPhone (or this app) is set to
-    /// Persian, or when Persian is the only language turned on.
-    private var bookIsRightToLeft: Bool {
-        layoutDirection == .rightToLeft || library.enabledLanguageCodes == ["fa"]
     }
 
     /// The color of the badge on this page, if the prayer is in any bookmark list.
