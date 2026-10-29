@@ -59,7 +59,7 @@ final class BookPageView: UIView {
             drawPrayerPage(prayerPage, origin: metrics.textRect.origin)
         }
 
-        let number = showsTotal ? "\(index + 1) of \(book.pages.count)" : "\(index + 1)"
+        let number = showsTotal ? String(localized: "\(index + 1) of \(book.pages.count)") : "\(index + 1)"
         drawCentered(number, in: metrics.footerRect, font: .monospacedDigitSystemFont(ofSize: 13, weight: .regular))
     }
 

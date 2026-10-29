@@ -34,7 +34,7 @@ struct AllahuAbhaView: View {
                 .buttonStyle(PressableCircleStyle())
                 .accessibilityLabel("Alláh-u-Abhá counter")
                 .accessibilityValue("\(count) of \(Self.goal)")
-                .accessibilityHint(count < Self.goal ? "Double-tap to count one more" : "")
+                .accessibilityHint(count < Self.goal ? Text("Double-tap to count one more") : Text(verbatim: ""))
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)

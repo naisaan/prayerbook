@@ -56,7 +56,7 @@ struct ContentsView: View {
                 if !library.bookmarkedPrayers.isEmpty {
                     Section {
                         BookmarkGroup(
-                            name: "Bookmarks",
+                            name: String(localized: "Bookmarks"),
                             color: .red,
                             prayers: library.bookmarkedPrayers,
                             currentPrayerID: currentPrayerID,
@@ -267,7 +267,7 @@ struct PrayerRow: View {
     }
 
     private var details: String {
-        var parts = [prayer.author, "\(prayer.wordCount) words"]
+        var parts = [prayer.author, String(localized: "\(prayer.wordCount) words")]
         if showsSection { parts.insert(prayer.category, at: 0) }
         return parts.filter { !$0.isEmpty }.joined(separator: " · ")
     }

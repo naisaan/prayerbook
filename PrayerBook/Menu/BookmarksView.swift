@@ -46,11 +46,11 @@ struct BookmarksView: View {
                     )
                 }
             }
-            .navigationTitle(tab.rawValue)
+            .navigationTitle(LocalizedStringKey(tab.rawValue))
             .navigationBarTitleDisplayMode(.inline)
             .safeAreaInset(edge: .top) {
                 Picker("Show", selection: $tab) {
-                    ForEach(Tab.allCases) { Text($0.rawValue).tag($0) }
+                    ForEach(Tab.allCases) { Text(LocalizedStringKey($0.rawValue)).tag($0) }
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)

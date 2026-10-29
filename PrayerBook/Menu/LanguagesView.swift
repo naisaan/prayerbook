@@ -13,8 +13,10 @@ struct LanguagesView: View {
                         Toggle(isOn: binding(for: language)) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(language.name)
-                                if language.name != language.englishName {
-                                    Text(language.englishName)
+                                // The language's name in the reader's own language, such as "German".
+                                let localName = Locale.current.localizedString(forLanguageCode: language.code) ?? language.englishName
+                                if language.name.localizedCaseInsensitiveCompare(localName) != .orderedSame {
+                                    Text(localName)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
                                 }

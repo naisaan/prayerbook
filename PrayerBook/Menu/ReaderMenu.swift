@@ -24,7 +24,7 @@ struct MenuButton: View {
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .glassEffect(.regular.interactive(), in: .circle)
-        .accessibilityLabel(isOpen ? "About" : "Menu")
+        .accessibilityLabel(isOpen ? Text("About") : Text("Menu"))
     }
 }
 
@@ -129,7 +129,7 @@ struct ReaderMenu: View {
                                 name: list.name
                             ) { onToggleList(list.id) }
                         }
-                        BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: "Bookmarks", action: onToggleBookmark)
+                        BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: String(localized: "Bookmarks"), action: onToggleBookmark)
                     }
 
                     if let shareText {
@@ -147,7 +147,7 @@ struct ReaderMenu: View {
 }
 
 private struct MenuRow: View {
-    let title: String
+    let title: LocalizedStringKey
     let systemImage: String
     var detail: String? = nil
     let action: () -> Void
@@ -191,7 +191,7 @@ private struct BookmarkToggle: View {
         }
         .buttonStyle(PressableButtonStyle())
         .glassEffect(isOn ? Glass.regular.tint(color.color).interactive() : Glass.regular.interactive(), in: .circle)
-        .accessibilityLabel(isOn ? "Remove from \(name)" : "Add to \(name)")
+        .accessibilityLabel(isOn ? Text("Remove from \(name)") : Text("Add to \(name)"))
     }
 }
 
