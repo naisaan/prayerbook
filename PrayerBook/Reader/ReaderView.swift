@@ -20,6 +20,7 @@ struct ReaderView: View {
     @State private var namingList = false
     @State private var newListName = ""
     @State private var showsSplash = true
+    @State private var splashOpacity = 1.0
 
     var body: some View {
         GeometryReader { proxy in
@@ -74,8 +75,11 @@ struct ReaderView: View {
                 }
 
                 if showsSplash {
+                    // Flattened into one layer first, so the background and the star fade together.
                     SplashView()
-                        .transition(.opacity)
+                        .compositingGroup()
+                        .opacity(splashOpacity)
+                        .allowsHitTesting(splashOpacity > 0)
                         .zIndex(1)
                 }
             }
@@ -102,6 +106,8 @@ struct ReaderView: View {
                 try? await Task.sleep(for: .milliseconds(100))
             }
             withAnimation(.easeOut(duration: 0.5)) {
+                splashOpacity = 0
+            } completion: {
                 showsSplash = false
             }
         }
@@ -316,15 +322,19 @@ struct ReaderView: View {
     }
 }
 
-/// The gold star on black, shown while the book opens.
+/// The gold star, on white in light mode and on black in dark mode, shown while the book opens.
 private struct SplashView: View {
+    @Environment(\.colorScheme) private var colorScheme
+
     var body: some View {
         ZStack {
-            Color.black
+            colorScheme == .dark ? Color.black : Color.white
             Image("Splash")
                 .resizable()
                 .scaledToFit()
-                .containerRelativeFrame(.horizontal) { width, _ in width * 0.44 }
+                .containerRelativeFrame(.horizontal) { width, _ in
+                    width * (colorScheme == .dark ? 0.44 : 0.55)
+                }
                 .accessibilityLabel("Bahá’í Prayer Book")
         }
         .ignoresSafeArea()
