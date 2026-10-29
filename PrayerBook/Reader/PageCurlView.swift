@@ -133,13 +133,18 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     let index: Int
     private let book: Book
     private let initialShowsTotal: Bool
+    /// True when the whole book is mirrored to turn right to left; the page is mirrored back
+    /// so its text still reads normally.
+    private let isMirrored: Bool
+    private var pageView: BookPageView?
     var onCenterTap: (() -> Void)?
     var onOpenPrayer: ((Int) -> Void)?
 
-    init(book: Book, index: Int, showsTotal: Bool) {
+    init(book: Book, index: Int, showsTotal: Bool, isMirrored: Bool) {
         self.book = book
         self.index = index
         self.initialShowsTotal = showsTotal
+        self.isMirrored = isMirrored
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -148,12 +153,20 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     override func loadView() {
-        view = BookPageView(book: book, index: index, showsTotal: initialShowsTotal)
+        let container = UIView(frame: CGRect(origin: .zero, size: book.metrics.size))
+        container.backgroundColor = Typography.pageColor
+        let page = BookPageView(book: book, index: index, showsTotal: initialShowsTotal)
+        page.frame = container.bounds
+        page.autoresizingMask = [.flexibleWidth, .flexibleHeight]
+        if isMirrored { page.transform = CGAffineTransform(scaleX: -1, y: 1) }
+        container.addSubview(page)
+        pageView = page
+        view = container
     }
 
     var showsTotal: Bool {
-        get { (viewIfLoaded as? BookPageView)?.showsTotal ?? initialShowsTotal }
-        set { (viewIfLoaded as? BookPageView)?.showsTotal = newValue }
+        get { pageView?.showsTotal ?? initialShowsTotal }
+        set { pageView?.showsTotal = newValue }
     }
 
     override func viewDidLoad() {
@@ -163,9 +176,10 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
         view.addGestureRecognizer(tap)
     }
 
-    /// The prayer a link at this point opens, if there's a link there.
+    /// The prayer a link at this point (in this controller's view) opens, if there's a link there.
     func prayerLink(at point: CGPoint) -> Int? {
-        (viewIfLoaded as? BookPageView)?.prayerLink(at: point)
+        guard let pageView else { return nil }
+        return pageView.prayerLink(at: pageView.convert(point, from: view))
     }
 
     @objc private func handleTap(_ tap: UITapGestureRecognizer) {
@@ -189,10 +203,12 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
 final class BackPageViewController: UIViewController {
     let index: Int
     private let book: Book
+    private let isMirrored: Bool
 
-    init(book: Book, index: Int) {
+    init(book: Book, index: Int, isMirrored: Bool) {
         self.book = book
         self.index = index
+        self.isMirrored = isMirrored
         super.init(nibName: nil, bundle: nil)
     }
 
@@ -207,7 +223,8 @@ final class BackPageViewController: UIViewController {
         let showThrough = BookPageView(book: book, index: index, showsTotal: false)
         showThrough.frame = container.bounds
         showThrough.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        showThrough.transform = CGAffineTransform(scaleX: -1, y: 1)
+        // In a mirrored book the whole controller is already flipped, which mirrors this too.
+        showThrough.transform = isMirrored ? .identity : CGAffineTransform(scaleX: -1, y: 1)
         showThrough.alpha = 0.12
         showThrough.isAccessibilityElement = false
         container.addSubview(showThrough)
@@ -218,9 +235,12 @@ final class BackPageViewController: UIViewController {
 
 /// Apple's real page curl (the same one Apple Books uses), brought into SwiftUI.
 /// With Reduce Motion turned on, pages slide instead of curling.
+/// A right-to-left book (Persian) is the same controller mirrored: the spine sits on the right
+/// and pages turn from left to right, while each page is mirrored back so it reads normally.
 struct PageCurlView: UIViewControllerRepresentable {
     let book: Book
     @Binding var currentPage: Int
+    var isRightToLeft: Bool
     var showsTotal: Bool
     var reduceMotion: Bool
     var onCenterTap: () -> Void
@@ -246,6 +266,10 @@ struct PageCurlView: UIViewControllerRepresentable {
         controller.dataSource = context.coordinator
         controller.delegate = context.coordinator
         controller.view.backgroundColor = Typography.pageColor
+        // The mirroring is done by hand below, so UIKit must not flip anything on its own.
+        controller.view.semanticContentAttribute = .forceLeftToRight
+        controller.view.transform = isRightToLeft ? CGAffineTransform(scaleX: -1, y: 1) : .identity
+        context.coordinator.isMirrored = isRightToLeft
         // A tap on a link opens it instead of turning the page.
         for case let tap as UITapGestureRecognizer in controller.gestureRecognizers {
             tap.delegate = context.coordinator
@@ -264,9 +288,11 @@ struct PageCurlView: UIViewControllerRepresentable {
             page.showsTotal = showsTotal
         }
 
-        if coordinator.bookID != book.id {
-            // The book was paginated again (new font, size or languages).
+        if coordinator.bookID != book.id || coordinator.isMirrored != isRightToLeft {
+            // The book was paginated again (new font, size or languages), or changed direction.
             coordinator.bookID = book.id
+            coordinator.isMirrored = isRightToLeft
+            controller.view.transform = isRightToLeft ? CGAffineTransform(scaleX: -1, y: 1) : .identity
             coordinator.show(currentPage, in: controller, from: nil, animated: false)
         } else if let shown = coordinator.shownIndex(in: controller), shown != currentPage {
             // Jump to a page chosen from Contents, Bookmarks or Search.
@@ -277,6 +303,7 @@ struct PageCurlView: UIViewControllerRepresentable {
     final class Coordinator: NSObject, UIPageViewControllerDataSource, UIPageViewControllerDelegate, UIGestureRecognizerDelegate {
         var parent: PageCurlView
         var bookID: UUID?
+        var isMirrored = false
         weak var pageController: UIPageViewController?
 
         init(parent: PageCurlView) {
@@ -290,14 +317,14 @@ struct PageCurlView: UIViewControllerRepresentable {
         }
 
         func makePage(_ index: Int) -> PageViewController {
-            let page = PageViewController(book: parent.book, index: clamped(index), showsTotal: parent.showsTotal)
+            let page = PageViewController(book: parent.book, index: clamped(index), showsTotal: parent.showsTotal, isMirrored: isMirrored)
             page.onCenterTap = { [weak self] in self?.parent.onCenterTap() }
             page.onOpenPrayer = { [weak self] in self?.parent.onOpenPrayer($0) }
             return page
         }
 
         func makeBack(_ index: Int) -> BackPageViewController {
-            BackPageViewController(book: parent.book, index: clamped(index))
+            BackPageViewController(book: parent.book, index: clamped(index), isMirrored: isMirrored)
         }
 
         /// Stops the page curl's own taps from turning the page when the tap is on a link.
