@@ -30,9 +30,28 @@ struct ContentsView: View {
                 } footer: {
                     Text("A prayer counts as read once you reach its last page.")
                 }
+                if let obligatory {
+                    Section("Obligatory Prayers") {
+                        ForEach(obligatory.prayers) { prayer in
+                            Button { onOpen(prayer.id) } label: {
+                                HStack {
+                                    Text(prayer.title)
+                                    Spacer()
+                                    if prayer.id == currentPrayerID {
+                                        Image(systemName: "book.fill")
+                                            .font(.footnote)
+                                            .foregroundStyle(.secondary)
+                                    }
+                                }
+                            }
+                            .tint(.primary)
+                        }
+                        NavigationLink("Alláh-u-Abhá (95 Times)", value: ContentsDestination.allahuAbha)
+                    }
+                }
                 ForEach(library.enabledLanguages) { language in
                     Section {
-                        ForEach(library.sections.filter { $0.language == language }) { section in
+                        ForEach(library.sections.filter { $0.language == language && $0 != obligatory }) { section in
                             NavigationLink(value: section) {
                                 HStack {
                                     Text(section.name)
@@ -64,6 +83,9 @@ struct ContentsView: View {
             .navigationDestination(for: BookSection.self) { section in
                 SectionPrayersView(section: section, currentPrayerID: currentPrayerID, onOpen: onOpen)
             }
+            .navigationDestination(for: ContentsDestination.self) { _ in
+                AllahuAbhaView()
+            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     CloseButton { dismiss() }
@@ -71,6 +93,15 @@ struct ContentsView: View {
             }
         }
     }
+
+    /// The English obligatory prayers, pinned to the top with the Alláh-u-Abhá counter.
+    private var obligatory: BookSection? {
+        library.sections.first { $0.language.code == "en" && $0.name == "Obligatory Prayers" }
+    }
+}
+
+private enum ContentsDestination: Hashable {
+    case allahuAbha
 }
 
 private struct SectionPrayersView: View {
