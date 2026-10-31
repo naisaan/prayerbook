@@ -29,11 +29,11 @@ struct PrayerListNote: View {
         GeometryReader { proxy in
             let side = min(proxy.size.width - 40, 440)
             let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: Self.cardSize * 0.95)
-            // In the middle of the screen, rising to the top while typing so the keyboard
-            // doesn't cover it.
+            // Near the middle of the screen, and it stays put while typing: just high enough
+            // that the keyboard (about 360 points tall with its suggestions) never covers it.
             let openCenter = CGPoint(
                 x: proxy.size.width / 2,
-                y: isTyping ? safeAreaTop + 24 + side / 2 : proxy.size.height / 2
+                y: max(safeAreaTop + 24 + side / 2, min(proxy.size.height / 2, proxy.size.height - 360 - side / 2))
             )
 
             ZStack {
@@ -94,7 +94,6 @@ struct PrayerListNote: View {
         .environment(\.colorScheme, .light)
         .tint(.black)
         .clipShape(RoundedRectangle(cornerRadius: isOpen ? 28 : side * 0.225, style: .continuous))
-        .animation(.spring(duration: 0.4, bounce: 0.15), value: isTyping)
         .shadow(color: .black.opacity(isOpen ? 0.25 : 0.35), radius: isOpen ? 24 : 6 * side / Self.cardSize, y: isOpen ? 8 : 3 * side / Self.cardSize)
     }
 
