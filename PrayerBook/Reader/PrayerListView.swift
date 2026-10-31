@@ -17,6 +17,7 @@ struct PrayerListNote: View {
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
     @State private var isTyping = false
+    @State private var openings = 0
     @State private var listCommand: PrayerListStyle?
     @State private var currentListStyle: PrayerListStyle?
     /// How much of the screen the keyboard covers, from the system's keyboard notices.
@@ -164,12 +165,28 @@ struct PrayerListNote: View {
     private var noteContent: some View {
         VStack(alignment: .leading, spacing: 10) {
             // In the book's font, chosen in Themes & Settings.
-            Text("Prayer List")
-                .font(settings.font.font(size: 28).weight(.semibold))
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .contentShape(Rectangle())
-                // Tapping the heading puts the keyboard away.
-                .onTapGesture { isTyping = false }
+            HStack(alignment: .center) {
+                Text("Prayer List")
+                    .font(settings.font.font(size: 28).weight(.semibold))
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .contentShape(Rectangle())
+                    // Tapping the heading puts the keyboard away.
+                    .onTapGesture { isTyping = false }
+                if isTyping {
+                    // Done: puts the keyboard away, to read the list.
+                    Button { isTyping = false } label: {
+                        Image(systemName: "checkmark")
+                            .font(.system(size: 17, weight: .semibold))
+                            .foregroundStyle(Color(uiColor: HighlightColor.blue.swatch))
+                            .frame(width: 38, height: 38)
+                            .background(.black, in: .circle)
+                    }
+                    .buttonStyle(PressableButtonStyle())
+                    .accessibilityLabel("Done")
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
+            }
+            .frame(height: 38)
             PrayerListEditor(
                 text: Bindable(list).text,
                 isTyping: $isTyping,
@@ -177,12 +194,17 @@ struct PrayerListNote: View {
                 currentStyle: $currentListStyle,
                 font: settings.font.font(size: 18)
             )
+            // A fresh editor each time the list opens, so it opens for reading, never
+            // picking up the typing where it was left.
+            .id(openings)
         }
     }
 
     // MARK: Opening and closing
 
     private func open() {
+        isTyping = false
+        openings += 1
         withAnimation(.spring(duration: 0.5, bounce: 0.25)) {
             isOpen = true
         }
