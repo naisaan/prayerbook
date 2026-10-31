@@ -9,7 +9,7 @@ struct PageMetrics: Equatable {
 
     static let sideMargin: CGFloat = 30
 
-    /// How much lower the header and text sit to make room for the prayer list's card.
+    /// How much lower the text sits to make room for the prayer list's card. The header stays put.
     private var prayerListShift: CGFloat { roomForPrayerList ? 16 : 0 }
 
     var textRect: CGRect {
@@ -24,7 +24,7 @@ struct PageMetrics: Equatable {
     }
 
     var headerRect: CGRect {
-        CGRect(x: Self.sideMargin, y: safeArea.top + 8 + prayerListShift, width: max(size.width - Self.sideMargin * 2, 1), height: 20)
+        CGRect(x: Self.sideMargin, y: safeArea.top + 8, width: max(size.width - Self.sideMargin * 2, 1), height: 20)
     }
 
     var footerRect: CGRect {
