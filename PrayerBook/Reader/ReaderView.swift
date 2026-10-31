@@ -35,8 +35,7 @@ struct ReaderView: View {
                     left: proxy.safeAreaInsets.leading,
                     bottom: proxy.safeAreaInsets.bottom,
                     right: proxy.safeAreaInsets.trailing
-                ),
-                roomForPrayerList: settings.showsPrayerList
+                )
             )
 
             ZStack(alignment: .bottomTrailing) {

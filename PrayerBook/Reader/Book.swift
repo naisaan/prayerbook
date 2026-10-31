@@ -4,16 +4,12 @@ import UIKit
 struct PageMetrics: Equatable {
     var size: CGSize
     var safeArea: UIEdgeInsets
-    /// Leaves room at the top for the prayer list's card, which sits in the top corner.
-    var roomForPrayerList = false
-
     static let sideMargin: CGFloat = 30
 
-    /// How much lower the text sits to make room for the prayer list's card. The header stays put.
-    private var prayerListShift: CGFloat { roomForPrayerList ? 16 : 0 }
-
     var textRect: CGRect {
-        let top = safeArea.top + 44 + prayerListShift * 1.75
+        // Low enough to leave room for the prayer list's card in the top corner, whether
+        // or not it's turned on, so the text doesn't jump when it's switched.
+        let top = safeArea.top + 72
         let bottom = safeArea.bottom + 44
         return CGRect(
             x: Self.sideMargin,
