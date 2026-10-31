@@ -104,7 +104,7 @@ struct ReaderView: View {
             while book == nil {
                 try? await Task.sleep(for: .milliseconds(50))
             }
-            withAnimation(.easeOut(duration: 0.35)) {
+            withAnimation(.easeOut(duration: 0.25)) {
                 splashOpacity = 0
             } completion: {
                 showsSplash = false
@@ -340,19 +340,23 @@ struct ReaderView: View {
     }
 }
 
-/// The gold star, on white in light mode and on black in dark mode, shown while the book opens.
-/// It follows the app's own Light or Dark setting. The launch screen iOS shows just before it
-/// can only follow the phone's setting, so the two differ when the settings do.
+/// Holds the launch screen in place until the book is ready: the same star on the same color,
+/// so it looks like one splash screen rather than two. Like the launch screen, which iOS
+/// draws before the app starts, it follows the phone's light or dark mode, not the app's.
 private struct SplashView: View {
-    @Environment(\.colorScheme) private var colorScheme
+    private let colorScheme: ColorScheme = {
+        let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
+        return screen?.traitCollection.userInterfaceStyle == .dark ? .dark : .light
+    }()
 
     var body: some View {
         ZStack {
             colorScheme == .dark ? Color.black : Color.white
-            // At its own size, exactly like the launch screen, so the hand-off can't be seen.
+            // At its own size, exactly like the launch screen.
             Image("Splash")
                 .accessibilityLabel("Bahá’í Prayer Book")
         }
+        .environment(\.colorScheme, colorScheme)
         .ignoresSafeArea()
     }
 }
