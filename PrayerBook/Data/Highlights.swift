@@ -62,6 +62,14 @@ enum UnderlineColor: String, Codable, CaseIterable {
 enum HighlightStyle: Codable, Hashable {
     case highlight(HighlightColor)
     case underline(UnderlineColor)
+
+    /// The color of the square in the margin by a note, and of the bar beside its quote.
+    var markerColor: UIColor {
+        switch self {
+        case .highlight(let color): color.swatch
+        case .underline(let color): color.color
+        }
+    }
 }
 
 /// A highlighted or underlined passage of a prayer.
@@ -75,8 +83,12 @@ struct Highlight: Identifiable, Codable, Hashable {
     var style: HighlightStyle
     var text: String
     let created: Date
+    /// What the reader wrote about the passage, if anything.
+    var note: String? = nil
 
     var range: NSRange { NSRange(location: location, length: length) }
+
+    var hasNote: Bool { !(note ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 }
 
 extension Notification.Name {
@@ -124,11 +136,14 @@ final class Highlights {
             }
             let before = NSRange(location: old.location, length: max(range.location - old.location, 0))
             let after = NSRange(location: NSMaxRange(range), length: max(NSMaxRange(old.range) - NSMaxRange(range), 0))
+            // The older highlight's note stays with the first piece left of it.
+            var note = old.note
             for part in [before, after] where part.length > 0 {
                 let piece = text(part)
                 guard !piece.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
                 kept.append(Highlight(id: UUID(), prayerID: prayerID, location: part.location, length: part.length,
-                                      style: old.style, text: piece, created: old.created))
+                                      style: old.style, text: piece, created: old.created, note: note))
+                note = nil
             }
         }
         let highlight = Highlight(
@@ -156,6 +171,14 @@ final class Highlights {
             lastUnderlineColor = color
             defaults.set(color.rawValue, forKey: Keys.lastUnderlineColor)
         }
+        save()
+    }
+
+    /// Saves a note on a highlight. An empty note removes it.
+    func setNote(_ note: String?, for id: UUID) {
+        guard let index = all.firstIndex(where: { $0.id == id }) else { return }
+        let trimmed = note?.trimmingCharacters(in: .whitespacesAndNewlines) ?? ""
+        all[index].note = trimmed.isEmpty ? nil : note
         save()
     }
 

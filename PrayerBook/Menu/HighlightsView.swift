@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Highlights and underlines, grouped by color, and notes (coming soon).
+/// Highlights and underlines, grouped by color, and the notes written on them.
 struct HighlightsView: View {
     enum Tab: String, CaseIterable, Identifiable {
         case highlights = "Highlights"
@@ -47,6 +47,17 @@ struct HighlightsView: View {
                             }
                         }
                     }
+                } else {
+                    let notes = highlights.filter(\.hasNote)
+                    ForEach(notes) { highlight in
+                        Button { onOpen(highlight) } label: {
+                            HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID])
+                        }
+                        .tint(.primary)
+                    }
+                    .onDelete { offsets in
+                        for offset in offsets { Highlights.shared.setNote(nil, for: notes[offset].id) }
+                    }
                 }
             }
             .overlay {
@@ -56,11 +67,11 @@ struct HighlightsView: View {
                         systemImage: "highlighter",
                         description: Text("Press and hold on a prayer’s words, then tap Highlight.")
                     )
-                } else if tab == .notes {
+                } else if tab == .notes && !highlights.contains(where: \.hasNote) {
                     ContentUnavailableView(
-                        "Coming Soon",
+                        "No Notes",
                         systemImage: "note.text",
-                        description: Text("Notes are coming in a future update.")
+                        description: Text("Press and hold on a prayer’s words, then tap Add Note.")
                     )
                 }
             }
@@ -114,6 +125,16 @@ private struct HighlightRow: View {
             passage
                 .font(.body)
                 .lineLimit(5)
+            if let note = highlight.note, highlight.hasNote {
+                Label {
+                    Text(note)
+                        .lineLimit(4)
+                } icon: {
+                    Image(systemName: "note.text")
+                        .foregroundStyle(Color(uiColor: highlight.style.markerColor))
+                }
+                .font(.subheadline)
+            }
             if let prayer {
                 Text([prayer.title, prayer.category].filter { !$0.isEmpty }.joined(separator: " · "))
                     .font(.footnote)

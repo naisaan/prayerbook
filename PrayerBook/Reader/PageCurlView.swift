@@ -188,6 +188,49 @@ final class BookPageView: UIView {
         return lines.map(\.box).reduce(CGRect.null) { $0.union($1) }
     }
 
+    // MARK: Notes
+
+    static let noteMarkerSize: CGFloat = 10
+
+    /// The squares in the margins beside highlights with notes, on the page where each
+    /// highlight starts, level with its first line. The first note on the page goes in the
+    /// left margin, the next in the right, and so on.
+    func noteMarkers() -> [(highlight: Highlight, rect: CGRect)] {
+        guard let prayerPage = book.pages[index].prayerPage else { return [] }
+        let layout = prayerPage.layout
+        let starts = highlightedLines().filter { highlight, _ in
+            guard highlight.hasNote else { return false }
+            // The drop cap starts the text, so a highlight starting there starts on its page.
+            if let dropCap = layout.dropCap, highlight.location <= dropCap.characterLocation {
+                return dropCap.containerIndex == prayerPage.pageInPrayer
+            }
+            return NSLocationInRange(layout.storageRange(highlight.range).location, prayerPage.characterRange)
+        }
+        let size = Self.noteMarkerSize
+        let margin = PageMetrics.sideMargin
+        return starts
+            .map { highlight, lines in (highlight, lines.map(\.box).min { $0.minY < $1.minY }!) }
+            .sorted { $0.1.minY < $1.1.minY }
+            .enumerated()
+            .map { position, item in
+                let centerX = position.isMultiple(of: 2) ? margin / 2 : bounds.width - margin / 2
+                let rect = CGRect(x: centerX - size / 2, y: item.1.midY - size / 2, width: size, height: size)
+                return (item.0, rect)
+            }
+    }
+
+    /// The note whose margin square is at this point, with room for a fingertip.
+    func noteMarker(at point: CGPoint) -> Highlight? {
+        noteMarkers().first { $0.rect.insetBy(dx: -14, dy: -14).contains(point) }?.highlight
+    }
+
+    private func drawNoteMarkers() {
+        for marker in noteMarkers() {
+            marker.highlight.style.markerColor.setFill()
+            UIBezierPath(roundedRect: marker.rect, cornerRadius: 2.5).fill()
+        }
+    }
+
     private func drawHighlights() {
         for (highlight, lines) in highlightedLines() {
             for line in lines {
@@ -215,6 +258,7 @@ final class BookPageView: UIView {
         let glyphs = layout.layoutManager.glyphRange(for: layout.containers[prayerPage.pageInPrayer])
         layout.layoutManager.drawBackground(forGlyphRange: glyphs, at: origin)
         drawHighlights()
+        drawNoteMarkers()
         layout.layoutManager.drawGlyphs(forGlyphRange: glyphs, at: origin)
 
         if let dropCap = layout.dropCap, dropCap.containerIndex == prayerPage.pageInPrayer {
@@ -276,6 +320,10 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     private var dropCapMenu: UIEditMenuInteraction?
     /// The colors shown over a highlight while it's being changed.
     private var palette: HighlightPalette?
+    /// The menu shown when a highlight is tapped, and the highlight it's for.
+    private var highlightMenu: UIEditMenuInteraction?
+    private var menuHighlightID: UUID?
+    private var highlightMenuIsShowing = false
     /// Whether text was selected, or the colors were showing, when the latest tap started.
     /// That tap only clears them.
     private var tapStartedBusy = false
@@ -308,6 +356,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         tap.delegate = self
         view.addGestureRecognizer(tap)
+        let highlightMenu = UIEditMenuInteraction(delegate: self)
+        view.addInteraction(highlightMenu)
+        self.highlightMenu = highlightMenu
 
         if let prayerPage = book.pages[index].textPage {
             let textView = PageTextView(prayerPage: prayerPage, origin: book.metrics.textRect.origin)
@@ -361,6 +412,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     }
 
     func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        if interaction === highlightMenu {
+            return menuHighlightID.flatMap(menu(forHighlight:))
+        }
         guard let textView else { return nil }
         let copy = UIAction(title: String(localized: "Copy"), image: UIImage(systemName: "doc.on.doc")) { [weak textView] _ in
             textView?.copy(nil)
@@ -371,7 +425,18 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     }
 
     func editMenuInteraction(_ interaction: UIEditMenuInteraction, targetRectFor configuration: UIEditMenuConfiguration) -> CGRect {
-        dropCapTarget?.bounds ?? .zero
+        if interaction === highlightMenu {
+            return menuHighlightID.flatMap { pageView?.frame(of: $0) } ?? .zero
+        }
+        return dropCapTarget?.bounds ?? .zero
+    }
+
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, willPresentMenuFor configuration: UIEditMenuConfiguration, animator: any UIEditMenuInteractionAnimating) {
+        if interaction === highlightMenu { highlightMenuIsShowing = true }
+    }
+
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, willDismissMenuFor configuration: UIEditMenuConfiguration, animator: any UIEditMenuInteractionAnimating) {
+        if interaction === highlightMenu { highlightMenuIsShowing = false }
     }
 
     /// Tints the drop cap like the rest of the selection when the selection takes it in.
@@ -388,7 +453,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     var hasSelection: Bool { textView?.hasSelection ?? false }
 
     /// The page stays put while text is selected or the highlight colors are showing.
-    var blocksPageTurn: Bool { hasSelection || palette != nil }
+    var blocksPageTurn: Bool { hasSelection || palette != nil || highlightMenuIsShowing }
 
     // MARK: Edit menu
 
@@ -402,25 +467,67 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
             self.addHighlight(selected)
         }
         let note = UIAction(title: String(localized: "Add Note"), image: UIImage(systemName: "note.text.badge.plus")) { [weak self] _ in
-            self?.showComingSoon()
+            guard let self, let selected = self.textView?.selectionWithDropCap else { return }
+            self.addHighlight(selected, opensNote: true)
         }
         return UIMenu(children: [highlight, note] + system)
     }
 
-    /// Notes aren't ready yet.
-    private func showComingSoon() {
-        let alert = UIAlertController(
-            title: String(localized: "Coming Soon"),
-            message: String(localized: "Notes are coming in a future update."),
-            preferredStyle: .alert
-        )
-        alert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default))
-        present(alert, animated: true)
+    /// The menu for a tapped highlight: change its color, add or edit its note, copy it or
+    /// remove it. With a note, Remove asks whether to remove just the note or both.
+    private func menu(forHighlight id: UUID) -> UIMenu? {
+        guard let highlight = Highlights.shared.highlight(withID: id) else { return nil }
+        let colors = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
+            self?.showPalette(for: id)
+        }
+        let note = UIAction(
+            title: highlight.hasNote ? String(localized: "Edit Note") : String(localized: "Add Note"),
+            image: UIImage(systemName: highlight.hasNote ? "note.text" : "note.text.badge.plus")
+        ) { [weak self] _ in
+            self?.openNote(for: id)
+        }
+        let copy = UIAction(title: String(localized: "Copy"), image: UIImage(systemName: "doc.on.doc")) { _ in
+            UIPasteboard.general.string = highlight.text
+        }
+        let removeBoth = UIAction(
+            title: highlight.hasNote ? String(localized: "Remove Highlight & Note") : String(localized: "Remove"),
+            image: UIImage(systemName: "trash"),
+            attributes: .destructive
+        ) { _ in
+            Highlights.shared.remove(id)
+        }
+        let remove: UIMenuElement
+        if highlight.hasNote {
+            let removeNote = UIAction(title: String(localized: "Remove Note"), image: UIImage(systemName: "note.text"), attributes: .destructive) { _ in
+                Highlights.shared.setNote(nil, for: id)
+            }
+            remove = UIMenu(title: String(localized: "Remove…"), image: UIImage(systemName: "trash"), options: .destructive, children: [removeNote, removeBoth])
+        } else {
+            remove = removeBoth
+        }
+        return UIMenu(children: [colors, note, copy, remove])
+    }
+
+    private func showHighlightMenu(for id: UUID, at point: CGPoint) {
+        dismissPalette(animated: false)
+        menuHighlightID = id
+        highlightMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: point))
+    }
+
+    /// Opens the note screen for a highlight, to write or change its note.
+    private func openNote(for id: UUID) {
+        guard let highlight = Highlights.shared.highlight(withID: id) else { return }
+        dismissPalette(animated: false)
+        let editor = UIHostingController(rootView: NoteEditorView(highlight: highlight, font: book.typography.font) { text in
+            Highlights.shared.setNote(text, for: id)
+        })
+        editor.sheetPresentationController?.prefersGrabberVisible = false
+        present(editor, animated: true)
     }
 
     // MARK: Highlights
 
-    private func addHighlight(_ range: NSRange) {
+    private func addHighlight(_ range: NSRange, opensNote: Bool = false) {
         guard let prayerPage = book.pages[index].prayerPage, range.length > 0 else { return }
         let layout = prayerPage.layout
         let fullText = layout.fullText as NSString
@@ -429,7 +536,11 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         }
         textView?.clearSelection()
         UIImpactFeedbackGenerator(style: .light).impactOccurred()
-        showPalette(for: highlight.id)
+        if opensNote {
+            openNote(for: highlight.id)
+        } else {
+            showPalette(for: highlight.id)
+        }
     }
 
     /// Shows the colors just below the highlight, or above it if there's no room below.
@@ -474,10 +585,10 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         pageView?.prayerLink(at: point)
     }
 
-    /// Whether a tap here is for the page itself (a link or a highlight) rather than for
-    /// turning the page.
+    /// Whether a tap here is for the page itself (a link, a highlight or a note's square)
+    /// rather than for turning the page.
     func takesTap(at point: CGPoint) -> Bool {
-        prayerLink(at: point) != nil || pageView?.highlight(at: point) != nil
+        prayerLink(at: point) != nil || pageView?.noteMarker(at: point) != nil || pageView?.highlight(at: point) != nil
     }
 
     @objc private func handleTap(_ tap: UITapGestureRecognizer) {
@@ -485,8 +596,10 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         let point = tap.location(in: view)
         if let prayerID = prayerLink(at: point) {
             onOpenPrayer?(prayerID)
+        } else if let noted = pageView?.noteMarker(at: point) {
+            openNote(for: noted.id)
         } else if let highlight = pageView?.highlight(at: point) {
-            showPalette(for: highlight.id)
+            showHighlightMenu(for: highlight.id, at: point)
         } else {
             onCenterTap?()
         }
