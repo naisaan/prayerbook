@@ -8,6 +8,8 @@ final class PrayerLayout {
         /// Where to draw the letter, relative to the page's text area.
         let origin: CGPoint
         let letter: NSAttributedString
+        /// Where the letter belongs in the text. It's left out of `storage` and drawn on its own.
+        let characterLocation: Int
     }
 
     let storage: NSTextStorage
@@ -116,7 +118,8 @@ final class PrayerLayout {
         dropCap = DropCap(
             containerIndex: containerIndex,
             origin: CGPoint(x: 0, y: lastBaseline - capFont.ascender),
-            letter: letterString
+            letter: letterString,
+            characterLocation: location
         )
         fillPages()
     }

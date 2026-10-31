@@ -128,8 +128,9 @@ final class BookPageView: UIView {
 }
 
 /// Hosts one page inside the page curl controller. Taps in the middle of the page show or
-/// hide the reading controls; taps near the edges turn the page.
-final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
+/// hide the reading controls; taps near the edges turn the page. Pressing and holding on the
+/// text selects it.
+final class PageViewController: UIViewController, UIGestureRecognizerDelegate, UITextViewDelegate {
     let index: Int
     /// Where the page sits in the page curl. The same as `index`, except in a right-to-left
     /// book, where the order is reversed.
@@ -138,6 +139,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     private let initialShowsTotal: Bool
     var onCenterTap: (() -> Void)?
     var onOpenPrayer: ((Int) -> Void)?
+    private var textView: PageTextView?
+    /// Whether text was selected when the latest tap started. That tap only clears the selection.
+    private var tapStartedWithSelection = false
 
     init(book: Book, index: Int, displayIndex: Int, showsTotal: Bool) {
         self.book = book
@@ -165,6 +169,36 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
         let tap = UITapGestureRecognizer(target: self, action: #selector(handleTap))
         tap.delegate = self
         view.addGestureRecognizer(tap)
+
+        if let prayerPage = book.pages[index].textPage {
+            let textView = PageTextView(prayerPage: prayerPage, origin: book.metrics.textRect.origin)
+            textView.delegate = self
+            view.addSubview(textView)
+            self.textView = textView
+        }
+    }
+
+    var hasSelection: Bool { textView?.hasSelection ?? false }
+
+    func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
+            self?.showComingSoon()
+        }
+        let note = UIAction(title: String(localized: "Add Note"), image: UIImage(systemName: "note.text.badge.plus")) { [weak self] _ in
+            self?.showComingSoon()
+        }
+        return UIMenu(children: [highlight, note] + PageTextView.menuWithoutTranslate(suggestedActions))
+    }
+
+    /// Highlights and notes aren't ready yet.
+    private func showComingSoon() {
+        let alert = UIAlertController(
+            title: String(localized: "Coming Soon"),
+            message: String(localized: "Highlights and notes are coming in a future update."),
+            preferredStyle: .alert
+        )
+        alert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default))
+        present(alert, animated: true)
     }
 
     /// The prayer a link at this point opens, if there's a link there.
@@ -173,6 +207,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
     }
 
     @objc private func handleTap(_ tap: UITapGestureRecognizer) {
+        guard !hasSelection else { return }
         if let prayerID = prayerLink(at: tap.location(in: view)) {
             onOpenPrayer?(prayerID)
         } else {
@@ -180,7 +215,22 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
 
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+        tapStartedWithSelection = hasSelection
+        return true
+    }
+
+    /// Lets taps on the text show the controls even though the text view watches taps too,
+    /// but not when the touch was a press and hold that selected text.
+    func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith other: UIGestureRecognizer) -> Bool {
+        !(other is UILongPressGestureRecognizer)
+    }
+
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        if tapStartedWithSelection {
+            textView?.clearSelection()
+            return false
+        }
         if prayerLink(at: gestureRecognizer.location(in: view)) != nil { return true }
         let x = gestureRecognizer.location(in: view).x
         let width = view.bounds.width
@@ -255,9 +305,10 @@ struct PageCurlView: UIViewControllerRepresentable {
         controller.dataSource = context.coordinator
         controller.delegate = context.coordinator
         controller.view.backgroundColor = Typography.pageColor
-        // A tap on a link opens it instead of turning the page.
-        for case let tap as UITapGestureRecognizer in controller.gestureRecognizers {
-            tap.delegate = context.coordinator
+        // A tap on a link opens it instead of turning the page, and the page stays put
+        // while text is selected.
+        for gesture in controller.gestureRecognizers {
+            gesture.delegate = context.coordinator
         }
         context.coordinator.pageController = controller
         context.coordinator.bookID = book.id
@@ -321,9 +372,18 @@ struct PageCurlView: UIViewControllerRepresentable {
             return BackPageViewController(book: parent.book, index: bookIndex(display), displayIndex: display)
         }
 
+        /// While text is selected, touches go to the selection (dragging its handles, or a
+        /// tap to clear it) instead of turning the page.
+        func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
+            guard let page = pageController?.viewControllers?.first as? PageViewController else { return true }
+            return !page.hasSelection
+        }
+
         /// Stops the page curl's own taps from turning the page when the tap is on a link.
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            guard let page = pageController?.viewControllers?.first as? PageViewController else { return true }
+            guard gestureRecognizer is UITapGestureRecognizer,
+                  let page = pageController?.viewControllers?.first as? PageViewController
+            else { return true }
             return page.prayerLink(at: gestureRecognizer.location(in: page.view)) == nil
         }
 
