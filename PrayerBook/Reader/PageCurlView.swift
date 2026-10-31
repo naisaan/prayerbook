@@ -297,7 +297,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         // Only prayers can be highlighted, not the verse on the book's opening page.
         guard book.pages[index].prayerPage != nil else { return UIMenu(children: system) }
         let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
-            self?.addHighlight(range)
+            // Read the selection when tapped: the menu can outlive the selection it was made for.
+            guard let self, let selected = self.textView?.selectedRange else { return }
+            self.addHighlight(selected)
         }
         let note = UIAction(title: String(localized: "Add Note"), image: UIImage(systemName: "note.text.badge.plus")) { [weak self] _ in
             self?.showComingSoon()

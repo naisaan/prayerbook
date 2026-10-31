@@ -111,25 +111,36 @@ final class Highlights {
         all.first { $0.id == id }
     }
 
-    /// Highlights a passage in the last color picked. Any highlights it overlaps join it.
+    /// Highlights a passage in the last color picked. Where it covers part of an older
+    /// highlight, the new one takes that part over and the rest of the older one stays.
     /// `text` gives the prayer's text for a range, to save with the highlight.
     @discardableResult
     func add(prayerID: Int, range: NSRange, text: (NSRange) -> String) -> Highlight {
-        let overlapping = all.filter {
-            $0.prayerID == prayerID && NSIntersectionRange($0.range, range).length > 0
+        var kept: [Highlight] = []
+        for old in all {
+            guard old.prayerID == prayerID, NSIntersectionRange(old.range, range).length > 0 else {
+                kept.append(old)
+                continue
+            }
+            let before = NSRange(location: old.location, length: max(range.location - old.location, 0))
+            let after = NSRange(location: NSMaxRange(range), length: max(NSMaxRange(old.range) - NSMaxRange(range), 0))
+            for part in [before, after] where part.length > 0 {
+                let piece = text(part)
+                guard !piece.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { continue }
+                kept.append(Highlight(id: UUID(), prayerID: prayerID, location: part.location, length: part.length,
+                                      style: old.style, text: piece, created: old.created))
+            }
         }
-        let merged = overlapping.reduce(range) { NSUnionRange($0, $1.range) }
-        all.removeAll { old in overlapping.contains { $0.id == old.id } }
         let highlight = Highlight(
             id: UUID(),
             prayerID: prayerID,
-            location: merged.location,
-            length: merged.length,
+            location: range.location,
+            length: range.length,
             style: .highlight(lastHighlightColor),
-            text: text(merged),
+            text: text(range),
             created: .now
         )
-        all.insert(highlight, at: 0)
+        all = [highlight] + kept
         save()
         return highlight
     }

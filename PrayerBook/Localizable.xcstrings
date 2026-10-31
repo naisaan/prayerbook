@@ -1527,118 +1527,60 @@
         }
       }
     },
-    "Contents & Bookmarks": {
+    "Contents · %lld%%": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhalt & Lesezeichen"
+            "value": "Inhalt · %lld %%"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Índice y marcadores"
+            "value": "Índice · %lld %%"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommaire et signets"
+            "value": "Sommaire · %lld %%"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Indice e segnalibri"
+            "value": "Indice · %lld%%"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhoud en bladwijzers"
+            "value": "Inhoud · %lld%%"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Efnisyfirlit og bókamerki"
+            "value": "Efnisyfirlit · %lld%%"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obsah a záložky"
+            "value": "Obsah · %lld %%"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obsah a záložky"
+            "value": "Obsah · %lld %%"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "فهرست و نشانک‌ها"
-          }
-        }
-      }
-    },
-    "Contents & Bookmarks · %lld%%": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inhalt & Lesezeichen · %lld %%"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Índice y marcadores · %lld %%"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sommaire et signets · %lld %%"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Indice e segnalibri · %lld%%"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Inhoud en bladwijzers · %lld%%"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Efnisyfirlit og bókamerki · %lld%%"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Obsah a záložky · %lld %%"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Obsah a záložky · %lld %%"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "فهرست و نشانک‌ها · %lld٪"
+            "value": "فهرست · %lld٪"
           }
         }
       }

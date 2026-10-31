@@ -90,7 +90,7 @@ struct ReaderMenu: View {
     var body: some View {
         GlassEffectContainer(spacing: 8) {
             VStack(alignment: .trailing, spacing: 8) {
-                MenuRow(title: "Contents & Bookmarks · \(progress)%", systemImage: "list.bullet", progress: Double(progress) / 100) {
+                MenuRow(title: "Contents · \(progress)%", systemImage: "list.bullet", progress: Double(progress) / 100) {
                     onSelect(.contents)
                 }
                 MenuRow(title: "Highlights & Notes", systemImage: "highlighter", detail: highlightCount > 0 ? "\(highlightCount)" : nil) {
