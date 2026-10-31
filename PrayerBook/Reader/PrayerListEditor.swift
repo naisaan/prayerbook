@@ -72,32 +72,50 @@ struct PrayerListEditor: View {
 
     @State private var lines: [PrayerListLine] = []
     @FocusState private var focused: PrayerListLine.ID?
+    /// Apple's multiple selection: every line gets a circle, and tapping or dragging down
+    /// the circles picks several lines to turn into a list at once.
+    @State private var isSelecting = false
+    @State private var selection = Set<PrayerListLine.ID>()
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 6) {
-                ForEach($lines) { $line in
-                    row($line)
-                }
+        List(selection: $selection) {
+            ForEach($lines) { $line in
+                row($line)
+                    .listRowBackground(Color.clear)
+                    .listRowSeparator(.hidden)
+                    .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
             // Tapping below the last line types on it.
             Color.clear
-                .frame(height: 120)
+                .frame(height: 100)
                 .contentShape(Rectangle())
-                .onTapGesture { focused = lines.last?.id }
+                .onTapGesture { if !isSelecting { focused = lines.last?.id } }
+                .listRowBackground(Color.clear)
+                .listRowSeparator(.hidden)
+                .listRowInsets(EdgeInsets())
+                .selectionDisabled()
         }
+        .listStyle(.plain)
+        .scrollContentBackground(.hidden)
+        .environment(\.editMode, .constant(isSelecting ? .active : .inactive))
         .scrollDismissesKeyboard(.interactively)
         .scrollBounceBehavior(.basedOnSize)
         .font(font)
         .overlay(alignment: .topLeading) {
-            if lines.allSatisfy({ $0.shownText.isEmpty && $0.style == nil }) && focused == nil {
+            if lines.allSatisfy({ $0.shownText.isEmpty && $0.style == nil }) && focused == nil && !isSelecting {
                 Text("The people and things in your life you’d like to pray for…")
                     .foregroundStyle(.tertiary)
                     .font(font)
                     .allowsHitTesting(false)
             }
         }
+        .overlay(alignment: .bottom) {
+            if isSelecting {
+                selectionBar
+                    .transition(.move(edge: .bottom).combined(with: .opacity))
+            }
+        }
+        .animation(.smooth(duration: 0.3), value: isSelecting)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 ForEach(PrayerListStyle.allCases, id: \.self) { style in
@@ -110,6 +128,7 @@ struct PrayerListEditor: View {
                     .accessibilityAddTraits(focusedLine?.style == style ? .isSelected : [])
                 }
                 Spacer()
+                Button("Select") { startSelecting() }
             }
         }
         .onAppear { lines = PrayerListLine.lines(from: text) }
@@ -123,6 +142,39 @@ struct PrayerListEditor: View {
             if !typing { focused = nil }
         }
         .sensoryFeedback(.selection, trigger: lines.map(\.isChecked))
+    }
+
+    /// While picking lines: a list button for each kind of list, and Done.
+    private var selectionBar: some View {
+        HStack(spacing: 4) {
+            ForEach(PrayerListStyle.allCases, id: \.self) { style in
+                Button {
+                    apply(style, to: selection)
+                } label: {
+                    Image(systemName: style.systemImage)
+                        .font(.system(size: 19, weight: .medium))
+                        .frame(width: 48, height: 40)
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .disabled(selection.isEmpty)
+                .accessibilityLabel(style.name)
+            }
+            Button("Done") { isSelecting = false }
+                .font(.body.weight(.semibold))
+                .buttonStyle(.plain)
+                .padding(.horizontal, 12)
+        }
+        .padding(6)
+        .glassEffect(.regular.interactive(), in: .capsule)
+        .padding(.bottom, 4)
+    }
+
+    /// Puts the keyboard away and starts picking lines, beginning with the one being typed.
+    private func startSelecting() {
+        selection = focused.map { [$0] } ?? []
+        focused = nil
+        isSelecting = true
     }
 
     private func row(_ line: Binding<PrayerListLine>) -> some View {
@@ -146,6 +198,8 @@ struct PrayerListEditor: View {
             }
             TextField("", text: line.text, axis: .vertical)
                 .focused($focused, equals: line.wrappedValue.id)
+                // While picking lines, a tap picks the line instead of typing in it.
+                .allowsHitTesting(!isSelecting)
                 // In case return is taken as "done" rather than typed: start a new line anyway.
                 .onSubmit { edited(line.wrappedValue.id, line.wrappedValue.text + "\n") }
                 .onChange(of: line.wrappedValue.text) { _, newText in
@@ -162,9 +216,19 @@ struct PrayerListEditor: View {
 
     /// Turns the line being typed into the list, or back into a plain line if it already is one.
     private func toggle(_ style: PrayerListStyle) {
-        guard let index = lines.firstIndex(where: { $0.id == focused }) else { return }
-        lines[index].style = lines[index].style == style ? nil : style
-        lines[index].isChecked = false
+        guard let focused else { return }
+        apply(style, to: [focused])
+    }
+
+    /// Turns the lines into the list, or back into plain lines if they all already are one.
+    private func apply(_ style: PrayerListStyle, to ids: Set<PrayerListLine.ID>) {
+        let chosen = lines.indices.filter { ids.contains(lines[$0].id) }
+        guard !chosen.isEmpty else { return }
+        let allAlready = chosen.allSatisfy { lines[$0].style == style }
+        for index in chosen {
+            if lines[index].style != style || allAlready { lines[index].isChecked = false }
+            lines[index].style = allAlready ? nil : style
+        }
     }
 
     /// Return and backspace, which arrive as changes to a line's text.
