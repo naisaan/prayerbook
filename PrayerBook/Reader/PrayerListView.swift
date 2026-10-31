@@ -17,7 +17,6 @@ struct PrayerListNote: View {
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
     @FocusState private var isTyping: Bool
-    @Environment(\.colorScheme) private var colorScheme
 
     private var list: PrayerList { .shared }
 
@@ -86,13 +85,12 @@ struct PrayerListNote: View {
             // While it's a card, a tap opens it instead of starting to type.
             .allowsHitTesting(isOpen)
 
-            // Solid blue, the highlighter's blue, while it's a card in the corner.
-            Color(uiColor: HighlightColor.blue.swatch)
-                .opacity(isOpen ? 0 : 1)
-                .allowsHitTesting(false)
         }
         .frame(width: side, height: side)
-        .background(Color(uiColor: colorScheme == .dark ? .secondarySystemBackground : .systemBackground))
+        // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
+        .background(Color(uiColor: HighlightColor.blue.swatch))
+        .environment(\.colorScheme, .light)
+        .tint(.black)
         .clipShape(RoundedRectangle(cornerRadius: isOpen ? 28 : side * 0.225, style: .continuous))
         .animation(.spring(duration: 0.4, bounce: 0.15), value: isTyping)
         .shadow(color: .black.opacity(isOpen ? 0.25 : 0.35), radius: isOpen ? 24 : 6 * side / Self.cardSize, y: isOpen ? 8 : 3 * side / Self.cardSize)
