@@ -153,11 +153,12 @@ struct ReaderView: View {
             // red bookmark takes its place while the controls are hidden, and turns back into
             // the menu button (with a small badge) when tapped.
             ZStack {
-                MenuButton(isOpen: menuOpen) {
-                    setMenu(open: !menuOpen)
+                // While the menu is open the button steps aside; tapping anywhere closes the menu.
+                MenuButton {
+                    setMenu(open: true)
                 }
-                .opacity(showsControls ? 1 : 0)
-                .allowsHitTesting(showsControls)
+                .opacity(showsControls && !menuOpen ? 1 : 0)
+                .allowsHitTesting(showsControls && !menuOpen)
                 .overlay(alignment: .topTrailing) {
                     if let currentBookmarkColor, showsControls && !menuOpen {
                         BookmarkBadge(color: currentBookmarkColor)

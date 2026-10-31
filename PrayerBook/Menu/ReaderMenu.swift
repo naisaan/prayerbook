@@ -1,30 +1,20 @@
 import SwiftUI
 
 /// The round menu button in the bottom corner, with Apple Books' icon:
-/// two lines over three dots. While the menu is open it becomes a button to close it.
+/// two lines over three dots.
 struct MenuButton: View {
-    let isOpen: Bool
     let action: () -> Void
 
     var body: some View {
         Button(action: action) {
-            ZStack {
-                if isOpen {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 19, weight: .semibold))
-                        .transition(.scale(scale: 0.6).combined(with: .opacity))
-                } else {
-                    MenuGlyph()
-                        .transition(.scale(scale: 0.6).combined(with: .opacity))
-                }
-            }
-            .frame(width: 52, height: 52)
-            .contentShape(.circle)
+            MenuGlyph()
+                .frame(width: 52, height: 52)
+                .contentShape(.circle)
         }
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .menuSurface(.circle)
-        .accessibilityLabel(isOpen ? Text("Close") : Text("Menu"))
+        .accessibilityLabel("Menu")
     }
 }
 
