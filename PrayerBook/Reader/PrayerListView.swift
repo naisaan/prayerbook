@@ -34,12 +34,10 @@ struct PrayerListNote: View {
             let side = min(proxy.size.width - 40, 440)
             let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: safeAreaTop + Self.cardSize * 0.3)
             // It opens in the exact middle of the screen, for a glance, without the keyboard.
-            // When the keyboard comes up, it rises with it, just enough to clear the keyboard
-            // and the list bar.
+            // When the keyboard comes up, it rises with it, just enough to clear it.
             let middle = proxy.size.height / 2
-            let barTop = proxy.size.height - keyboardHeight - Self.barGap - Self.barHeight
-            let aboveKeyboard = max(safeAreaTop + 16 + side / 2, min(middle, barTop - 12 - side / 2))
-            let openCenter = CGPoint(x: proxy.size.width / 2, y: keyboardHeight > 0 ? aboveKeyboard : middle)
+            let aboveKeyboard = max(safeAreaTop + 16 + side / 2, min(middle, proxy.size.height - keyboardSpace - 14 - side / 2))
+            let openCenter = CGPoint(x: proxy.size.width / 2, y: keyboardSpace > 0 ? aboveKeyboard : middle)
 
             ZStack {
                 // Tapping beside the note puts it back.
@@ -54,38 +52,57 @@ struct PrayerListNote: View {
                     .rotationEffect(isOpen ? tilt : Self.cardTilt)
                     .position(isOpen ? openCenter : closedCenter)
                     .offset(drag)
+                    // For the first keyboard after launch, before iOS says how tall it is.
+                    .animation(.smooth(duration: 0.3), value: isTyping)
                     .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
                     .gesture(flick(side: side), isEnabled: isOpen)
-
-                if isOpen && isTyping && keyboardHeight > 0 {
-                    listBar
-                        .position(x: 16 + Self.barWidth / 2, y: barTop + Self.barHeight / 2)
-                        .transition(.opacity)
-                }
             }
         }
         .ignoresSafeArea()
-        // Follow the keyboard with its own timing, so the note and bar move with it smoothly.
+        // Follow the keyboard with its own timing, so the note moves with it smoothly.
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillShowNotification)) { notice in
+            let frame = notice.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect
+            followKeyboard(height: frame?.height ?? Self.usualKeyboardHeight, notice: notice)
+        }
         .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notice in
-            guard let info = notice.userInfo,
-                  let frame = info[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
-                  let screen = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen
+            guard let frame = notice.userInfo?[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+                  let window = UIApplication.shared.connectedScenes.compactMap({ ($0 as? UIWindowScene)?.keyWindow }).first
             else { return }
-            let height = max(0, screen.bounds.height - frame.minY)
-            let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
-            withAnimation(.smooth(duration: max(duration, 0.2))) { keyboardHeight = height }
+            followKeyboard(height: max(0, window.bounds.height - frame.minY), notice: notice)
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillHideNotification)) { notice in
+            followKeyboard(height: 0, notice: notice)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: isOpen)
     }
 
+    // MARK: The keyboard
+
+    /// Roughly how tall the keyboard is with its suggestions, for when iOS hasn't said yet,
+    /// like the first time it comes up after launch.
+    private static let usualKeyboardHeight: CGFloat = 340
+
+    /// The room the note leaves for the keyboard.
+    private var keyboardSpace: CGFloat {
+        if keyboardHeight > 0 { return keyboardHeight }
+        return isTyping ? Self.usualKeyboardHeight : 0
+    }
+
+    private func followKeyboard(height: CGFloat, notice: Notification) {
+        let duration = notice.userInfo?[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
+        guard height != keyboardHeight else { return }
+        withAnimation(.smooth(duration: max(duration, 0.2))) { keyboardHeight = height }
+    }
+
     // MARK: The list bar
 
-    private static let barHeight: CGFloat = 52
-    private static let barWidth: CGFloat = 3 * 52 + 12
-    /// The room between the list bar and the keyboard.
-    private static let barGap: CGFloat = 14
+    /// The note's corner radius. The list bar sits in its bottom corner, inset so the two
+    /// curves share a center.
+    private static let noteCornerRadius: CGFloat = 28
+    private static let barInset: CGFloat = 8
+    private static let barHeight: CGFloat = (noteCornerRadius - barInset) * 2
 
     /// The list buttons, floating on glass just above the keyboard.
     private var listBar: some View {
@@ -95,8 +112,8 @@ struct PrayerListNote: View {
                     listCommand = style
                 } label: {
                     Image(systemName: style.systemImage)
-                        .font(.system(size: 19, weight: .medium))
-                        .frame(width: 52, height: 40)
+                        .font(.system(size: 18, weight: .medium))
+                        .frame(width: 48, height: Self.barHeight - 8)
                         .background {
                             if currentListStyle == style {
                                 Capsule().fill(.primary.opacity(0.12))
@@ -109,21 +126,30 @@ struct PrayerListNote: View {
                 .accessibilityAddTraits(currentListStyle == style ? .isSelected : [])
             }
         }
-        .padding(6)
-        .frame(width: Self.barWidth, height: Self.barHeight)
+        .padding(4)
+        .frame(height: Self.barHeight)
         .glassEffect(.regular.interactive(), in: .capsule)
     }
 
     private func note(side: CGFloat) -> some View {
         // While it's a card, everything is scaled down, so the corners and shadow are scaled up.
         let cardScale: CGFloat = side / Self.cardSize
-        let cornerRadius: CGFloat = isOpen ? 28 : side * 0.225
+        let cornerRadius: CGFloat = isOpen ? Self.noteCornerRadius : side * 0.225
         let shadowRadius: CGFloat = isOpen ? 24 : 6 * cardScale
         let shadowY: CGFloat = isOpen ? 8 : 3 * cardScale
         let shadowOpacity: Double = isOpen ? 0.25 : 0.35
 
         return noteContent
             .padding(20)
+            // While typing, the list buttons sit in the note's bottom corner.
+            .overlay(alignment: .bottomLeading) {
+                if isTyping {
+                    listBar
+                        .padding(Self.barInset)
+                        .transition(.opacity.combined(with: .scale(scale: 0.9, anchor: .bottomLeading)))
+                }
+            }
+            .animation(.smooth(duration: 0.25), value: isTyping)
             .opacity(isOpen ? 1 : 0)
             // While it's a card, a tap opens it instead of starting to type.
             .allowsHitTesting(isOpen)
