@@ -339,12 +339,9 @@ private struct SplashView: View {
     var body: some View {
         ZStack {
             colorScheme == .dark ? Color.black : Color.white
+            // At its own size, exactly like the launch screen iOS shows before the app starts,
+            // so the hand-off between the two can't be seen.
             Image("Splash")
-                .resizable()
-                .scaledToFit()
-                .containerRelativeFrame(.horizontal) { width, _ in
-                    width * (colorScheme == .dark ? 0.44 : 0.55)
-                }
                 .accessibilityLabel("Bahá’í Prayer Book")
         }
         .ignoresSafeArea()
