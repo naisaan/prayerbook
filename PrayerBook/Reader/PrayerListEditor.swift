@@ -146,6 +146,8 @@ struct PrayerListEditor: View {
             }
             TextField("", text: line.text, axis: .vertical)
                 .focused($focused, equals: line.wrappedValue.id)
+                // In case return is taken as "done" rather than typed: start a new line anyway.
+                .onSubmit { edited(line.wrappedValue.id, line.wrappedValue.text + "\n") }
                 .onChange(of: line.wrappedValue.text) { _, newText in
                     edited(line.wrappedValue.id, newText)
                 }
@@ -184,7 +186,9 @@ struct PrayerListEditor: View {
             lines[index].text = before
             let next = PrayerListLine(text: start + after, style: style)
             lines.insert(next, at: index + 1)
-            focused = next.id
+            // The new line's field only exists after this update, so move to it just after.
+            // Until then the keyboard stays with this line instead of going away.
+            Task { @MainActor in focused = next.id }
             return
         }
 
@@ -195,10 +199,12 @@ struct PrayerListEditor: View {
                 lines[index].text = start + newText
             } else if index > 0 {
                 // A plain line joins the one above.
-                let previous = lines[index - 1].id
+                // Move to the line above first, so the keyboard stays up when this one goes.
+                let removed = lines[index].id
                 lines[index - 1].text += newText
-                lines.remove(at: index)
-                focused = previous
+                lines[index].text = start
+                focused = lines[index - 1].id
+                Task { @MainActor in lines.removeAll { $0.id == removed } }
             } else {
                 lines[index].text = start + newText
             }
