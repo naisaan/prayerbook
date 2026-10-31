@@ -95,7 +95,7 @@ final class Library {
     }
 
     /// The obligatory prayers open the book, right after its title page.
-    nonisolated private static let firstSections: Set<String> = ["Obligatory Prayers", "Preghiere obbligatorie"]
+    nonisolated private static let firstSections: Set<String> = ["Obligatory Prayers", "Preghiere obbligatorie", "Pinngitsoorani Qinnutissat"]
 
     /// The obligatory prayers first, then alphabetical, ignoring a leading "The", like the original app.
     nonisolated private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {

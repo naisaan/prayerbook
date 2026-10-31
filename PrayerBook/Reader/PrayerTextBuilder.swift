@@ -15,7 +15,7 @@ struct PrayerTextBuilder {
     /// show each prayer's title above it. The Italian names follow the English ones.
     static let titledSections: Set<String> = [
         "Huqúqu'lláh", "Occasional Prayers", "Special Tablets", "Obligatory Prayers", "The Holy Land", "Holy Days",
-        "Ḥuqúqu’lláh", "Tavole speciali", "Preghiere obbligatorie",
+        "Ḥuqúqu’lláh", "Tavole speciali", "Preghiere obbligatorie", "Pinngitsoorani Qinnutissat",
     ]
     static let titledPrayers: Set<String> = ["Prayer for the Dead", "Preghiera dei defunti", "The Nineteen Day Feast"]
 
@@ -28,6 +28,7 @@ struct PrayerTextBuilder {
     static let shortcuts: [Int: (title: String, prayerID: Int)] = [
         1233817157: ("Tablet of Ahmad", 1233817420),
         1800000003: ("Tavola di Aḥmad", 1800000219),
+        1700000079: ("Ahmad-imut Allakkat", 1700000003),
     ]
 
     struct Result {

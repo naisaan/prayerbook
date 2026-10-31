@@ -21,6 +21,7 @@ struct Language: Identifiable, Hashable {
         Language(code: "fr", name: "Français", englishName: "French", isRightToLeft: false),
         Language(code: "is", name: "Íslenska", englishName: "Icelandic", isRightToLeft: false),
         Language(code: "it", name: "Italiano", englishName: "Italian", isRightToLeft: false),
+        Language(code: "kl", name: "Kalaallisut", englishName: "Greenlandic", isRightToLeft: false),
         Language(code: "nl", name: "Nederlands", englishName: "Dutch", isRightToLeft: false),
         Language(code: "sk", name: "Slovenčina", englishName: "Slovak", isRightToLeft: false),
         Language(code: "fj", name: "Vakaviti", englishName: "Fijian", isRightToLeft: false),
