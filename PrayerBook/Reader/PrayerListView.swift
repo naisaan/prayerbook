@@ -2,8 +2,9 @@ import SwiftUI
 
 /// The prayer list: a card shaped like the app icon, tilted and peeking in from the top
 /// corner of the page. Tapping it grows it into a square note hovering over the prayer,
-/// where the reader writes whatever they like. Tapping beside the note puts it back in its
-/// corner; flicking it, like Tweetbot's image viewer, throws it off the screen.
+/// where the reader writes whatever they like. Tapping beside the note, or flicking it like
+/// Tweetbot's image viewer, sends it back into its corner. It's separate from the notes on
+/// highlights.
 ///
 /// The card and the note are one view: it's scaled, turned and moved between the two with
 /// Apple's springs, so the text inside never has to be laid out again mid-animation.
@@ -15,7 +16,6 @@ struct PrayerListNote: View {
 
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
-    @State private var cardOpacity = 1.0
     @FocusState private var isTyping: Bool
     @Environment(\.colorScheme) private var colorScheme
 
@@ -44,10 +44,10 @@ struct PrayerListNote: View {
                     .rotationEffect(isOpen ? tilt : Self.cardTilt)
                     .position(isOpen ? openCenter : closedCenter)
                     .offset(drag)
-                    .opacity(isOpen ? 1 : (isHidden ? 0 : cardOpacity))
+                    .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
-                    .gesture(flick(side: side, screen: proxy.size), isEnabled: isOpen)
+                    .gesture(flick(side: side), isEnabled: isOpen)
             }
         }
         .ignoresSafeArea()
@@ -112,8 +112,8 @@ struct PrayerListNote: View {
     }
 
     /// Drag the note around, tilting it the way a card held at that spot would turn. Let go
-    /// quickly and it flies off the screen in that direction; let go slowly and it springs back.
-    private func flick(side: CGFloat, screen: CGSize) -> some Gesture {
+    /// quickly and it flies back to its corner; let go slowly and it springs back into place.
+    private func flick(side: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 12)
             .onChanged { value in
                 isTyping = false
@@ -133,27 +133,12 @@ struct PrayerListNote: View {
                     }
                     return
                 }
-                // Off the screen in the direction it was thrown.
-                let direction = speed > 700
-                    ? CGSize(width: velocity.width / speed, height: velocity.height / speed)
-                    : CGSize(width: value.translation.width / distance, height: value.translation.height / distance)
-                let away = hypot(screen.width, screen.height)
-                withAnimation(.easeOut(duration: 0.3)) {
-                    drag = CGSize(width: drag.width + direction.width * away, height: drag.height + direction.height * away)
-                    tilt = .degrees(tilt.degrees + direction.width * 25)
-                } completion: {
-                    // Back in its corner, out of sight, then fade the card in.
-                    var reset = Transaction()
-                    reset.disablesAnimations = true
-                    withTransaction(reset) {
-                        isOpen = false
-                        drag = .zero
-                        tilt = .zero
-                        cardOpacity = 0
-                    }
-                    withAnimation(.easeIn(duration: 0.3).delay(0.1)) {
-                        cardOpacity = 1
-                    }
+                // However it's thrown, it flies home to its corner and shrinks back into the card.
+                isTyping = false
+                withAnimation(.spring(duration: 0.5, bounce: 0.2)) {
+                    isOpen = false
+                    drag = .zero
+                    tilt = .zero
                 }
             }
     }
