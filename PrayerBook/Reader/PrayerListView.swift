@@ -98,11 +98,9 @@ struct PrayerListNote: View {
 
     // MARK: The list bar
 
-    /// The note's corner radius. The list bar sits in its bottom corner, inset so the two
-    /// curves share a center.
     private static let noteCornerRadius: CGFloat = 28
-    private static let barInset: CGFloat = 8
-    private static let barHeight: CGFloat = (noteCornerRadius - barInset) * 2
+    /// The list bar sits in the note's bottom corner, this far in.
+    private static let barInset: CGFloat = 10
 
     /// The list buttons, floating on glass just above the keyboard.
     private var listBar: some View {
@@ -112,8 +110,8 @@ struct PrayerListNote: View {
                     listCommand = style
                 } label: {
                     Image(systemName: style.systemImage)
-                        .font(.system(size: 18, weight: .medium))
-                        .frame(width: 48, height: Self.barHeight - 8)
+                        .font(.system(size: 19, weight: .medium))
+                        .frame(width: 52, height: 40)
                         .background {
                             if currentListStyle == style {
                                 Capsule().fill(.primary.opacity(0.12))
@@ -126,8 +124,7 @@ struct PrayerListNote: View {
                 .accessibilityAddTraits(currentListStyle == style ? .isSelected : [])
             }
         }
-        .padding(4)
-        .frame(height: Self.barHeight)
+        .padding(6)
         .glassEffect(.regular.interactive(), in: .capsule)
     }
 
