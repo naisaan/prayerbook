@@ -113,7 +113,7 @@ struct ContentsView: View {
                     }
                 }
             }
-            .navigationTitle("Contents")
+            .navigationTitle("Contents & Bookmarks")
             .confirmationDialog("Start reading progress over?", isPresented: $confirmingReset, titleVisibility: .visible) {
                 Button("Start Over", role: .destructive) { library.resetProgress() }
             } message: {

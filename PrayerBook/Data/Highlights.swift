@@ -1,0 +1,177 @@
+import Foundation
+import Observation
+import UIKit
+
+/// The four highlighter colors.
+enum HighlightColor: String, Codable, CaseIterable {
+    case yellow, green, blue, pink
+
+    /// The color of the dot in the highlight menu.
+    var swatch: UIColor {
+        switch self {
+        case .yellow: UIColor(hex: 0xEFD139)
+        case .green: UIColor(hex: 0x98DC81)
+        case .blue: UIColor(hex: 0x95B9FF)
+        case .pink: UIColor(hex: 0xFF9CB4)
+        }
+    }
+
+    /// The color behind highlighted text: the swatch, softened so the text stays easy to read.
+    /// In dark mode it's deeper, so white text still stands out.
+    var fill: UIColor {
+        let swatch = swatch
+        return UIColor { traits in
+            swatch.withAlphaComponent(traits.userInterfaceStyle == .dark ? 0.55 : 0.6)
+        }
+    }
+
+    var name: String {
+        switch self {
+        case .yellow: String(localized: "Yellow")
+        case .green: String(localized: "Green")
+        case .blue: String(localized: "Blue")
+        case .pink: String(localized: "Pink")
+        }
+    }
+}
+
+/// The four underline colors. `ink` is the text's own color: black in light mode, white in dark.
+enum UnderlineColor: String, Codable, CaseIterable {
+    case ink, red, blue, green
+
+    var color: UIColor {
+        switch self {
+        case .ink: Typography.textColor
+        case .red: UIColor(hex: 0xC71812)
+        case .blue: UIColor(hex: 0x1F5FD6)
+        case .green: UIColor(hex: 0x2B6E3F)
+        }
+    }
+
+    /// The name of the color, which for `ink` depends on light or dark mode.
+    func name(isDark: Bool) -> String {
+        switch self {
+        case .ink: isDark ? String(localized: "White") : String(localized: "Black")
+        case .red: String(localized: "Red")
+        case .blue: String(localized: "Blue")
+        case .green: String(localized: "Green")
+        }
+    }
+}
+
+enum HighlightStyle: Codable, Hashable {
+    case highlight(HighlightColor)
+    case underline(UnderlineColor)
+}
+
+/// A highlighted or underlined passage of a prayer.
+struct Highlight: Identifiable, Codable, Hashable {
+    let id: UUID
+    let prayerID: Int
+    /// Where the passage is in the prayer's whole text (with the drop cap letter in its place),
+    /// so it stays put when the font, size or drop cap setting changes.
+    var location: Int
+    var length: Int
+    var style: HighlightStyle
+    var text: String
+    let created: Date
+
+    var range: NSRange { NSRange(location: location, length: length) }
+}
+
+extension Notification.Name {
+    static let highlightsDidChange = Notification.Name("highlightsDidChange")
+}
+
+/// Every highlight and underline, saved on the device.
+@Observable
+final class Highlights {
+    static let shared = Highlights()
+
+    private let defaults = UserDefaults.standard
+    /// Newest first.
+    private(set) var all: [Highlight]
+    /// The color a new highlight gets: the one picked last.
+    private(set) var lastHighlightColor: HighlightColor
+    /// The color an underline gets: the one picked last.
+    private(set) var lastUnderlineColor: UnderlineColor
+
+    private init() {
+        all = defaults.data(forKey: Keys.highlights)
+            .flatMap { try? JSONDecoder().decode([Highlight].self, from: $0) } ?? []
+        lastHighlightColor = defaults.string(forKey: Keys.lastHighlightColor).flatMap(HighlightColor.init) ?? .yellow
+        lastUnderlineColor = defaults.string(forKey: Keys.lastUnderlineColor).flatMap(UnderlineColor.init) ?? .ink
+    }
+
+    func highlights(inPrayer prayerID: Int) -> [Highlight] {
+        all.filter { $0.prayerID == prayerID }
+    }
+
+    func highlight(withID id: UUID) -> Highlight? {
+        all.first { $0.id == id }
+    }
+
+    /// Highlights a passage in the last color picked. Any highlights it overlaps join it.
+    /// `text` gives the prayer's text for a range, to save with the highlight.
+    @discardableResult
+    func add(prayerID: Int, range: NSRange, text: (NSRange) -> String) -> Highlight {
+        let overlapping = all.filter {
+            $0.prayerID == prayerID && NSIntersectionRange($0.range, range).length > 0
+        }
+        let merged = overlapping.reduce(range) { NSUnionRange($0, $1.range) }
+        all.removeAll { old in overlapping.contains { $0.id == old.id } }
+        let highlight = Highlight(
+            id: UUID(),
+            prayerID: prayerID,
+            location: merged.location,
+            length: merged.length,
+            style: .highlight(lastHighlightColor),
+            text: text(merged),
+            created: .now
+        )
+        all.insert(highlight, at: 0)
+        save()
+        return highlight
+    }
+
+    func setStyle(_ style: HighlightStyle, for id: UUID) {
+        guard let index = all.firstIndex(where: { $0.id == id }) else { return }
+        all[index].style = style
+        switch style {
+        case .highlight(let color):
+            lastHighlightColor = color
+            defaults.set(color.rawValue, forKey: Keys.lastHighlightColor)
+        case .underline(let color):
+            lastUnderlineColor = color
+            defaults.set(color.rawValue, forKey: Keys.lastUnderlineColor)
+        }
+        save()
+    }
+
+    func remove(_ id: UUID) {
+        all.removeAll { $0.id == id }
+        save()
+    }
+
+    private func save() {
+        defaults.set(try? JSONEncoder().encode(all), forKey: Keys.highlights)
+        NotificationCenter.default.post(name: .highlightsDidChange, object: self)
+    }
+
+    private enum Keys {
+        static let highlights = "highlights"
+        static let lastHighlightColor = "lastHighlightColor"
+        static let lastUnderlineColor = "lastUnderlineColor"
+    }
+}
+
+extension UIColor {
+    convenience init(hex: UInt32) {
+        self.init(
+            red: CGFloat((hex >> 16) & 0xFF) / 255,
+            green: CGFloat((hex >> 8) & 0xFF) / 255,
+            blue: CGFloat(hex & 0xFF) / 255,
+            alpha: 1
+        )
+    }
+}

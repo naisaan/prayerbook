@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ReaderSheet: String, Identifiable {
-    case contents, bookmarks, search, settings, languages, about
+    case contents, highlights, search, settings, languages, about
     var id: String { rawValue }
 }
 
@@ -128,7 +128,7 @@ struct ReaderView: View {
             if menuOpen {
                 ReaderMenu(
                     progress: progress,
-                    bookmarkCount: library.bookmarkedPrayers.count,
+                    highlightCount: visibleHighlightCount,
                     isBookmarked: isCurrentBookmarked,
                     shareText: currentPrayer?.shareText,
                     onSelect: { choice in
@@ -199,6 +199,11 @@ struct ReaderView: View {
         currentPrayer.flatMap { library.bookmarkColor(for: $0.id) }
     }
 
+    /// Highlights in the languages that are turned on.
+    private var visibleHighlightCount: Int {
+        Highlights.shared.all.filter { library.prayersByID[$0.prayerID] != nil }.count
+    }
+
     private var isCurrentBookmarked: Bool {
         currentPrayer.map { library.isBookmarked($0.id) } ?? false
     }
@@ -241,12 +246,17 @@ struct ReaderView: View {
         switch sheet {
         case .contents:
             ContentsView(currentPrayerID: currentPrayer?.id, progress: progress, onOpen: openPrayer)
-        case .bookmarks:
-            BookmarksView(onOpen: openPrayer)
-        case .search:
-            SearchView(onOpen: { prayerID, query in
-                closeSheetAndTurn(to: book?.page(of: prayerID, matching: query))
+        case .highlights:
+            HighlightsView(onOpen: { highlight in
+                closeSheetAndTurn(to: book?.page(of: highlight))
             })
+        case .search:
+            SearchView(
+                onOpen: { prayerID, query in
+                    closeSheetAndTurn(to: book?.page(of: prayerID, matching: query))
+                },
+                onOpenPrayer: openPrayer
+            )
         case .settings:
             SettingsSheet()
         case .languages:

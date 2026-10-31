@@ -76,7 +76,7 @@ struct ReaderMenu: View {
     @Environment(Library.self) private var library
 
     let progress: Int
-    let bookmarkCount: Int
+    let highlightCount: Int
     let isBookmarked: Bool
     /// Nil on a section title page, where there's no prayer to share or bookmark.
     let shareText: String?
@@ -90,11 +90,11 @@ struct ReaderMenu: View {
     var body: some View {
         GlassEffectContainer(spacing: 8) {
             VStack(alignment: .trailing, spacing: 8) {
-                MenuRow(title: "Contents · \(progress)%", systemImage: "list.bullet", progress: Double(progress) / 100) {
+                MenuRow(title: "Contents & Bookmarks · \(progress)%", systemImage: "list.bullet", progress: Double(progress) / 100) {
                     onSelect(.contents)
                 }
-                MenuRow(title: "Bookmarks & Recents", systemImage: "bookmark", detail: bookmarkCount > 0 ? "\(bookmarkCount)" : nil) {
-                    onSelect(.bookmarks)
+                MenuRow(title: "Highlights & Notes", systemImage: "highlighter", detail: highlightCount > 0 ? "\(highlightCount)" : nil) {
+                    onSelect(.highlights)
                 }
                 MenuRow(title: "Search Book", systemImage: "magnifyingglass") {
                     onSelect(.search)

@@ -44,6 +44,36 @@ final class PrayerLayout {
         return layoutManager.characterRange(forGlyphRange: glyphs, actualGlyphRange: nil)
     }
 
+    /// The prayer's whole text, with the drop cap's letter where `storage` leaves it out.
+    var fullText: String {
+        guard let dropCap else { return storage.string }
+        let text = NSMutableString(string: storage.string)
+        text.insert(dropCap.letter.string, at: dropCap.characterLocation)
+        return text as String
+    }
+
+    /// Turns a range of `storage` into the same passage of `fullText`. A passage starting
+    /// right after the drop cap takes in its letter too.
+    func fullTextRange(_ range: NSRange) -> NSRange {
+        guard let dropCap else { return range }
+        let location = dropCap.characterLocation
+        let shift = dropCap.letter.length
+        let start = range.location <= location ? range.location : range.location + shift
+        let end = NSMaxRange(range) <= location ? NSMaxRange(range) : NSMaxRange(range) + shift
+        return NSRange(location: start, length: end - start)
+    }
+
+    /// Turns a passage of `fullText` back into a range of `storage`.
+    func storageRange(_ range: NSRange) -> NSRange {
+        guard let dropCap else { return range }
+        let location = dropCap.characterLocation
+        let shift = dropCap.letter.length
+        func convert(_ index: Int) -> Int { index <= location ? index : max(index - shift, location) }
+        let start = convert(range.location)
+        let end = min(convert(NSMaxRange(range)), storage.length)
+        return NSRange(location: min(start, end), length: max(end - start, 0))
+    }
+
     /// Adds pages until all of the text has a place, then removes any empty pages at the end.
     private func fillPages() {
         var index = 0

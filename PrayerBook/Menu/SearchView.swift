@@ -1,11 +1,14 @@
 import SwiftUI
 
-/// Search every prayer in the book, with recent searches, like Apple Books' "Search Book".
+/// Search every prayer in the book, with recent searches and recently read prayers, like
+/// Apple Books' "Search Book".
 struct SearchView: View {
     @Environment(Library.self) private var library
     @Environment(\.dismiss) private var dismiss
 
     let onOpen: (Int, String) -> Void
+    /// Opens a recently read prayer at its first page.
+    let onOpenPrayer: (Int) -> Void
 
     @State private var query = ""
     @State private var isSearching = false
@@ -35,6 +38,24 @@ struct SearchView: View {
                                     .textCase(nil)
                                 Spacer()
                                 Button("Clear") { library.clearRecentSearches() }
+                                    .textCase(nil)
+                            }
+                        }
+                    }
+                    if !library.recentPrayers.isEmpty {
+                        Section {
+                            ForEach(library.recentPrayers) { prayer in
+                                Button { onOpenPrayer(prayer.id) } label: { PrayerRow(prayer: prayer) }
+                                    .tint(.primary)
+                            }
+                        } header: {
+                            HStack {
+                                Text("Recent Prayers")
+                                    .font(.title2.weight(.bold))
+                                    .foregroundStyle(.primary)
+                                    .textCase(nil)
+                                Spacer()
+                                Button("Clear") { library.clearRecents() }
                                     .textCase(nil)
                             }
                         }

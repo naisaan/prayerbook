@@ -1005,6 +1005,122 @@
         }
       }
     },
+    "Black": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schwarz"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Negro"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Noir"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nero"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zwart"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Svartur"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Černá"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čierna"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سیاه"
+          }
+        }
+      }
+    },
+    "Blue": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blau"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Azul"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bleu"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blu"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blauw"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blár"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modrá"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modrá"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آبی"
+          }
+        }
+      }
+    },
     "Bookmarked": {
       "localizations": {
         "de": {
@@ -1117,64 +1233,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "نشانک‌ها"
-          }
-        }
-      }
-    },
-    "Bookmarks & Recents": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lesezeichen & Zuletzt"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Marcadores y recientes"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Signets et récents"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Segnalibri e recenti"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bladwijzers en recent"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bókamerki og nýlegt"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Záložky a nedávné"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Záložky a nedávne"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "نشانک‌ها و اخیر"
           }
         }
       }
@@ -1469,60 +1527,118 @@
         }
       }
     },
-    "Contents · %lld%%": {
+    "Contents & Bookmarks": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhalt · %lld %%"
+            "value": "Inhalt & Lesezeichen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Índice · %lld %%"
+            "value": "Índice y marcadores"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sommaire · %lld %%"
+            "value": "Sommaire et signets"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Indice · %lld%%"
+            "value": "Indice e segnalibri"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Inhoud · %lld%%"
+            "value": "Inhoud en bladwijzers"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Efnisyfirlit · %lld%%"
+            "value": "Efnisyfirlit og bókamerki"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obsah · %lld %%"
+            "value": "Obsah a záložky"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Obsah · %lld %%"
+            "value": "Obsah a záložky"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "فهرست · %lld٪"
+            "value": "فهرست و نشانک‌ها"
+          }
+        }
+      }
+    },
+    "Contents & Bookmarks · %lld%%": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inhalt & Lesezeichen · %lld %%"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Índice y marcadores · %lld %%"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sommaire et signets · %lld %%"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Indice e segnalibri · %lld%%"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Inhoud en bladwijzers · %lld%%"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efnisyfirlit og bókamerki · %lld%%"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obsah a záložky · %lld %%"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Obsah a záložky · %lld %%"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فهرست و نشانک‌ها · %lld٪"
           }
         }
       }
@@ -1933,6 +2049,64 @@
         }
       }
     },
+    "Green": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grün"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verde"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vert"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verde"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Groen"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Grænn"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zelená"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zelená"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سبز"
+          }
+        }
+      }
+    },
     "Highlight": {
       "localizations": {
         "de": {
@@ -1991,60 +2165,118 @@
         }
       }
     },
-    "Highlights and notes are coming in a future update.": {
+    "Highlights": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markierungen und Notizen kommen mit einem zukünftigen Update."
+            "value": "Markierungen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Los resaltados y las notas llegarán en una próxima actualización."
+            "value": "Resaltados"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les surlignages et les notes arriveront dans une prochaine mise à jour."
+            "value": "Surlignages"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Evidenziazioni e note arriveranno in un prossimo aggiornamento."
+            "value": "Evidenziazioni"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Markeringen en notities komen in een toekomstige update."
+            "value": "Markeringen"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Auðkenningar og athugasemdir koma í næstu uppfærslu."
+            "value": "Auðkenningar"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zvýraznění a poznámky přibudou v některé z příštích aktualizací."
+            "value": "Zvýraznění"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zvýraznenia a poznámky pribudnú v niektorej z budúcich aktualizácií."
+            "value": "Zvýraznenia"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "برجسته‌سازی و یادداشت‌ها در به‌روزرسانی‌های آینده اضافه می‌شوند."
+            "value": "برجسته‌ها"
+          }
+        }
+      }
+    },
+    "Highlights & Notes": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markierungen & Notizen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Resaltados y notas"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Surlignages et notes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Evidenziazioni e note"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markeringen en notities"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Auðkenningar og athugasemdir"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zvýraznění a poznámky"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zvýraznenia a poznámky"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "برجسته‌ها و یادداشت‌ها"
           }
         }
       }
@@ -2632,118 +2864,176 @@
         }
       }
     },
-    "No Bookmarks": {
+    "No Highlights": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keine Lesezeichen"
+            "value": "Keine Markierungen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Sin marcadores"
+            "value": "Sin resaltados"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aucun signet"
+            "value": "Aucun surlignage"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessun segnalibro"
+            "value": "Nessuna evidenziazione"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Geen bladwijzers"
+            "value": "Geen markeringen"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Engin bókamerki"
+            "value": "Engar auðkenningar"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žádné záložky"
+            "value": "Žádná zvýraznění"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Žiadne záložky"
+            "value": "Žiadne zvýraznenia"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "نشانکی نیست"
+            "value": "برجسته‌ای نیست"
           }
         }
       }
     },
-    "Nothing Read Yet": {
+    "Notes": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Noch nichts gelesen"
+            "value": "Notizen"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Aún no has leído nada"
+            "value": "Notas"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rien de lu pour l’instant"
+            "value": "Notes"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nessuna lettura"
+            "value": "Note"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nog niets gelezen"
+            "value": "Notities"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ekkert lesið enn"
+            "value": "Athugasemdir"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zatím nic přečteno"
+            "value": "Poznámky"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zatiaľ nič prečítané"
+            "value": "Poznámky"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "هنوز چیزی خوانده نشده"
+            "value": "یادداشت‌ها"
+          }
+        }
+      }
+    },
+    "Notes are coming in a future update.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notizen kommen mit einem zukünftigen Update."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Las notas llegarán en una próxima actualización."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Les notes arriveront dans une prochaine mise à jour."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Le note arriveranno in un prossimo aggiornamento."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Notities komen in een toekomstige update."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Athugasemdir koma í næstu uppfærslu."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poznámky přibudou v některé z příštích aktualizací."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Poznámky pribudnú v niektorej z budúcich aktualizácií."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "یادداشت‌ها در به‌روزرسانی‌های آینده اضافه می‌شوند."
           }
         }
       }
@@ -2922,64 +3212,6 @@
         }
       }
     },
-    "Open the menu while reading and tap the bookmark button to save a prayer.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Öffne beim Lesen das Menü und tippe auf das Lesezeichen, um ein Gebet zu speichern."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Abre el menú mientras lees y toca el botón de marcador para guardar una oración."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ouvrez le menu pendant la lecture et touchez le bouton signet pour enregistrer une prière."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Apri il menu durante la lettura e tocca il pulsante segnalibro per salvare una preghiera."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Open tijdens het lezen het menu en tik op de bladwijzerknop om een gebed te bewaren."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Opnaðu valmyndina meðan þú lest og ýttu á bókamerkjahnappinn til að vista bæn."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Při čtení otevřete nabídku a klepnutím na tlačítko záložky modlitbu uložíte."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Pri čítaní otvorte ponuku a ťuknutím na tlačidlo záložky modlitbu uložíte."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "هنگام خواندن منو را باز کنید و برای ذخیرهٔ دعا روی دکمهٔ نشانک بزنید."
-          }
-        }
-      }
-    },
     "Original Prayer Book source code": {
       "localizations": {
         "de": {
@@ -3038,60 +3270,118 @@
         }
       }
     },
-    "Prayers you read will appear here.": {
+    "Pink": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Hier erscheinen die Gebete, die du liest."
+            "value": "Rosa"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Las oraciones que leas aparecerán aquí."
+            "value": "Rosa"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Les prières que vous lisez apparaîtront ici."
+            "value": "Rose"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Le preghiere che leggi appariranno qui."
+            "value": "Rosa"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gebeden die je leest, verschijnen hier."
+            "value": "Roze"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Bænir sem þú lest birtast hér."
+            "value": "Bleikur"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zde se zobrazí modlitby, které čtete."
+            "value": "Růžová"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Tu sa zobrazia modlitby, ktoré čítate."
+            "value": "Ružová"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "دعاهایی که می‌خوانید اینجا نمایش داده می‌شوند."
+            "value": "صورتی"
+          }
+        }
+      }
+    },
+    "Press and hold on a prayer’s words, then tap Highlight.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Halte die Wörter eines Gebets gedrückt und tippe dann auf „Markieren“."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mantén pulsadas las palabras de una oración y toca Resaltar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Maintenez le doigt sur les mots d’une prière, puis touchez Surligner."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tieni premuto sulle parole di una preghiera, poi tocca Evidenzia."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Houd de woorden van een gebed ingedrukt en tik op Markeer."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Haltu fingri á orðum bænar og ýttu svo á Auðkenna."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podržte prst na slovech modlitby a klepněte na Zvýraznit."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podržte prst na slovách modlitby a ťuknite na Zvýrazniť."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "روی کلمات یک دعا انگشت خود را نگه دارید، سپس «برجسته‌سازی» را بزنید."
           }
         }
       }
@@ -3270,6 +3560,64 @@
         }
       }
     },
+    "Recent Prayers": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Zuletzt gelesene Gebete"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oraciones recientes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prières récentes"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Preghiere recenti"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Recente gebeden"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nýlegar bænir"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nedávné modlitby"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Nedávne modlitby"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "دعاهای اخیر"
+          }
+        }
+      }
+    },
     "Recent Searches": {
       "localizations": {
         "de": {
@@ -3328,60 +3676,118 @@
         }
       }
     },
-    "Recents": {
+    "Red": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zuletzt"
+            "value": "Rot"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recientes"
+            "value": "Rojo"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Récents"
+            "value": "Rouge"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recenti"
+            "value": "Rosso"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Recent"
+            "value": "Rood"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nýlegt"
+            "value": "Rauður"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nedávné"
+            "value": "Červená"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Nedávne"
+            "value": "Červená"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "اخیر"
+            "value": "قرمز"
+          }
+        }
+      }
+    },
+    "Remove Highlight": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Markierung entfernen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Quitar resaltado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Supprimer le surlignage"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rimuovi evidenziazione"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Verwijder markering"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjarlægja auðkenningu"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstranit zvýraznění"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Odstrániť zvýraznenie"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حذف برجسته‌سازی"
           }
         }
       }
@@ -4430,6 +4836,64 @@
         }
       }
     },
+    "Underline": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Unterstreichen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Subrayar"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Souligner"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sottolinea"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Onderstreep"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Undirstrika"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podtrhnout"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Podčiarknuť"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "زیرخط"
+          }
+        }
+      }
+    },
     "Version %@": {
       "localizations": {
         "de": {
@@ -4600,6 +5064,122 @@
           "stringUnit": {
             "state": "translated",
             "value": "می‌خواهید نام این فهرست چه باشد؟"
+          }
+        }
+      }
+    },
+    "White": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Weiß"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blanco"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Blanc"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bianco"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wit"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hvítur"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bílá"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Biela"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سفید"
+          }
+        }
+      }
+    },
+    "Yellow": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gelb"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Amarillo"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Jaune"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Giallo"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Geel"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gulur"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žlutá"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Žltá"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "زرد"
           }
         }
       }

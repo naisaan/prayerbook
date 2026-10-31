@@ -34,6 +34,11 @@ final class BookPageView: UIView {
         registerForTraitChanges([UITraitUserInterfaceStyle.self]) { (self: Self, _: UITraitCollection) in
             self.setNeedsDisplay()
         }
+        NotificationCenter.default.addObserver(self, selector: #selector(highlightsDidChange), name: .highlightsDidChange, object: nil)
+    }
+
+    @objc private func highlightsDidChange() {
+        setNeedsDisplay()
     }
 
     required init?(coder: NSCoder) {
@@ -82,10 +87,102 @@ final class BookPageView: UIView {
         return target.contains(local) ? prayerID : nil
     }
 
+    // MARK: Highlights
+
+    /// One line of a highlighted passage, in this view's coordinates.
+    struct HighlightLine {
+        let minX: CGFloat
+        let maxX: CGFloat
+        let baseline: CGFloat
+        let font: UIFont
+
+        /// The rounded box drawn behind the words, from the tops of the tallest letters to
+        /// just below the lowest.
+        var box: CGRect {
+            CGRect(x: minX - 2, y: baseline - font.ascender - 1, width: maxX - minX + 4, height: font.ascender - font.descender + 3)
+        }
+    }
+
+    /// The highlighted passages on this page, each with its lines.
+    private func highlightedLines() -> [(Highlight, [HighlightLine])] {
+        guard let prayerPage = book.pages[index].prayerPage else { return [] }
+        return Highlights.shared.highlights(inPrayer: prayerPage.prayer.id).compactMap { highlight in
+            let found = lines(for: highlight, in: prayerPage)
+            return found.isEmpty ? nil : (highlight, found)
+        }
+    }
+
+    private func lines(for highlight: Highlight, in prayerPage: PrayerPage) -> [HighlightLine] {
+        let layout = prayerPage.layout
+        let layoutManager = layout.layoutManager
+        let container = layout.containers[prayerPage.pageInPrayer]
+        let origin = book.metrics.textRect.origin
+        let visible = NSIntersectionRange(layout.storageRange(highlight.range), prayerPage.characterRange)
+        guard visible.length > 0 else { return [] }
+
+        let text = layout.storage.string as NSString
+        let glyphs = layoutManager.glyphRange(forCharacterRange: visible, actualCharacterRange: nil)
+        var lines: [HighlightLine] = []
+        layoutManager.enumerateLineFragments(forGlyphRange: glyphs) { lineRect, _, lineContainer, lineGlyphs, _ in
+            guard lineContainer === container else { return }
+            var characters = layoutManager.characterRange(forGlyphRange: NSIntersectionRange(lineGlyphs, glyphs), actualGlyphRange: nil)
+            // Leave out spaces and line breaks at the end of the line.
+            while characters.length > 0,
+                  let last = UnicodeScalar(text.character(at: NSMaxRange(characters) - 1)),
+                  CharacterSet.whitespacesAndNewlines.contains(last) {
+                characters.length -= 1
+            }
+            guard characters.length > 0 else { return }
+            let part = layoutManager.glyphRange(forCharacterRange: characters, actualCharacterRange: nil)
+            let bounds = layoutManager.boundingRect(forGlyphRange: part, in: container)
+            let font = layout.storage.attribute(.font, at: characters.location, effectiveRange: nil) as? UIFont
+                ?? self.book.typography.bodyFont
+            let baseline = lineRect.minY + layoutManager.location(forGlyphAt: part.location).y
+            lines.append(HighlightLine(minX: origin.x + bounds.minX, maxX: origin.x + bounds.maxX, baseline: origin.y + baseline, font: font))
+        }
+        return lines
+    }
+
+    /// The highlight at this point, if there's one there.
+    func highlight(at point: CGPoint) -> Highlight? {
+        highlightedLines().first { _, lines in
+            lines.contains { $0.box.insetBy(dx: -4, dy: -4).contains(point) }
+        }?.0
+    }
+
+    /// The area a highlight covers on this page.
+    func frame(of highlightID: UUID) -> CGRect? {
+        guard let lines = highlightedLines().first(where: { $0.0.id == highlightID })?.1 else { return nil }
+        return lines.map(\.box).reduce(CGRect.null) { $0.union($1) }
+    }
+
+    private func drawHighlights() {
+        for (highlight, lines) in highlightedLines() {
+            for line in lines {
+                switch highlight.style {
+                case .highlight(let color):
+                    color.fill.setFill()
+                    UIBezierPath(roundedRect: line.box, cornerRadius: 4).fill()
+                case .underline(let color):
+                    let size = line.font.pointSize
+                    let y = line.baseline + max(2.5, size * 0.16)
+                    let path = UIBezierPath()
+                    path.move(to: CGPoint(x: line.minX, y: y))
+                    path.addLine(to: CGPoint(x: line.maxX, y: y))
+                    path.lineWidth = max(1.5, size * 0.09)
+                    path.lineCapStyle = .round
+                    color.color.setStroke()
+                    path.stroke()
+                }
+            }
+        }
+    }
+
     private func drawPrayerPage(_ prayerPage: PrayerPage, origin: CGPoint) {
         let layout = prayerPage.layout
         let glyphs = layout.layoutManager.glyphRange(for: layout.containers[prayerPage.pageInPrayer])
         layout.layoutManager.drawBackground(forGlyphRange: glyphs, at: origin)
+        drawHighlights()
         layout.layoutManager.drawGlyphs(forGlyphRange: glyphs, at: origin)
 
         if let dropCap = layout.dropCap, dropCap.containerIndex == prayerPage.pageInPrayer {
@@ -129,7 +226,7 @@ final class BookPageView: UIView {
 
 /// Hosts one page inside the page curl controller. Taps in the middle of the page show or
 /// hide the reading controls; taps near the edges turn the page. Pressing and holding on the
-/// text selects it.
+/// text selects it, to highlight or underline it.
 final class PageViewController: UIViewController, UIGestureRecognizerDelegate, UITextViewDelegate {
     let index: Int
     /// Where the page sits in the page curl. The same as `index`, except in a right-to-left
@@ -140,8 +237,11 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     var onCenterTap: (() -> Void)?
     var onOpenPrayer: ((Int) -> Void)?
     private var textView: PageTextView?
-    /// Whether text was selected when the latest tap started. That tap only clears the selection.
-    private var tapStartedWithSelection = false
+    /// The colors shown over a highlight while it's being changed.
+    private var palette: HighlightPalette?
+    /// Whether text was selected, or the colors were showing, when the latest tap started.
+    /// That tap only clears them.
+    private var tapStartedBusy = false
 
     init(book: Book, index: Int, displayIndex: Int, showsTotal: Bool) {
         self.book = book
@@ -159,9 +259,11 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         view = BookPageView(book: book, index: index, showsTotal: initialShowsTotal)
     }
 
+    private var pageView: BookPageView? { viewIfLoaded as? BookPageView }
+
     var showsTotal: Bool {
-        get { (viewIfLoaded as? BookPageView)?.showsTotal ?? initialShowsTotal }
-        set { (viewIfLoaded as? BookPageView)?.showsTotal = newValue }
+        get { pageView?.showsTotal ?? initialShowsTotal }
+        set { pageView?.showsTotal = newValue }
     }
 
     override func viewDidLoad() {
@@ -178,45 +280,120 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         }
     }
 
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        dismissPalette(animated: false)
+    }
+
     var hasSelection: Bool { textView?.hasSelection ?? false }
 
+    /// The page stays put while text is selected or the highlight colors are showing.
+    var blocksPageTurn: Bool { hasSelection || palette != nil }
+
+    // MARK: Edit menu
+
     func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        let system = PageTextView.menuWithoutTranslate(suggestedActions)
+        // Only prayers can be highlighted, not the verse on the book's opening page.
+        guard book.pages[index].prayerPage != nil else { return UIMenu(children: system) }
         let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
-            self?.showComingSoon()
+            self?.addHighlight(range)
         }
         let note = UIAction(title: String(localized: "Add Note"), image: UIImage(systemName: "note.text.badge.plus")) { [weak self] _ in
             self?.showComingSoon()
         }
-        return UIMenu(children: [highlight, note] + PageTextView.menuWithoutTranslate(suggestedActions))
+        return UIMenu(children: [highlight, note] + system)
     }
 
-    /// Highlights and notes aren't ready yet.
+    /// Notes aren't ready yet.
     private func showComingSoon() {
         let alert = UIAlertController(
             title: String(localized: "Coming Soon"),
-            message: String(localized: "Highlights and notes are coming in a future update."),
+            message: String(localized: "Notes are coming in a future update."),
             preferredStyle: .alert
         )
         alert.addAction(UIAlertAction(title: String(localized: "OK"), style: .default))
         present(alert, animated: true)
     }
 
+    // MARK: Highlights
+
+    private func addHighlight(_ range: NSRange) {
+        guard let prayerPage = book.pages[index].prayerPage, range.length > 0 else { return }
+        let layout = prayerPage.layout
+        let fullText = layout.fullText as NSString
+        let highlight = Highlights.shared.add(prayerID: prayerPage.prayer.id, range: layout.fullTextRange(range)) {
+            fullText.substring(with: $0)
+        }
+        textView?.clearSelection()
+        UIImpactFeedbackGenerator(style: .light).impactOccurred()
+        showPalette(for: highlight.id)
+    }
+
+    /// Shows the colors just below the highlight, or above it if there's no room below.
+    private func showPalette(for highlightID: UUID) {
+        dismissPalette(animated: false)
+        guard let highlight = Highlights.shared.highlight(withID: highlightID),
+              let frame = pageView?.frame(of: highlightID)
+        else { return }
+
+        let palette = HighlightPalette(style: highlight.style) { [weak self] style, closes in
+            Highlights.shared.setStyle(style, for: highlightID)
+            UISelectionFeedbackGenerator().selectionChanged()
+            if closes { self?.dismissPalette(animated: true) }
+        } onRemove: { [weak self] in
+            Highlights.shared.remove(highlightID)
+            self?.dismissPalette(animated: true)
+        }
+        let size = palette.systemLayoutSizeFitting(UIView.layoutFittingCompressedSize)
+        let bounds = view.bounds
+        let gap: CGFloat = 12
+        let below = frame.maxY + gap
+        let y = below + size.height <= bounds.height - book.metrics.safeArea.bottom - 8
+            ? below
+            : max(frame.minY - gap - size.height, book.metrics.safeArea.top + 8)
+        let x = min(max(bounds.midX - size.width / 2, 12), bounds.width - size.width - 12)
+        palette.frame = CGRect(origin: CGPoint(x: x, y: y), size: size)
+        view.addSubview(palette)
+        self.palette = palette
+        palette.appear()
+    }
+
+    private func dismissPalette(animated: Bool) {
+        guard let palette else { return }
+        self.palette = nil
+        palette.disappear(animated: animated)
+    }
+
+    // MARK: Taps
+
     /// The prayer a link at this point opens, if there's a link there.
     func prayerLink(at point: CGPoint) -> Int? {
-        (viewIfLoaded as? BookPageView)?.prayerLink(at: point)
+        pageView?.prayerLink(at: point)
+    }
+
+    /// Whether a tap here is for the page itself (a link or a highlight) rather than for
+    /// turning the page.
+    func takesTap(at point: CGPoint) -> Bool {
+        prayerLink(at: point) != nil || pageView?.highlight(at: point) != nil
     }
 
     @objc private func handleTap(_ tap: UITapGestureRecognizer) {
         guard !hasSelection else { return }
-        if let prayerID = prayerLink(at: tap.location(in: view)) {
+        let point = tap.location(in: view)
+        if let prayerID = prayerLink(at: point) {
             onOpenPrayer?(prayerID)
+        } else if let highlight = pageView?.highlight(at: point) {
+            showPalette(for: highlight.id)
         } else {
             onCenterTap?()
         }
     }
 
     func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
-        tapStartedWithSelection = hasSelection
+        // Taps on the colors are for their buttons.
+        if let palette, let touched = touch.view, touched.isDescendant(of: palette) { return false }
+        tapStartedBusy = blocksPageTurn
         return true
     }
 
@@ -227,14 +404,15 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-        if tapStartedWithSelection {
+        if tapStartedBusy {
             textView?.clearSelection()
+            dismissPalette(animated: true)
             return false
         }
-        if prayerLink(at: gestureRecognizer.location(in: view)) != nil { return true }
-        let x = gestureRecognizer.location(in: view).x
+        let point = gestureRecognizer.location(in: view)
+        if takesTap(at: point) { return true }
         let width = view.bounds.width
-        return x > width * 0.25 && x < width * 0.75
+        return point.x > width * 0.25 && point.x < width * 0.75
     }
 }
 
@@ -372,19 +550,20 @@ struct PageCurlView: UIViewControllerRepresentable {
             return BackPageViewController(book: parent.book, index: bookIndex(display), displayIndex: display)
         }
 
-        /// While text is selected, touches go to the selection (dragging its handles, or a
-        /// tap to clear it) instead of turning the page.
+        /// While text is selected or the highlight colors are showing, touches go to them
+        /// (dragging the selection's handles, or a tap to clear it) instead of turning the page.
         func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldReceive touch: UITouch) -> Bool {
             guard let page = pageController?.viewControllers?.first as? PageViewController else { return true }
-            return !page.hasSelection
+            return !page.blocksPageTurn
         }
 
-        /// Stops the page curl's own taps from turning the page when the tap is on a link.
+        /// Stops the page curl's own taps from turning the page when the tap is on a link or
+        /// a highlight.
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
             guard gestureRecognizer is UITapGestureRecognizer,
                   let page = pageController?.viewControllers?.first as? PageViewController
             else { return true }
-            return page.prayerLink(at: gestureRecognizer.location(in: page.view)) == nil
+            return !page.takesTap(at: gestureRecognizer.location(in: page.view))
         }
 
         /// The book page on screen.

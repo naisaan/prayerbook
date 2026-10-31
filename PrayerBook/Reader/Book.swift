@@ -181,6 +181,13 @@ final class Book: Identifiable {
         return index
     }
 
+    /// The page where a highlight starts.
+    func page(of highlight: Highlight) -> Int? {
+        guard let first = firstPages[highlight.prayerID], let prayerPage = pages[first].prayerPage else { return nil }
+        let start = prayerPage.layout.storageRange(highlight.range).location
+        return page(for: BookAnchor(prayerID: highlight.prayerID, characterIndex: start))
+    }
+
     /// The page of a prayer where a search query first appears.
     func page(of prayerID: Int, matching query: String) -> Int? {
         guard let first = firstPages[prayerID], let prayerPage = pages[first].prayerPage else { return nil }
