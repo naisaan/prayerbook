@@ -16,7 +16,7 @@ struct PrayerListNote: View {
 
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
-    @FocusState private var isTyping: Bool
+    @State private var isTyping = false
     @Environment(ReaderSettings.self) private var settings
 
     private var list: PrayerList { .shared }
@@ -71,18 +71,16 @@ struct PrayerListNote: View {
                     .contentShape(Rectangle())
                     // Tapping the heading puts the keyboard away.
                     .onTapGesture { isTyping = false }
-                TextEditor(text: Bindable(list).text)
-                    .focused($isTyping)
-                    .font(settings.font.font(size: 18))
-                    .scrollContentBackground(.hidden)
-                    .scrollDismissesKeyboard(.interactively)
-                    .padding(.horizontal, -5)
+                PrayerListTextView(
+                    text: Bindable(list).text,
+                    isTyping: $isTyping,
+                    font: settings.font.uiFont(size: 18)
+                )
                     .overlay(alignment: .topLeading) {
                         if list.text.isEmpty {
                             Text("The people and things in your life you’d like to pray for…")
                                 .font(settings.font.font(size: 18))
                                 .foregroundStyle(.tertiary)
-                                .padding(.top, 8)
                                 .allowsHitTesting(false)
                         }
                     }
