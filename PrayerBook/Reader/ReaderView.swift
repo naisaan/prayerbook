@@ -1,7 +1,7 @@
 import SwiftUI
 
 enum ReaderSheet: String, Identifiable {
-    case contents, highlights, search, settings, languages, about
+    case contents, highlights, search, settings, languages
     var id: String { rawValue }
 }
 
@@ -154,12 +154,7 @@ struct ReaderView: View {
             // the menu button (with a small badge) when tapped.
             ZStack {
                 MenuButton(isOpen: menuOpen) {
-                    if menuOpen {
-                        setMenu(open: false)
-                        sheet = .about
-                    } else {
-                        setMenu(open: true)
-                    }
+                    setMenu(open: !menuOpen)
                 }
                 .opacity(showsControls ? 1 : 0)
                 .allowsHitTesting(showsControls)
@@ -263,8 +258,6 @@ struct ReaderView: View {
             SettingsSheet()
         case .languages:
             LanguagesView()
-        case .about:
-            AboutView()
         }
     }
 

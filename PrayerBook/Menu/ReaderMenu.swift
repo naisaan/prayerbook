@@ -1,7 +1,7 @@
 import SwiftUI
 
 /// The round menu button in the bottom corner, with Apple Books' icon:
-/// two lines over three dots. While the menu is open it becomes the About button.
+/// two lines over three dots. While the menu is open it becomes a button to close it.
 struct MenuButton: View {
     let isOpen: Bool
     let action: () -> Void
@@ -10,7 +10,7 @@ struct MenuButton: View {
         Button(action: action) {
             ZStack {
                 if isOpen {
-                    Image(systemName: "info")
+                    Image(systemName: "xmark")
                         .font(.system(size: 19, weight: .semibold))
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                 } else {
@@ -24,7 +24,7 @@ struct MenuButton: View {
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
         .menuSurface(.circle)
-        .accessibilityLabel(isOpen ? Text("About") : Text("Menu"))
+        .accessibilityLabel(isOpen ? Text("Close") : Text("Menu"))
     }
 }
 

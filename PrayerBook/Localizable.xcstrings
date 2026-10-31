@@ -712,64 +712,6 @@
         }
       }
     },
-    "Arash Payan’s Prayer Book Website": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prayer-Book-Website von Arash Payan"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sitio web de Prayer Book de Arash Payan"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Site Prayer Book d’Arash Payan"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sito di Prayer Book di Arash Payan"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prayer Book-website van Arash Payan"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Prayer Book-vefur Arash Payan"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Web Prayer Book Arashe Payana"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Web Prayer Book Arasha Payana"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "وب‌سایت Prayer Book آرش پایان"
-          }
-        }
-      }
-    },
     "Automatic": {
       "localizations": {
         "de": {
@@ -1001,64 +943,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "کتابخانهٔ مرجع بهائی"
-          }
-        }
-      }
-    },
-    "Based on the Source Code of the Original Prayer Book app by Arash Payan": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Basiert auf dem Quellcode der ursprünglichen Prayer-Book-App von Arash Payan"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Basado en el código fuente de la app original Prayer Book de Arash Payan"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Basé sur le code source de l’app Prayer Book originale d’Arash Payan"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Basato sul codice sorgente dell’app originale Prayer Book di Arash Payan"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gebaseerd op de broncode van de oorspronkelijke Prayer Book-app van Arash Payan"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Byggt á frumkóða upprunalega Prayer Book-forritsins eftir Arash Payan"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Založeno na zdrojovém kódu původní aplikace Prayer Book od Arashe Payana"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Založené na zdrojovom kóde pôvodnej aplikácie Prayer Book od Arasha Payana"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "بر پایهٔ کد منبع برنامهٔ اصلی Prayer Book ساختهٔ آرش پایان"
           }
         }
       }
@@ -3266,64 +3150,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "وب‌سایت رسمی بهائی"
-          }
-        }
-      }
-    },
-    "Original Prayer Book source code": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quellcode des ursprünglichen Prayer Book"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Código fuente del Prayer Book original"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code source du Prayer Book original"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Codice sorgente del Prayer Book originale"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Broncode van het oorspronkelijke Prayer Book"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Frumkóði upprunalega Prayer Book"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zdrojový kód původní aplikace Prayer Book"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zdrojový kód pôvodnej aplikácie Prayer Book"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "کد منبع Prayer Book اصلی"
           }
         }
       }

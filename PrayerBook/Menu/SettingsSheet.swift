@@ -1,9 +1,13 @@
 import SwiftUI
 
-/// Themes & Settings: text size, light or dark, the font, the drop cap, and the menu style.
+/// Themes & Settings: text size, light or dark, the font, the drop cap, the menu style, and
+/// the way to About.
 struct SettingsSheet: View {
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
+    @State private var showsAbout = false
+    /// The sheet is exactly as tall as what's in it.
+    @State private var contentHeight: CGFloat = 520
 
     var body: some View {
         @Bindable var settings = settings
@@ -50,10 +54,29 @@ struct SettingsSheet: View {
             .padding(.horizontal, 20)
             .frame(height: 52)
             .menuSurface(.capsule, interactive: false)
+
+            Button { showsAbout = true } label: {
+                HStack {
+                    Label("About", systemImage: "info.circle")
+                    Spacer()
+                    Image(systemName: "chevron.right")
+                        .font(.footnote.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
+                .padding(.horizontal, 20)
+                .frame(height: 52)
+                .contentShape(.capsule)
+            }
+            .buttonStyle(PressableButtonStyle())
+            .menuSurface(.capsule)
         }
         .foregroundStyle(.primary)
         .padding(24)
-        .presentationDetents([.medium])
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+        .presentationDetents([.height(contentHeight)])
+        .sheet(isPresented: $showsAbout) {
+            AboutView()
+        }
         .sensoryFeedback(.selection, trigger: settings.font)
         .sensoryFeedback(.selection, trigger: settings.appearance)
         .sensoryFeedback(.selection, trigger: settings.textSizeIndex)

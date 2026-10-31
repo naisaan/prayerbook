@@ -29,10 +29,7 @@ struct AboutView: View {
                 }
 
                 Section("Credits") {
-                    Text("Based on the Source Code of the Original Prayer Book app by Arash Payan")
                     Text("This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)")
-                    Link("Original Prayer Book source code", destination: URL(string: "https://github.com/arashpayan/prayer-book")!)
-                    Link("Arash Payan’s Prayer Book Website", destination: URL(string: "https://www.prayerbook.app/")!)
                 }
 
                 Section("Dedications") {
