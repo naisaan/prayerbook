@@ -477,6 +477,122 @@
         }
       }
     },
+    "Add a person or intention": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Person oder Anliegen hinzufügen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade una persona o intención"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajouter une personne ou une intention"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi una persona o un’intenzione"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voeg een persoon of intentie toe"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bæta við manneskju eða bænarefni"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přidat osobu nebo úmysl"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridať osobu alebo úmysel"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افزودن شخص یا نیت"
+          }
+        }
+      }
+    },
+    "Add the people and things in your life you’d like to pray for.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Füge die Menschen und Anliegen in deinem Leben hinzu, für die du beten möchtest."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Añade las personas y las cosas de tu vida por las que quieras orar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ajoutez les personnes et les choses de votre vie pour lesquelles vous souhaitez prier."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Aggiungi le persone e le cose della tua vita per cui vuoi pregare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voeg de mensen en dingen in je leven toe waarvoor je wilt bidden."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bættu við fólki og málefnum í lífi þínu sem þú vilt biðja fyrir."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přidejte lidi a věci ve svém životě, za které se chcete modlit."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pridajte ľudí a veci vo svojom živote, za ktoré sa chcete modliť."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افراد و چیزهایی را در زندگی‌تان که می‌خواهید برایشان دعا کنید اضافه کنید."
+          }
+        }
+      }
+    },
     "Add to %@": {
       "localizations": {
         "de": {
@@ -3212,6 +3328,64 @@
         }
       }
     },
+    "Prayer List": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gebetsliste"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista de oración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Liste de prière"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lista di preghiera"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Gebedslijst"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bænalisti"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modlitební seznam"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Modlitebný zoznam"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فهرست دعا"
+          }
+        }
+      }
+    },
     "Press and hold on a prayer’s words, then tap Add Note.": {
       "localizations": {
         "de": {
@@ -5354,6 +5528,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "زرد"
+          }
+        }
+      }
+    },
+    "Your Prayer List Is Empty": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deine Gebetsliste ist leer"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tu lista de oración está vacía"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Votre liste de prière est vide"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "La tua lista di preghiera è vuota"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Je gebedslijst is leeg"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bænalistinn þinn er tómur"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Váš modlitební seznam je prázdný"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Váš modlitebný zoznam je prázdny"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فهرست دعای شما خالی است"
           }
         }
       }
