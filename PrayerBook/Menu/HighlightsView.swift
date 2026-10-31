@@ -79,8 +79,8 @@ struct HighlightsView: View {
                         }
                     }
                 } else {
-                    let notes = notes
-                    ForEach(notes) { item in
+                    let items = notes
+                    ForEach(items) { item in
                         switch item {
                         case .highlight(let highlight):
                             Button { onOpen(highlight) } label: {
@@ -96,7 +96,7 @@ struct HighlightsView: View {
                     }
                     .onDelete { offsets in
                         for offset in offsets {
-                            switch notes[offset] {
+                            switch items[offset] {
                             case .highlight(let highlight): Highlights.shared.setNote(nil, for: highlight.id)
                             case .prayer(let note): Highlights.shared.removePrayerNote(for: note.prayerID)
                             }
