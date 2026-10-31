@@ -29,12 +29,12 @@ struct PrayerListNote: View {
         GeometryReader { proxy in
             let side = min(proxy.size.width - 40, 440)
             let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: Self.cardSize * 0.95)
-            // Near the middle of the screen, and it stays put while typing: just high enough
-            // that the keyboard (about 360 points tall with its suggestions) never covers it.
-            let openCenter = CGPoint(
-                x: proxy.size.width / 2,
-                y: max(safeAreaTop + 24 + side / 2, min(proxy.size.height / 2, proxy.size.height - 360 - side / 2))
-            )
+            // It opens in the exact middle of the screen, for a glance, without the keyboard.
+            // Tapping in to type eases it up just enough that the keyboard (about 360 points
+            // tall with its suggestions) doesn't cover it.
+            let middle = proxy.size.height / 2
+            let aboveKeyboard = max(safeAreaTop + 24 + side / 2, min(middle, proxy.size.height - 360 - side / 2))
+            let openCenter = CGPoint(x: proxy.size.width / 2, y: isTyping ? aboveKeyboard : middle)
 
             ZStack {
                 // Tapping beside the note puts it back.
@@ -49,6 +49,8 @@ struct PrayerListNote: View {
                     .rotationEffect(isOpen ? tilt : Self.cardTilt)
                     .position(isOpen ? openCenter : closedCenter)
                     .offset(drag)
+                    // Moves in step with the keyboard.
+                    .animation(.smooth(duration: 0.35), value: isTyping)
                     .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
