@@ -21,119 +21,127 @@ enum PrayerListStyle: CaseIterable, Codable {
     }
 }
 
-/// One line of the prayer list.
-struct PrayerListLine: Identifiable, Equatable {
+/// A piece of the prayer list: either plain text, any number of lines long, or one list item.
+struct PrayerListBlock: Identifiable, Equatable {
     let id = UUID()
     var text: String
+    /// Nil for plain text.
     var style: PrayerListStyle?
     var isChecked = false
 
-    /// Every field starts with this invisible character. When it's gone, backspace was
-    /// pressed at the very start of the line, which SwiftUI's text fields can't report any
-    /// other way.
+    var isItem: Bool { style != nil }
+
+    /// Every list item's field starts with this invisible character. When it's gone,
+    /// backspace was pressed at the very start of the item, which SwiftUI's text fields
+    /// can't report any other way.
     static let start = "\u{200B}"
 
     var shownText: String { text.replacingOccurrences(of: Self.start, with: "") }
 
-    // MARK: Saving as plain text: "[ ] ", "[x] ", "• " or "– " at the start of a line.
-
-    static func lines(from text: String) -> [PrayerListLine] {
-        text.components(separatedBy: "\n").map { (line: String) -> PrayerListLine in
-            for (prefix, style, checked) in [("[ ] ", PrayerListStyle.checklist, false), ("[x] ", .checklist, true),
-                                             ("• ", .bullets, false), ("– ", .dashes, false)]
-            where line.hasPrefix(prefix) {
-                return PrayerListLine(text: start + String(line.dropFirst(prefix.count)), style: style, isChecked: checked)
-            }
-            return PrayerListLine(text: start + line, style: nil)
-        }
+    static func item(_ text: String, style: PrayerListStyle, isChecked: Bool = false) -> PrayerListBlock {
+        PrayerListBlock(text: start + text, style: style, isChecked: isChecked)
     }
 
-    static func text(from lines: [PrayerListLine]) -> String {
-        lines.map { (line: PrayerListLine) -> String in
-            let prefix: String = switch line.style {
-            case .checklist: line.isChecked ? "[x] " : "[ ] "
+    // MARK: Saving as plain text: "[ ] ", "[x] ", "• " or "– " at the start of an item's line.
+
+    private static let prefixes: [(String, PrayerListStyle, Bool)] = [
+        ("[ ] ", .checklist, false), ("[x] ", .checklist, true), ("• ", .bullets, false), ("– ", .dashes, false),
+    ]
+
+    static func blocks(from text: String) -> [PrayerListBlock] {
+        var blocks: [PrayerListBlock] = []
+        var plain: [String] = []
+        func flushPlain() {
+            if !plain.isEmpty { blocks.append(PrayerListBlock(text: plain.joined(separator: "\n"))) }
+            plain = []
+        }
+        for line in text.components(separatedBy: "\n") {
+            if let match = prefixes.first(where: { line.hasPrefix($0.0) }) {
+                flushPlain()
+                blocks.append(.item(String(line.dropFirst(match.0.count)), style: match.1, isChecked: match.2))
+            } else {
+                plain.append(line)
+            }
+        }
+        flushPlain()
+        return blocks
+    }
+
+    static func text(from blocks: [PrayerListBlock]) -> String {
+        blocks.map { (block: PrayerListBlock) -> String in
+            let prefix: String = switch block.style {
+            case .checklist: block.isChecked ? "[x] " : "[ ] "
             case .bullets: "• "
             case .dashes: "– "
             case nil: ""
             }
-            return prefix + line.shownText
+            return prefix + block.shownText
         }
         .joined(separator: "\n")
     }
 }
 
-/// The prayer list's text, all in SwiftUI: each line is its own text field, which can be a
-/// checklist item (with a circle to tick, like Notes), a bullet or a dash. A bar above the
-/// keyboard turns the line being typed into a list, and return carries the list on.
+/// The prayer list's text, all in SwiftUI. Plain text is one ordinary text box, with
+/// Apple's selection and grabbers across lines. Selecting some lines and tapping a list
+/// button in the bar above the keyboard turns just those lines into list items: their own
+/// rows, with a circle to tick like Notes, a bullet or a dash. Return carries a list on.
 struct PrayerListEditor: View {
     @Binding var text: String
     @Binding var isTyping: Bool
     let font: Font
 
-    @State private var lines: [PrayerListLine] = []
-    @FocusState private var focused: PrayerListLine.ID?
-    /// Apple's multiple selection: every line gets a circle, and tapping or dragging down
-    /// the circles picks several lines to turn into a list at once.
-    @State private var isSelecting = false
-    @State private var selection = Set<PrayerListLine.ID>()
+    @State private var blocks: [PrayerListBlock] = []
+    @State private var selections: [PrayerListBlock.ID: TextSelection] = [:]
+    @FocusState private var focused: PrayerListBlock.ID?
 
     var body: some View {
-        List(selection: $selection) {
-            ForEach($lines) { $line in
-                row($line)
-                    .listRowBackground(Color.clear)
-                    .listRowSeparator(.hidden)
-                    .listRowInsets(EdgeInsets(top: 3, leading: 0, bottom: 3, trailing: 0))
+        ScrollView {
+            VStack(alignment: .leading, spacing: 6) {
+                ForEach($blocks) { $block in
+                    if block.isItem {
+                        itemRow($block)
+                    } else {
+                        textBox($block)
+                    }
+                }
+                // Tapping below the last line types on it.
+                Color.clear
+                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .contentShape(Rectangle())
+                    .onTapGesture { focused = blocks.last?.id }
             }
-            // Tapping below the last line types on it.
-            Color.clear
-                .frame(height: 100)
-                .contentShape(Rectangle())
-                .onTapGesture { if !isSelecting { focused = lines.last?.id } }
-                .listRowBackground(Color.clear)
-                .listRowSeparator(.hidden)
-                .listRowInsets(EdgeInsets())
-                .selectionDisabled()
         }
-        .listStyle(.plain)
-        .scrollContentBackground(.hidden)
-        .environment(\.editMode, .constant(isSelecting ? .active : .inactive))
         .scrollDismissesKeyboard(.interactively)
         .scrollBounceBehavior(.basedOnSize)
         .font(font)
         .overlay(alignment: .topLeading) {
-            if lines.allSatisfy({ $0.shownText.isEmpty && $0.style == nil }) && focused == nil && !isSelecting {
+            if blocks.allSatisfy({ !$0.isItem && $0.text.isEmpty }) && focused == nil {
                 Text("The people and things in your life you’d like to pray for…")
                     .foregroundStyle(.tertiary)
                     .font(font)
                     .allowsHitTesting(false)
             }
         }
-        .overlay(alignment: .bottom) {
-            if isSelecting {
-                selectionBar
-                    .transition(.move(edge: .bottom).combined(with: .opacity))
-            }
-        }
-        .animation(.smooth(duration: 0.3), value: isSelecting)
         .toolbar {
             ToolbarItemGroup(placement: .keyboard) {
                 ForEach(PrayerListStyle.allCases, id: \.self) { style in
                     Button {
-                        toggle(style)
+                        apply(style)
                     } label: {
                         Image(systemName: style.systemImage)
                     }
                     .accessibilityLabel(style.name)
-                    .accessibilityAddTraits(focusedLine?.style == style ? .isSelected : [])
+                    .accessibilityAddTraits(focusedBlock?.style == style ? .isSelected : [])
                 }
                 Spacer()
-                Button("Select") { startSelecting() }
             }
         }
-        .onAppear { lines = PrayerListLine.lines(from: text) }
-        .onChange(of: lines) { _, lines in
-            text = PrayerListLine.text(from: lines)
+        .onAppear {
+            blocks = PrayerListBlock.blocks(from: text)
+            if blocks.isEmpty { blocks = [PrayerListBlock(text: "")] }
+        }
+        .onChange(of: blocks) { _, blocks in
+            text = PrayerListBlock.text(from: blocks)
         }
         .onChange(of: focused) { _, focused in
             if isTyping != (focused != nil) { isTyping = focused != nil }
@@ -141,54 +149,46 @@ struct PrayerListEditor: View {
         .onChange(of: isTyping) { _, typing in
             if !typing { focused = nil }
         }
-        .sensoryFeedback(.selection, trigger: lines.map(\.isChecked))
+        .sensoryFeedback(.selection, trigger: blocks.map(\.isChecked))
     }
 
-    /// While picking lines: a list button for each kind of list, and Done.
-    private var selectionBar: some View {
-        HStack(spacing: 4) {
-            ForEach(PrayerListStyle.allCases, id: \.self) { style in
-                Button {
-                    apply(style, to: selection)
-                } label: {
-                    Image(systemName: style.systemImage)
-                        .font(.system(size: 19, weight: .medium))
-                        .frame(width: 48, height: 40)
-                        .contentShape(Capsule())
-                }
-                .buttonStyle(.plain)
-                .disabled(selection.isEmpty)
-                .accessibilityLabel(style.name)
-            }
-            Button("Done") { isSelecting = false }
-                .font(.body.weight(.semibold))
-                .buttonStyle(.plain)
-                .padding(.horizontal, 12)
-        }
-        .padding(6)
-        .glassEffect(.regular.interactive(), in: .capsule)
-        .padding(.bottom, 4)
+    private var focusedBlock: PrayerListBlock? {
+        blocks.first { $0.id == focused }
     }
 
-    /// Puts the keyboard away and starts picking lines, beginning with the one being typed.
-    private func startSelecting() {
-        selection = focused.map { [$0] } ?? []
-        focused = nil
-        isSelecting = true
+    // MARK: Rows
+
+    /// Plain text: an ordinary text box, as tall as its lines.
+    private func textBox(_ block: Binding<PrayerListBlock>) -> some View {
+        let id = block.wrappedValue.id
+        return TextEditor(text: block.text, selection: Binding(
+            get: { selections[id] },
+            set: { selections[id] = $0 }
+        ))
+        .focused($focused, equals: id)
+        .scrollDisabled(true)
+        .scrollContentBackground(.hidden)
+        .frame(minHeight: 30)
+        .fixedSize(horizontal: false, vertical: true)
+        // TextEditor has its own margins; line it up with the list items.
+        .padding(.horizontal, -5)
+        .padding(.vertical, -8)
     }
 
-    private func row(_ line: Binding<PrayerListLine>) -> some View {
-        HStack(alignment: .firstTextBaseline, spacing: 8) {
-            switch line.wrappedValue.style {
+    /// A list item: its circle, bullet or dash, then its text.
+    private func itemRow(_ block: Binding<PrayerListBlock>) -> some View {
+        let id = block.wrappedValue.id
+        return HStack(alignment: .firstTextBaseline, spacing: 8) {
+            switch block.wrappedValue.style {
             case .checklist:
                 Button {
-                    line.wrappedValue.isChecked.toggle()
+                    block.wrappedValue.isChecked.toggle()
                 } label: {
-                    Image(systemName: line.wrappedValue.isChecked ? "checkmark.circle.fill" : "circle")
+                    Image(systemName: block.wrappedValue.isChecked ? "checkmark.circle.fill" : "circle")
                         .imageScale(.large)
                 }
                 .buttonStyle(.plain)
-                .accessibilityLabel(line.wrappedValue.isChecked ? "Checked" : "Not Checked")
+                .accessibilityLabel(block.wrappedValue.isChecked ? "Checked" : "Not Checked")
             case .bullets:
                 Text("•")
             case .dashes:
@@ -196,88 +196,125 @@ struct PrayerListEditor: View {
             case nil:
                 EmptyView()
             }
-            TextField("", text: line.text, axis: .vertical)
-                .focused($focused, equals: line.wrappedValue.id)
-                // While picking lines, a tap picks the line instead of typing in it.
-                .allowsHitTesting(!isSelecting)
-                // In case return is taken as "done" rather than typed: start a new line anyway.
-                .onSubmit { edited(line.wrappedValue.id, line.wrappedValue.text + "\n") }
-                .onChange(of: line.wrappedValue.text) { _, newText in
-                    edited(line.wrappedValue.id, newText)
+            TextField("", text: block.text, axis: .vertical)
+                .focused($focused, equals: id)
+                // In case return is taken as "done" rather than typed: start a new item anyway.
+                .onSubmit { itemEdited(id, block.wrappedValue.text + "\n") }
+                .onChange(of: block.wrappedValue.text) { _, newText in
+                    itemEdited(id, newText)
                 }
         }
     }
 
-    private var focusedLine: PrayerListLine? {
-        lines.first { $0.id == focused }
-    }
+    // MARK: Making lists
 
-    // MARK: Editing
-
-    /// Turns the line being typed into the list, or back into a plain line if it already is one.
-    private func toggle(_ style: PrayerListStyle) {
-        guard let focused else { return }
-        apply(style, to: [focused])
-    }
-
-    /// Turns the lines into the list, or back into plain lines if they all already are one.
-    private func apply(_ style: PrayerListStyle, to ids: Set<PrayerListLine.ID>) {
-        let chosen = lines.indices.filter { ids.contains(lines[$0].id) }
-        guard !chosen.isEmpty else { return }
-        let allAlready = chosen.allSatisfy { lines[$0].style == style }
-        for index in chosen {
-            if lines[index].style != style || allAlready { lines[index].isChecked = false }
-            lines[index].style = allAlready ? nil : style
+    /// The list buttons. In plain text, the selected lines (or the cursor's line) become
+    /// list items. On a list item, it switches to that list, or back to plain text if it's
+    /// already that list.
+    private func apply(_ style: PrayerListStyle) {
+        guard let focused, let index = blocks.firstIndex(where: { $0.id == focused }) else { return }
+        if blocks[index].isItem {
+            if blocks[index].style == style {
+                makePlain(at: index)
+            } else {
+                blocks[index].style = style
+                blocks[index].isChecked = false
+            }
+        } else {
+            makeList(fromTextAt: index, style: style)
         }
     }
 
-    /// Return and backspace, which arrive as changes to a line's text.
-    private func edited(_ id: PrayerListLine.ID, _ newText: String) {
-        guard let index = lines.firstIndex(where: { $0.id == id }) else { return }
-        let start = PrayerListLine.start
+    private func makeList(fromTextAt index: Int, style: PrayerListStyle) {
+        let block = blocks[index]
+        let text = block.text
+        let range: Range<String.Index> = switch selections[block.id]?.indices {
+        case .selection(let range)?: range
+        case .multiSelection(let set)?: set.ranges.first ?? text.endIndex..<text.endIndex
+        default: text.endIndex..<text.endIndex
+        }
+        let lower = min(range.lowerBound, text.endIndex)
+        let upper = min(range.upperBound, text.endIndex)
+
+        // Widen the selection to whole lines.
+        let lineStart = text[..<lower].lastIndex(of: "\n").map { text.index(after: $0) } ?? text.startIndex
+        let probe = upper > lower ? text.index(before: upper) : upper
+        let lineEnd = probe < text.endIndex ? (text[probe...].firstIndex(of: "\n") ?? text.endIndex) : text.endIndex
+
+        var before = String(text[..<lineStart])
+        if before.hasSuffix("\n") { before.removeLast() }
+        var after = String(text[lineEnd...])
+        if after.hasPrefix("\n") { after.removeFirst() }
+        let chosen = text[lineStart..<lineEnd].components(separatedBy: "\n")
+        let items = chosen.filter { !$0.trimmingCharacters(in: .whitespaces).isEmpty }
+            .map { PrayerListBlock.item($0, style: style) }
+        let newItems = items.isEmpty ? [PrayerListBlock.item("", style: style)] : items
+
+        var replacement: [PrayerListBlock] = []
+        if lineStart > text.startIndex { replacement.append(PrayerListBlock(text: before)) }
+        replacement += newItems
+        if lineEnd < text.endIndex { replacement.append(PrayerListBlock(text: after)) }
+
+        blocks.replaceSubrange(index...index, with: replacement)
+        selections[block.id] = nil
+        let target = newItems.last!.id
+        Task { @MainActor in self.focused = target }
+    }
+
+    /// Turns a list item back into plain text, joining the plain text around it.
+    private func makePlain(at index: Int) {
+        var text = blocks[index].shownText
+        var start = index
+        var end = index
+        if index > 0, !blocks[index - 1].isItem {
+            text = blocks[index - 1].text + "\n" + text
+            start -= 1
+        }
+        if index + 1 < blocks.count, !blocks[index + 1].isItem {
+            text += "\n" + blocks[index + 1].text
+            end += 1
+        }
+        let plain = PrayerListBlock(text: text)
+        blocks.replaceSubrange(start...end, with: [plain])
+        Task { @MainActor in self.focused = plain.id }
+    }
+
+    // MARK: Typing in list items
+
+    /// Return and backspace, which arrive as changes to an item's text.
+    private func itemEdited(_ id: PrayerListBlock.ID, _ newText: String) {
+        guard let index = blocks.firstIndex(where: { $0.id == id }), let style = blocks[index].style else { return }
+        let start = PrayerListBlock.start
 
         if let newline = newText.firstIndex(of: "\n") {
-            // Return: what's after the cursor moves to a new line, which carries the list on.
             let before = String(newText[..<newline])
             let after = String(newText[newText.index(after: newline)...]).replacingOccurrences(of: start, with: "")
-            let style = lines[index].style
-            if style != nil && before.replacingOccurrences(of: start, with: "").isEmpty && after.isEmpty {
+            if before.replacingOccurrences(of: start, with: "").isEmpty && after.isEmpty {
                 // Return on an empty item ends the list.
-                lines[index].text = start
-                lines[index].style = nil
+                blocks[index].text = start
+                makePlain(at: index)
                 return
             }
-            lines[index].text = before
-            let next = PrayerListLine(text: start + after, style: style)
-            lines.insert(next, at: index + 1)
-            // The new line's field only exists after this update, so move to it just after.
-            // Until then the keyboard stays with this line instead of going away.
-            Task { @MainActor in focused = next.id }
+            // Otherwise what's after the cursor becomes the next item. The new item's field
+            // only exists after this update, so move to it just after; until then the
+            // keyboard stays with this one.
+            blocks[index].text = before
+            let next = PrayerListBlock.item(after, style: style)
+            blocks.insert(next, at: index + 1)
+            Task { @MainActor in self.focused = next.id }
             return
         }
 
         if !newText.contains(start) {
-            // Backspace at the start of the line.
-            if lines[index].style != nil {
-                lines[index].style = nil
-                lines[index].text = start + newText
-            } else if index > 0 {
-                // A plain line joins the one above.
-                // Move to the line above first, so the keyboard stays up when this one goes.
-                let removed = lines[index].id
-                lines[index - 1].text += newText
-                lines[index].text = start
-                focused = lines[index - 1].id
-                Task { @MainActor in lines.removeAll { $0.id == removed } }
-            } else {
-                lines[index].text = start + newText
-            }
+            // Backspace at the start of the item turns it back into plain text.
+            blocks[index].text = start + newText
+            makePlain(at: index)
             return
         }
 
         if !newText.hasPrefix(start) {
             // Typed before the invisible character: keep it at the front.
-            lines[index].text = start + newText.replacingOccurrences(of: start, with: "")
+            blocks[index].text = start + newText.replacingOccurrences(of: start, with: "")
         }
     }
 }
