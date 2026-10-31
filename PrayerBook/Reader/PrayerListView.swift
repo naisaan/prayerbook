@@ -19,6 +19,8 @@ struct PrayerListNote: View {
     @State private var isTyping = false
     @State private var listCommand: PrayerListStyle?
     @State private var currentListStyle: PrayerListStyle?
+    /// How much of the screen the keyboard covers, from the system's keyboard notices.
+    @State private var keyboardHeight: CGFloat = 0
     @Environment(ReaderSettings.self) private var settings
 
     private var list: PrayerList { .shared }
@@ -32,11 +34,12 @@ struct PrayerListNote: View {
             let side = min(proxy.size.width - 40, 440)
             let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: safeAreaTop + Self.cardSize * 0.3)
             // It opens in the exact middle of the screen, for a glance, without the keyboard.
-            // Tapping in to type eases it up just enough that the keyboard (about 360 points
-            // tall with its suggestions) doesn't cover it.
+            // When the keyboard comes up, it rises with it, just enough to clear the keyboard
+            // and the list bar.
             let middle = proxy.size.height / 2
-            let aboveKeyboard = max(safeAreaTop + 24 + side / 2, min(middle, proxy.size.height - 360 - side / 2))
-            let openCenter = CGPoint(x: proxy.size.width / 2, y: isTyping ? aboveKeyboard : middle)
+            let barTop = proxy.size.height - keyboardHeight - Self.barGap - Self.barHeight
+            let aboveKeyboard = max(safeAreaTop + 16 + side / 2, min(middle, barTop - 12 - side / 2))
+            let openCenter = CGPoint(x: proxy.size.width / 2, y: keyboardHeight > 0 ? aboveKeyboard : middle)
 
             ZStack {
                 // Tapping beside the note puts it back.
@@ -51,32 +54,64 @@ struct PrayerListNote: View {
                     .rotationEffect(isOpen ? tilt : Self.cardTilt)
                     .position(isOpen ? openCenter : closedCenter)
                     .offset(drag)
-                    // Moves in step with the keyboard.
-                    .animation(.smooth(duration: 0.35), value: isTyping)
                     .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
                     .gesture(flick(side: side), isEnabled: isOpen)
+
+                if isOpen && isTyping && keyboardHeight > 0 {
+                    listBar
+                        .position(x: 16 + Self.barWidth / 2, y: barTop + Self.barHeight / 2)
+                        .transition(.opacity)
+                }
             }
         }
         .ignoresSafeArea()
-        // The list buttons above the keyboard. They're attached out here, outside the note's
-        // scaling and rounded corners, so the bar sits on the keyboard and isn't cut off.
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                ForEach(PrayerListStyle.allCases, id: \.self) { style in
-                    Button {
-                        listCommand = style
-                    } label: {
-                        Image(systemName: style.systemImage)
-                    }
-                    .accessibilityLabel(style.name)
-                    .accessibilityAddTraits(currentListStyle == style ? .isSelected : [])
-                }
-                Spacer()
-            }
+        // Follow the keyboard with its own timing, so the note and bar move with it smoothly.
+        .onReceive(NotificationCenter.default.publisher(for: UIResponder.keyboardWillChangeFrameNotification)) { notice in
+            guard let info = notice.userInfo,
+                  let frame = info[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect,
+                  let screen = (UIApplication.shared.connectedScenes.first as? UIWindowScene)?.screen
+            else { return }
+            let height = max(0, screen.bounds.height - frame.minY)
+            let duration = info[UIResponder.keyboardAnimationDurationUserInfoKey] as? Double ?? 0.25
+            withAnimation(.smooth(duration: max(duration, 0.2))) { keyboardHeight = height }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: isOpen)
+    }
+
+    // MARK: The list bar
+
+    private static let barHeight: CGFloat = 52
+    private static let barWidth: CGFloat = 3 * 52 + 12
+    /// The room between the list bar and the keyboard.
+    private static let barGap: CGFloat = 14
+
+    /// The list buttons, floating on glass just above the keyboard.
+    private var listBar: some View {
+        HStack(spacing: 0) {
+            ForEach(PrayerListStyle.allCases, id: \.self) { style in
+                Button {
+                    listCommand = style
+                } label: {
+                    Image(systemName: style.systemImage)
+                        .font(.system(size: 19, weight: .medium))
+                        .frame(width: 52, height: 40)
+                        .background {
+                            if currentListStyle == style {
+                                Capsule().fill(.primary.opacity(0.12))
+                            }
+                        }
+                        .contentShape(Capsule())
+                }
+                .buttonStyle(.plain)
+                .accessibilityLabel(style.name)
+                .accessibilityAddTraits(currentListStyle == style ? .isSelected : [])
+            }
+        }
+        .padding(6)
+        .frame(width: Self.barWidth, height: Self.barHeight)
+        .glassEffect(.regular.interactive(), in: .capsule)
     }
 
     private func note(side: CGFloat) -> some View {
