@@ -30,7 +30,7 @@ struct PrayerListNote: View {
     var body: some View {
         GeometryReader { proxy in
             let side = min(proxy.size.width - 40, 440)
-            let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: Self.cardSize * 0.95)
+            let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: safeAreaTop + Self.cardSize * 0.3)
             // It opens in the exact middle of the screen, for a glance, without the keyboard.
             // Tapping in to type eases it up just enough that the keyboard (about 360 points
             // tall with its suggestions) doesn't cover it.

@@ -4,11 +4,16 @@ import UIKit
 struct PageMetrics: Equatable {
     var size: CGSize
     var safeArea: UIEdgeInsets
+    /// Leaves room at the top for the prayer list's card, which sits in the top corner.
+    var roomForPrayerList = false
 
     static let sideMargin: CGFloat = 30
 
+    /// How much lower the header and text sit to make room for the prayer list's card.
+    private var prayerListShift: CGFloat { roomForPrayerList ? 16 : 0 }
+
     var textRect: CGRect {
-        let top = safeArea.top + 44
+        let top = safeArea.top + 44 + prayerListShift * 1.75
         let bottom = safeArea.bottom + 44
         return CGRect(
             x: Self.sideMargin,
@@ -19,7 +24,7 @@ struct PageMetrics: Equatable {
     }
 
     var headerRect: CGRect {
-        CGRect(x: Self.sideMargin, y: safeArea.top + 8, width: max(size.width - Self.sideMargin * 2, 1), height: 20)
+        CGRect(x: Self.sideMargin, y: safeArea.top + 8 + prayerListShift, width: max(size.width - Self.sideMargin * 2, 1), height: 20)
     }
 
     var footerRect: CGRect {
