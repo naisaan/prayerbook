@@ -91,6 +91,16 @@ struct Highlight: Identifiable, Codable, Hashable {
     var hasNote: Bool { !(note ?? "").trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
 }
 
+/// A note on a whole prayer, written from the prayer's heading.
+struct PrayerNote: Identifiable, Codable, Hashable {
+    let prayerID: Int
+    var text: String
+    var color: HighlightColor
+    let created: Date
+
+    var id: Int { prayerID }
+}
+
 extension Notification.Name {
     static let highlightsDidChange = Notification.Name("highlightsDidChange")
 }
@@ -107,10 +117,14 @@ final class Highlights {
     private(set) var lastHighlightColor: HighlightColor
     /// The color an underline gets: the one picked last.
     private(set) var lastUnderlineColor: UnderlineColor
+    /// Notes on whole prayers, newest first.
+    private(set) var prayerNotes: [PrayerNote]
 
     private init() {
         all = defaults.data(forKey: Keys.highlights)
             .flatMap { try? JSONDecoder().decode([Highlight].self, from: $0) } ?? []
+        prayerNotes = defaults.data(forKey: Keys.prayerNotes)
+            .flatMap { try? JSONDecoder().decode([PrayerNote].self, from: $0) } ?? []
         lastHighlightColor = defaults.string(forKey: Keys.lastHighlightColor).flatMap(HighlightColor.init) ?? .yellow
         lastUnderlineColor = defaults.string(forKey: Keys.lastUnderlineColor).flatMap(UnderlineColor.init) ?? .ink
     }
@@ -182,6 +196,29 @@ final class Highlights {
         save()
     }
 
+    func prayerNote(for prayerID: Int) -> PrayerNote? {
+        prayerNotes.first { $0.prayerID == prayerID }
+    }
+
+    /// Saves a note on a whole prayer. An empty note removes it.
+    func setPrayerNote(_ text: String, color: HighlightColor, for prayerID: Int) {
+        guard !text.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else {
+            return removePrayerNote(for: prayerID)
+        }
+        if let index = prayerNotes.firstIndex(where: { $0.prayerID == prayerID }) {
+            prayerNotes[index].text = text
+            prayerNotes[index].color = color
+        } else {
+            prayerNotes.insert(PrayerNote(prayerID: prayerID, text: text, color: color, created: .now), at: 0)
+        }
+        save()
+    }
+
+    func removePrayerNote(for prayerID: Int) {
+        prayerNotes.removeAll { $0.prayerID == prayerID }
+        save()
+    }
+
     func remove(_ id: UUID) {
         all.removeAll { $0.id == id }
         save()
@@ -189,11 +226,13 @@ final class Highlights {
 
     private func save() {
         defaults.set(try? JSONEncoder().encode(all), forKey: Keys.highlights)
+        defaults.set(try? JSONEncoder().encode(prayerNotes), forKey: Keys.prayerNotes)
         NotificationCenter.default.post(name: .highlightsDidChange, object: self)
     }
 
     private enum Keys {
         static let highlights = "highlights"
+        static let prayerNotes = "prayerNotes"
         static let lastHighlightColor = "lastHighlightColor"
         static let lastUnderlineColor = "lastUnderlineColor"
     }

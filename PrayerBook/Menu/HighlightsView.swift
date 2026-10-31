@@ -14,6 +14,37 @@ struct HighlightsView: View {
     @State private var tab: Tab = .highlights
 
     let onOpen: (Highlight) -> Void
+    /// Opens a prayer at its first page, for a note on a whole prayer.
+    let onOpenPrayer: (Int) -> Void
+
+    /// A note in the Notes list: on a highlight, or on a whole prayer.
+    private enum NoteItem: Identifiable {
+        case highlight(Highlight)
+        case prayer(PrayerNote)
+
+        var id: String {
+            switch self {
+            case .highlight(let highlight): highlight.id.uuidString
+            case .prayer(let note): "prayer-\(note.prayerID)"
+            }
+        }
+
+        var created: Date {
+            switch self {
+            case .highlight(let highlight): highlight.created
+            case .prayer(let note): note.created
+            }
+        }
+    }
+
+    /// Every note in the languages that are turned on, newest first.
+    private var notes: [NoteItem] {
+        let onHighlights = highlights.filter(\.hasNote).map(NoteItem.highlight)
+        let onPrayers = Highlights.shared.prayerNotes
+            .filter { library.prayersByID[$0.prayerID] != nil }
+            .map(NoteItem.prayer)
+        return (onHighlights + onPrayers).sorted { $0.created > $1.created }
+    }
 
     /// Every style, in the order its group appears: the highlighter colors, then the underlines.
     private static let styles: [HighlightStyle] =
@@ -48,15 +79,28 @@ struct HighlightsView: View {
                         }
                     }
                 } else {
-                    let notes = highlights.filter(\.hasNote)
-                    ForEach(notes) { highlight in
-                        Button { onOpen(highlight) } label: {
-                            HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: true)
+                    let notes = notes
+                    ForEach(notes) { item in
+                        switch item {
+                        case .highlight(let highlight):
+                            Button { onOpen(highlight) } label: {
+                                HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: true)
+                            }
+                            .tint(.primary)
+                        case .prayer(let note):
+                            Button { onOpenPrayer(note.prayerID) } label: {
+                                PrayerNoteRow(note: note, prayer: library.prayersByID[note.prayerID])
+                            }
+                            .tint(.primary)
                         }
-                        .tint(.primary)
                     }
                     .onDelete { offsets in
-                        for offset in offsets { Highlights.shared.setNote(nil, for: notes[offset].id) }
+                        for offset in offsets {
+                            switch notes[offset] {
+                            case .highlight(let highlight): Highlights.shared.setNote(nil, for: highlight.id)
+                            case .prayer(let note): Highlights.shared.removePrayerNote(for: note.prayerID)
+                            }
+                        }
                     }
                 }
             }
@@ -67,7 +111,7 @@ struct HighlightsView: View {
                         systemImage: "highlighter",
                         description: Text("Press and hold on a prayer’s words, then tap Highlight.")
                     )
-                } else if tab == .notes && !highlights.contains(where: \.hasNote) {
+                } else if tab == .notes && notes.isEmpty {
                     ContentUnavailableView(
                         "No Notes",
                         systemImage: "note.text",
@@ -112,6 +156,42 @@ struct HighlightsView: View {
                     .foregroundStyle(Color(uiColor: color.color))
             }
         }
+    }
+}
+
+/// A note on a whole prayer: the prayer's title, larger, beside a bar in the note's color,
+/// then the note and the prayer's section.
+private struct PrayerNoteRow: View {
+    let note: PrayerNote
+    let prayer: Prayer?
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text(prayer?.title ?? "")
+                .font(.title3.weight(.semibold))
+                .lineLimit(2)
+                .padding(.leading, 12)
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1.5)
+                        .fill(Color(uiColor: note.color.swatch))
+                        .frame(width: 3)
+                }
+            Label {
+                Text(note.text)
+                    .lineLimit(4)
+            } icon: {
+                Image(systemName: "note.text")
+                    .foregroundStyle(Color(uiColor: note.color.swatch))
+            }
+            .font(.subheadline)
+            if let category = prayer?.category, !category.isEmpty {
+                Text(category)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .lineLimit(1)
+            }
+        }
+        .padding(.vertical, 2)
     }
 }
 

@@ -224,10 +224,32 @@ final class BookPageView: UIView {
         noteMarkers().first { $0.rect.insetBy(dx: -14, dy: -14).contains(point) }?.highlight
     }
 
+    /// The square beside the heading of a prayer's first page when the whole prayer has a
+    /// note: a little bigger than a highlight's, in the top left corner.
+    func prayerNoteMarker() -> (note: PrayerNote, rect: CGRect)? {
+        guard let prayerPage = book.pages[index].prayerPage, prayerPage.pageInPrayer == 0,
+              let note = Highlights.shared.prayerNote(for: prayerPage.prayer.id)
+        else { return nil }
+        let size: CGFloat = 13
+        let header = book.metrics.headerRect
+        let rect = CGRect(x: PageMetrics.sideMargin / 2 - size / 2, y: header.midY - size / 2, width: size, height: size)
+        return (note, rect)
+    }
+
+    /// Whether the whole prayer's note square is at this point, with room for a fingertip.
+    func prayerNoteMarker(at point: CGPoint) -> PrayerNote? {
+        guard let marker = prayerNoteMarker(), marker.rect.insetBy(dx: -14, dy: -14).contains(point) else { return nil }
+        return marker.note
+    }
+
     private func drawNoteMarkers() {
         for marker in noteMarkers() {
             marker.highlight.style.markerColor.setFill()
             UIBezierPath(roundedRect: marker.rect, cornerRadius: 2.5).fill()
+        }
+        if let marker = prayerNoteMarker() {
+            marker.note.color.swatch.setFill()
+            UIBezierPath(roundedRect: marker.rect, cornerRadius: 3).fill()
         }
     }
 
@@ -324,6 +346,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     private var highlightMenu: UIEditMenuInteraction?
     private var menuHighlightID: UUID?
     private var highlightMenuIsShowing = false
+    /// Sits over the heading at the top of a prayer page. Pressing and holding it offers a
+    /// note on the whole prayer.
+    private var headingMenu: UIEditMenuInteraction?
     /// Whether text was selected, or the colors were showing, when the latest tap started.
     /// That tap only clears them.
     private var tapStartedBusy = false
@@ -378,6 +403,55 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
             dropCapTarget = target
             dropCapMenu = menu
         }
+
+        if book.pages[index].prayerPage != nil {
+            let metrics = book.metrics
+            let top = metrics.safeArea.top
+            let heading = UIView(frame: CGRect(x: 0, y: top, width: metrics.size.width, height: max(metrics.textRect.minY - top - 4, 24)))
+            let press = UILongPressGestureRecognizer(target: self, action: #selector(handleHeadingPress))
+            heading.addGestureRecognizer(press)
+            let menu = UIEditMenuInteraction(delegate: self)
+            heading.addInteraction(menu)
+            view.addSubview(heading)
+            headingMenu = menu
+        }
+    }
+
+    // MARK: Prayer notes
+
+    @objc private func handleHeadingPress(_ press: UILongPressGestureRecognizer) {
+        guard press.state == .began else { return }
+        dismissPalette(animated: true)
+        textView?.clearSelection()
+        UISelectionFeedbackGenerator().selectionChanged()
+        headingMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: press.location(in: press.view)))
+    }
+
+    private func headingMenuContents() -> UIMenu? {
+        guard let prayer = book.pages[index].prayerPage?.prayer else { return nil }
+        let hasNote = Highlights.shared.prayerNote(for: prayer.id) != nil
+        let note = UIAction(
+            title: hasNote ? String(localized: "Edit Note") : String(localized: "Add Note"),
+            image: UIImage(systemName: hasNote ? "note.text" : "note.text.badge.plus")
+        ) { [weak self] _ in
+            self?.openPrayerNote()
+        }
+        guard hasNote else { return UIMenu(children: [note]) }
+        let remove = UIAction(title: String(localized: "Remove Note"), image: UIImage(systemName: "trash"), attributes: .destructive) { _ in
+            Highlights.shared.removePrayerNote(for: prayer.id)
+        }
+        return UIMenu(children: [note, remove])
+    }
+
+    /// Opens the note screen for the whole prayer, quoting its title.
+    private func openPrayerNote() {
+        guard let prayer = book.pages[index].prayerPage?.prayer else { return }
+        dismissPalette(animated: false)
+        let subject = NoteEditorView.Subject.prayer(title: prayer.title, note: Highlights.shared.prayerNote(for: prayer.id))
+        let editor = UIHostingController(rootView: NoteEditorView(subject: subject, font: book.typography.font) { text, color in
+            Highlights.shared.setPrayerNote(text, color: color, for: prayer.id)
+        })
+        present(editor, animated: true)
     }
 
     // MARK: Drop cap
@@ -415,6 +489,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         if interaction === highlightMenu {
             return menuHighlightID.flatMap(menu(forHighlight:))
         }
+        if interaction === headingMenu {
+            return headingMenuContents()
+        }
         guard let textView else { return nil }
         let copy = UIAction(title: String(localized: "Copy"), image: UIImage(systemName: "doc.on.doc")) { [weak textView] _ in
             textView?.copy(nil)
@@ -427,6 +504,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     func editMenuInteraction(_ interaction: UIEditMenuInteraction, targetRectFor configuration: UIEditMenuConfiguration) -> CGRect {
         if interaction === highlightMenu {
             return menuHighlightID.flatMap { pageView?.frame(of: $0) } ?? .zero
+        }
+        if interaction === headingMenu {
+            return CGRect(origin: configuration.sourcePoint, size: .zero)
         }
         return dropCapTarget?.bounds ?? .zero
     }
@@ -519,10 +599,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     private func openNote(for id: UUID) {
         guard let highlight = Highlights.shared.highlight(withID: id) else { return }
         dismissPalette(animated: false)
-        let editor = UIHostingController(rootView: NoteEditorView(highlight: highlight, font: book.typography.font) { text in
+        let editor = UIHostingController(rootView: NoteEditorView(subject: .highlight(highlight), font: book.typography.font) { text, _ in
             Highlights.shared.setNote(text, for: id)
         })
-        editor.sheetPresentationController?.prefersGrabberVisible = false
         present(editor, animated: true)
     }
 
@@ -589,7 +668,8 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     /// Whether a tap here is for the page itself (a link, a highlight or a note's square)
     /// rather than for turning the page.
     func takesTap(at point: CGPoint) -> Bool {
-        prayerLink(at: point) != nil || pageView?.noteMarker(at: point) != nil || pageView?.highlight(at: point) != nil
+        prayerLink(at: point) != nil || pageView?.prayerNoteMarker(at: point) != nil
+            || pageView?.noteMarker(at: point) != nil || pageView?.highlight(at: point) != nil
     }
 
     @objc private func handleTap(_ tap: UITapGestureRecognizer) {
@@ -597,6 +677,8 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         let point = tap.location(in: view)
         if let prayerID = prayerLink(at: point) {
             onOpenPrayer?(prayerID)
+        } else if pageView?.prayerNoteMarker(at: point) != nil {
+            openPrayerNote()
         } else if let noted = pageView?.noteMarker(at: point) {
             openNote(for: noted.id)
         } else if let highlight = pageView?.highlight(at: point) {

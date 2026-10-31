@@ -246,9 +246,12 @@ struct ReaderView: View {
         case .contents:
             ContentsView(currentPrayerID: currentPrayer?.id, progress: progress, onOpen: openPrayer)
         case .highlights:
-            HighlightsView(onOpen: { highlight in
-                closeSheetAndTurn(to: book?.page(of: highlight))
-            })
+            HighlightsView(
+                onOpen: { highlight in
+                    closeSheetAndTurn(to: book?.page(of: highlight))
+                },
+                onOpenPrayer: openPrayer
+            )
         case .search:
             SearchView(
                 onOpen: { prayerID, query in
