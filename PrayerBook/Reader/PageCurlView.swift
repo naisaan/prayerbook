@@ -337,20 +337,24 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
               let location = book.pages[index].prayerPage?.layout.dropCap?.characterLocation
         else { return }
         dismissPalette(animated: true)
-        // The rest of the first word: up to the first space or line break.
+        // The first word after the letter. When the letter is a word on its own, like "O",
+        // a space comes first.
         let text = textView.textStorage.string as NSString
-        let rest = NSRange(location: location, length: text.length - location)
-        let space = text.rangeOfCharacter(from: .whitespacesAndNewlines, range: rest)
+        let afterLetter = NSRange(location: location, length: text.length - location)
+        let wordStart = text.rangeOfCharacter(from: CharacterSet.whitespacesAndNewlines.inverted, range: afterLetter)
+        let start = wordStart.location == NSNotFound ? location : wordStart.location
+        let space = text.rangeOfCharacter(from: .whitespacesAndNewlines, range: NSRange(location: start, length: text.length - start))
         let end = space.location == NSNotFound ? text.length : space.location
+
+        // Apple's own "select the word here", the same as pressing and holding a word, so the
+        // blue handles and the usual menu appear. The letter joins the selection on its own.
         textView.becomeFirstResponder()
-        // Apple's own "select the word here", the same as pressing and holding a word, so
-        // the blue handles and the usual menu appear.
-        textView.selectedRange = NSRange(location: location, length: 0)
+        textView.selectedRange = NSRange(location: start, length: 0)
         textView.select(nil)
         UISelectionFeedbackGenerator().selectionChanged()
         if textView.selectedRange.length == 0 {
             // If iOS didn't select it, select the word ourselves and show the menu.
-            textView.selectedRange = NSRange(location: location, length: max(end - location, 0))
+            textView.selectedRange = NSRange(location: start, length: max(end - start, 0))
             let point = press.location(in: press.view)
             dropCapMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: point))
         }
@@ -372,12 +376,8 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
 
     /// Tints the drop cap like the rest of the selection when the selection takes it in.
     func textViewDidChangeSelection(_ textView: UITextView) {
-        guard let dropCapTarget,
-              let location = book.pages[index].prayerPage?.layout.dropCap?.characterLocation
-        else { return }
-        let range = textView.selectedRange
-        let selected = range.length > 0 && range.location <= location && location < NSMaxRange(range)
-        dropCapTarget.backgroundColor = selected ? textView.tintColor.withAlphaComponent(0.25) : nil
+        guard let dropCapTarget, let textView = textView as? PageTextView else { return }
+        dropCapTarget.backgroundColor = textView.selectionIncludesDropCap ? textView.tintColor.withAlphaComponent(0.25) : nil
     }
 
     override func viewWillDisappear(_ animated: Bool) {
@@ -398,7 +398,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         guard book.pages[index].prayerPage != nil else { return UIMenu(children: system) }
         let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
             // Read the selection when tapped: the menu can outlive the selection it was made for.
-            guard let self, let selected = self.textView?.selectedRange else { return }
+            guard let self, let selected = self.textView?.selectionWithDropCap else { return }
             self.addHighlight(selected)
         }
         let note = UIAction(title: String(localized: "Add Note"), image: UIImage(systemName: "note.text.badge.plus")) { [weak self] _ in

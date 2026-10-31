@@ -56,12 +56,31 @@ final class PageTextView: UITextView {
         selectedRange = NSRange(location: selectedRange.location, length: 0)
     }
 
+    /// The selection, reaching back to take in the drop cap when it starts at the first word.
+    /// When the drop cap is a word on its own, like "O", a space separates it from the first
+    /// word the text view can select.
+    var selectionWithDropCap: NSRange {
+        let range = selectedRange
+        guard let dropCap, range.length > 0, range.location > dropCap.characterLocation else { return range }
+        let location = dropCap.characterLocation
+        let gap = (textStorage.string as NSString).substring(with: NSRange(location: location, length: range.location - location))
+        guard gap.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty else { return range }
+        return NSRange(location: location, length: NSMaxRange(range) - location)
+    }
+
+    /// Whether the selection takes in the drop cap.
+    var selectionIncludesDropCap: Bool {
+        guard let dropCap else { return false }
+        let range = selectionWithDropCap
+        return range.length > 0 && range.location <= dropCap.characterLocation && dropCap.characterLocation < NSMaxRange(range)
+    }
+
     /// Copies plain text, with the drop cap's letter put back where it belongs.
     override func copy(_ sender: Any?) {
-        let text = NSMutableString(string: (textStorage.string as NSString).substring(with: selectedRange))
-        if let dropCap, selectedRange.location <= dropCap.characterLocation,
-           dropCap.characterLocation < NSMaxRange(selectedRange) {
-            text.insert(dropCap.letter.string, at: dropCap.characterLocation - selectedRange.location)
+        let range = selectionWithDropCap
+        let text = NSMutableString(string: (textStorage.string as NSString).substring(with: range))
+        if let dropCap, selectionIncludesDropCap {
+            text.insert(dropCap.letter.string, at: dropCap.characterLocation - range.location)
         }
         UIPasteboard.general.string = text as String
     }
