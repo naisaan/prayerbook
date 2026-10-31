@@ -319,12 +319,21 @@ struct ReaderView: View {
         let anchor = book?.anchor(forPage: currentPage)
             ?? settings.lastPrayerID.map { BookAnchor(prayerID: $0, characterIndex: settings.lastCharacterIndex) }
 
+        // When the app opens, show the reader's page as soon as it's laid out, and finish the
+        // rest of the book behind it.
+        let isOpening = book == nil
         guard let newBook = await Paginator.makeBook(
             sections: library.sections,
             typography: settings.typography,
-            metrics: metrics
+            metrics: metrics,
+            earlyPrayerID: isOpening ? anchor?.prayerID : nil,
+            onEarlyBook: isOpening ? { early in show(early, at: anchor) } : nil
         ) else { return }
 
+        show(newBook, at: book?.anchor(forPage: currentPage) ?? anchor)
+    }
+
+    private func show(_ newBook: Book, at anchor: BookAnchor?) {
         let page = anchor.flatMap { newBook.page(for: $0) } ?? 0
         book = newBook
         currentPage = min(page, max(newBook.pages.count - 1, 0))

@@ -202,7 +202,21 @@ final class Book: Identifiable {
 enum Paginator {
     /// Lays out every prayer of every section. Pauses now and then so the app stays responsive,
     /// and gives up (returns nil) if the settings change while it's working.
-    static func makeBook(sections: [BookSection], typography: Typography, metrics: PageMetrics) async -> Book? {
+    ///
+    /// `onEarlyBook`, if given, gets a book cut short as soon as it reaches a few prayers past
+    /// `earlyPrayerID` (or past the first few prayers), so the reader can start before the
+    /// whole book is laid out.
+    static func makeBook(
+        sections: [BookSection],
+        typography: Typography,
+        metrics: PageMetrics,
+        earlyPrayerID: Int? = nil,
+        onEarlyBook: ((Book) -> Void)? = nil
+    ) async -> Book? {
+        var onEarlyBook = onEarlyBook
+        /// Prayers left to lay out before the early book goes out. Counting starts at the
+        /// early prayer, or right away if there isn't one.
+        var earlyCountdown: Int? = earlyPrayerID == nil ? 4 : nil
         // The book opens with its own title page, like a printed book, with a verse beneath the title.
         var pages: [BookPage] = []
         let opening = PrayerLayout(
@@ -238,7 +252,18 @@ enum Paginator {
                     pages.append(BookPage(sectionName: section.name, sectionFirstPrayerID: firstPrayerID, content: .prayer(prayerPage)))
                 }
                 count += 1
-                if count.isMultiple(of: 10) {
+                if prayer.id == earlyPrayerID { earlyCountdown = 3 }
+                if let countdown = earlyCountdown, let send = onEarlyBook {
+                    if countdown <= 0 {
+                        send(Book(pages: pages, metrics: metrics, typography: typography))
+                        onEarlyBook = nil
+                        // Let the reader's page appear before laying out the rest.
+                        await Task.yield()
+                    } else {
+                        earlyCountdown = countdown - 1
+                    }
+                }
+                if count.isMultiple(of: 4) {
                     await Task.yield()
                     if Task.isCancelled { return nil }
                 }
