@@ -43,16 +43,18 @@ struct NoteEditorView: View {
                 .accessibilityLabel("Save")
             }
 
-            HStack(alignment: .top, spacing: 14) {
-                RoundedRectangle(cornerRadius: 1.5)
-                    .fill(Color(uiColor: highlight.style.markerColor))
-                    .frame(width: 3)
-                Text(highlight.text.split(whereSeparator: \.isNewline).joined(separator: " "))
-                    .font(font.font(size: 16))
-                    .foregroundStyle(.secondary)
-                    .lineLimit(6)
-                    .fixedSize(horizontal: false, vertical: true)
-            }
+            // The bar beside the quote is exactly as tall as the quote's lines.
+            Text(highlight.text.split(whereSeparator: \.isNewline).joined(separator: " "))
+                .font(font.font(size: 16))
+                .foregroundStyle(.secondary)
+                .lineLimit(6)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.leading, 17)
+                .overlay(alignment: .leading) {
+                    RoundedRectangle(cornerRadius: 1.5)
+                        .fill(Color(uiColor: highlight.style.markerColor))
+                        .frame(width: 3)
+                }
 
             TextEditor(text: $text)
                 .focused($isTyping)
