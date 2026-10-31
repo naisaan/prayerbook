@@ -38,19 +38,19 @@ struct PrayerListLine: Identifiable, Equatable {
     // MARK: Saving as plain text: "[ ] ", "[x] ", "• " or "– " at the start of a line.
 
     static func lines(from text: String) -> [PrayerListLine] {
-        text.components(separatedBy: "\n").map { line in
+        text.components(separatedBy: "\n").map { (line: String) -> PrayerListLine in
             for (prefix, style, checked) in [("[ ] ", PrayerListStyle.checklist, false), ("[x] ", .checklist, true),
                                              ("• ", .bullets, false), ("– ", .dashes, false)]
             where line.hasPrefix(prefix) {
-                return PrayerListLine(text: start + line.dropFirst(prefix.count), style: style, isChecked: checked)
+                return PrayerListLine(text: start + String(line.dropFirst(prefix.count)), style: style, isChecked: checked)
             }
             return PrayerListLine(text: start + line, style: nil)
         }
     }
 
     static func text(from lines: [PrayerListLine]) -> String {
-        lines.map { line in
-            let prefix = switch line.style {
+        lines.map { (line: PrayerListLine) -> String in
+            let prefix: String = switch line.style {
             case .checklist: line.isChecked ? "[x] " : "[ ] "
             case .bullets: "• "
             case .dashes: "– "
