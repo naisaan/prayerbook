@@ -17,6 +17,8 @@ struct PrayerListNote: View {
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
     @State private var isTyping = false
+    @State private var listCommand: PrayerListStyle?
+    @State private var currentListStyle: PrayerListStyle?
     @Environment(ReaderSettings.self) private var settings
 
     private var list: PrayerList { .shared }
@@ -58,6 +60,22 @@ struct PrayerListNote: View {
             }
         }
         .ignoresSafeArea()
+        // The list buttons above the keyboard. They're attached out here, outside the note's
+        // scaling and rounded corners, so the bar sits on the keyboard and isn't cut off.
+        .toolbar {
+            ToolbarItemGroup(placement: .keyboard) {
+                ForEach(PrayerListStyle.allCases, id: \.self) { style in
+                    Button {
+                        listCommand = style
+                    } label: {
+                        Image(systemName: style.systemImage)
+                    }
+                    .accessibilityLabel(style.name)
+                    .accessibilityAddTraits(currentListStyle == style ? .isSelected : [])
+                }
+                Spacer()
+            }
+        }
         .sensoryFeedback(.impact(weight: .light), trigger: isOpen)
     }
 
@@ -77,7 +95,9 @@ struct PrayerListNote: View {
             .frame(width: side, height: side)
             // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
             .background(Color(uiColor: HighlightColor.blue.swatch))
-            .environment(\.colorScheme, .light)
+            // Dark text on the blue in light and dark mode. The colors are set here rather
+            // than by forcing light mode, so the keyboard still matches the phone.
+            .foregroundStyle(.black)
             .tint(.black)
             .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
             .shadow(color: .black.opacity(shadowOpacity), radius: shadowRadius, y: shadowY)
@@ -95,6 +115,8 @@ struct PrayerListNote: View {
             PrayerListEditor(
                 text: Bindable(list).text,
                 isTyping: $isTyping,
+                command: $listCommand,
+                currentStyle: $currentListStyle,
                 font: settings.font.font(size: 18)
             )
         }

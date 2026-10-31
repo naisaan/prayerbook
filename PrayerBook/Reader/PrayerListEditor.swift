@@ -88,6 +88,10 @@ struct PrayerListBlock: Identifiable, Equatable {
 struct PrayerListEditor: View {
     @Binding var text: String
     @Binding var isTyping: Bool
+    /// A list button tapped in the bar above the keyboard, which lives outside this view.
+    @Binding var command: PrayerListStyle?
+    /// The list the line being typed is in, so its button in that bar shows as on.
+    @Binding var currentStyle: PrayerListStyle?
     let font: Font
 
     @State private var blocks: [PrayerListBlock] = []
@@ -117,24 +121,18 @@ struct PrayerListEditor: View {
         .overlay(alignment: .topLeading) {
             if blocks.allSatisfy({ !$0.isItem && $0.text.isEmpty }) && focused == nil {
                 Text("The people you wish to remember, the Spiritual Qualities you seek to develop, and anything else you want to pray for…")
-                    .foregroundStyle(.tertiary)
+                    .foregroundStyle(.black.opacity(0.4))
                     .font(font)
                     .allowsHitTesting(false)
             }
         }
-        .toolbar {
-            ToolbarItemGroup(placement: .keyboard) {
-                ForEach(PrayerListStyle.allCases, id: \.self) { style in
-                    Button {
-                        apply(style)
-                    } label: {
-                        Image(systemName: style.systemImage)
-                    }
-                    .accessibilityLabel(style.name)
-                    .accessibilityAddTraits(focusedBlock?.style == style ? .isSelected : [])
-                }
-                Spacer()
-            }
+        .onChange(of: command) { _, command in
+            guard let command else { return }
+            apply(command)
+            self.command = nil
+        }
+        .onChange(of: focusedBlock?.style) { _, style in
+            currentStyle = style
         }
         .onAppear {
             blocks = PrayerListBlock.blocks(from: text)
