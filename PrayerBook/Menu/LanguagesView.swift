@@ -13,9 +13,7 @@ struct LanguagesView: View {
                         Toggle(isOn: binding(for: language)) {
                             VStack(alignment: .leading, spacing: 2) {
                                 Text(language.name)
-                                // The language's name in the reader's own language, such as "German".
-                                let localName = Locale.current.localizedString(forLanguageCode: language.code) ?? language.englishName
-                                if language.name.localizedCaseInsensitiveCompare(localName) != .orderedSame {
+                                if let localName = localName(of: language) {
                                     Text(localName)
                                         .font(.footnote)
                                         .foregroundStyle(.secondary)
@@ -37,6 +35,13 @@ struct LanguagesView: View {
                 }
             }
         }
+    }
+
+    /// The language's name in the reader's own language, such as "German". iOS calls some languages
+    /// by their own name ("Kalaallisut"), so fall back to the English name ("Greenlandic") then.
+    private func localName(of language: Language) -> String? {
+        let candidates = [Locale.current.localizedString(forLanguageCode: language.code), language.englishName]
+        return candidates.compactMap { $0 }.first { language.name.localizedCaseInsensitiveCompare($0) != .orderedSame }
     }
 
     private func binding(for language: Language) -> Binding<Bool> {
