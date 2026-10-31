@@ -31,7 +31,7 @@ enum Appearance: String, CaseIterable, Identifiable {
     }
 }
 
-/// The reader's choices: appearance, font, text size, drop cap, and where they stopped reading.
+/// The reader's choices: appearance, font, text size, drop cap, menu style, and where they stopped reading.
 /// Everything is saved so it is the same next time the app opens.
 @Observable
 final class ReaderSettings {
@@ -56,6 +56,11 @@ final class ReaderSettings {
         didSet { defaults.set(dropCap, forKey: Keys.dropCap) }
     }
 
+    /// Liquid Glass menus instead of the solid ones. Off by default, since solid is easier to read.
+    var liquidGlassMenus: Bool {
+        didSet { defaults.set(liquidGlassMenus, forKey: Keys.liquidGlassMenus) }
+    }
+
     /// The prayer on screen when the reader last turned a page.
     @ObservationIgnored var lastPrayerID: Int? {
         didSet { defaults.set(lastPrayerID, forKey: Keys.lastPrayer) }
@@ -72,6 +77,7 @@ final class ReaderSettings {
         font = defaults.string(forKey: Keys.font).flatMap { ReaderFont(rawValue: $0) } ?? .newYork
         textSizeIndex = defaults.object(forKey: Keys.textSize) as? Int ?? 5
         dropCap = defaults.object(forKey: Keys.dropCap) as? Bool ?? true
+        liquidGlassMenus = defaults.bool(forKey: Keys.liquidGlassMenus)
         lastPrayerID = defaults.object(forKey: Keys.lastPrayer) as? Int
         lastCharacterIndex = defaults.integer(forKey: Keys.lastCharacter)
     }
@@ -97,6 +103,7 @@ final class ReaderSettings {
         static let font = "font"
         static let textSize = "textSize"
         static let dropCap = "dropCap"
+        static let liquidGlassMenus = "liquidGlassMenus"
         static let lastPrayer = "lastPrayer"
         static let lastCharacter = "lastCharacter"
     }

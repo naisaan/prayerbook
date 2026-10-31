@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// Themes & Settings: text size, light or dark, the font, and the drop cap.
+/// Themes & Settings: text size, light or dark, the font, the drop cap, and the menu style.
 struct SettingsSheet: View {
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
@@ -17,7 +17,7 @@ struct SettingsSheet: View {
                         .contentShape(.circle)
                 }
                 .buttonStyle(PressableButtonStyle())
-                .glassEffect(.regular.interactive(), in: .circle)
+                .menuSurface(.circle)
                 .accessibilityLabel("Close")
 
                 Text("Themes & Settings")
@@ -42,7 +42,14 @@ struct SettingsSheet: View {
             }
             .padding(.horizontal, 20)
             .frame(height: 52)
-            .glassEffect(.regular, in: .capsule)
+            .menuSurface(.capsule, interactive: false)
+
+            Toggle(isOn: $settings.liquidGlassMenus) {
+                Label("Liquid Glass", systemImage: "drop")
+            }
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .menuSurface(.capsule, interactive: false)
         }
         .foregroundStyle(.primary)
         .padding(24)
@@ -76,7 +83,7 @@ struct SettingsSheet: View {
             .accessibilityLabel("Larger text")
         }
         .buttonStyle(PressableButtonStyle())
-        .glassEffect(.regular.interactive(), in: .capsule)
+        .menuSurface(.capsule)
     }
 
     private var appearanceControl: some View {
@@ -95,7 +102,7 @@ struct SettingsSheet: View {
         }
         .padding(.horizontal, 6)
         .buttonStyle(PressableButtonStyle())
-        .glassEffect(.regular.interactive(), in: .capsule)
+        .menuSurface(.capsule)
     }
 }
 

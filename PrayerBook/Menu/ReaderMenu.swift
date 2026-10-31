@@ -1,6 +1,6 @@
 import SwiftUI
 
-/// The round glass menu button in the bottom corner, with Apple Books' icon:
+/// The round menu button in the bottom corner, with Apple Books' icon:
 /// two lines over three dots. While the menu is open it becomes the About button.
 struct MenuButton: View {
     let isOpen: Bool
@@ -23,7 +23,7 @@ struct MenuButton: View {
         }
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
-        .glassEffect(.regular.interactive(), in: .circle)
+        .menuSurface(.circle)
         .accessibilityLabel(isOpen ? Text("About") : Text("Menu"))
     }
 }
@@ -71,7 +71,7 @@ struct BookmarkBadge: View {
     }
 }
 
-/// The stack of glass buttons that grows out of the menu button, like Apple Books.
+/// The stack of buttons that grows out of the menu button, like Apple Books.
 struct ReaderMenu: View {
     @Environment(Library.self) private var library
 
@@ -90,7 +90,7 @@ struct ReaderMenu: View {
     var body: some View {
         GlassEffectContainer(spacing: 8) {
             VStack(alignment: .trailing, spacing: 8) {
-                MenuRow(title: "Contents · \(progress)%", systemImage: "list.bullet") {
+                MenuRow(title: "Contents · \(progress)%", systemImage: "list.bullet", progress: Double(progress) / 100) {
                     onSelect(.contents)
                 }
                 MenuRow(title: "Bookmarks & Recents", systemImage: "bookmark", detail: bookmarkCount > 0 ? "\(bookmarkCount)" : nil) {
@@ -114,7 +114,7 @@ struct ReaderMenu: View {
                             CircleIcon(systemImage: "plus")
                         }
                         .buttonStyle(PressableButtonStyle())
-                        .glassEffect(.regular.interactive(), in: .circle)
+                        .menuSurface(.circle)
                         .accessibilityLabel("New bookmark list")
                     }
 
@@ -137,7 +137,7 @@ struct ReaderMenu: View {
                             CircleIcon(systemImage: "square.and.arrow.up")
                         }
                         .buttonStyle(PressableButtonStyle())
-                        .glassEffect(.regular.interactive(), in: .circle)
+                        .menuSurface(.circle)
                         .accessibilityLabel("Share prayer")
                     }
                 }
@@ -147,9 +147,13 @@ struct ReaderMenu: View {
 }
 
 private struct MenuRow: View {
+    @Environment(ReaderSettings.self) private var settings
+
     let title: LocalizedStringKey
     let systemImage: String
     var detail: String? = nil
+    /// How much of the book is read, shown as a fill behind the row like Apple Books.
+    var progress: Double? = nil
     let action: () -> Void
 
     var body: some View {
@@ -168,11 +172,21 @@ private struct MenuRow: View {
             .font(.system(size: 17))
             .padding(.horizontal, 22)
             .frame(width: 290, height: 52)
+            .background(alignment: .leading) {
+                if let progress, !settings.liquidGlassMenus {
+                    GeometryReader { proxy in
+                        Rectangle()
+                            .fill(Color.menuProgressFill)
+                            .frame(width: proxy.size.width * min(max(progress, 0), 1))
+                    }
+                    .clipShape(.capsule)
+                }
+            }
             .contentShape(.capsule)
         }
         .buttonStyle(PressableButtonStyle())
         .foregroundStyle(.primary)
-        .glassEffect(.regular.interactive(), in: .capsule)
+        .menuSurface(.capsule)
     }
 }
 
@@ -190,7 +204,7 @@ private struct BookmarkToggle: View {
                 .foregroundStyle(isOn ? Color.white : showsColor ? color.color : Color.primary)
         }
         .buttonStyle(PressableButtonStyle())
-        .glassEffect(isOn ? Glass.regular.tint(color.color).interactive() : Glass.regular.interactive(), in: .circle)
+        .menuSurface(.circle, tint: isOn ? color.color : nil)
         .accessibilityLabel(isOn ? Text("Remove from \(name)") : Text("Add to \(name)"))
     }
 }
@@ -213,4 +227,50 @@ struct PressableButtonStyle: ButtonStyle {
             .scaleEffect(configuration.isPressed ? 0.97 : 1)
             .animation(.easeOut(duration: 0.12), value: configuration.isPressed)
     }
+}
+
+/// The look of the menu's buttons: solid gray like Apple Books, or Liquid Glass when that's
+/// turned on in Themes & Settings.
+private struct MenuSurface<S: Shape>: ViewModifier {
+    @Environment(ReaderSettings.self) private var settings
+    let shape: S
+    let tint: Color?
+    let interactive: Bool
+
+    func body(content: Content) -> some View {
+        if settings.liquidGlassMenus {
+            content.glassEffect(glass, in: shape)
+        } else {
+            content
+                .background(tint ?? Color.menuFill, in: shape)
+                .shadow(color: .black.opacity(0.12), radius: 6, y: 2)
+        }
+    }
+
+    private var glass: Glass {
+        let base = tint.map { Glass.regular.tint($0) } ?? Glass.regular
+        return interactive ? base.interactive() : base
+    }
+}
+
+extension View {
+    func menuSurface<S: Shape>(_ shape: S, tint: Color? = nil, interactive: Bool = true) -> some View {
+        modifier(MenuSurface(shape: shape, tint: tint, interactive: interactive))
+    }
+}
+
+extension Color {
+    /// The solid button color: light gray in light mode, dark gray in dark mode.
+    static let menuFill = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 58 / 255, green: 58 / 255, blue: 60 / 255, alpha: 1)
+            : UIColor(red: 229 / 255, green: 229 / 255, blue: 234 / 255, alpha: 1)
+    })
+
+    /// The read part of the Contents button, a shade apart from `menuFill`.
+    static let menuProgressFill = Color(uiColor: UIColor { traits in
+        traits.userInterfaceStyle == .dark
+            ? UIColor(red: 84 / 255, green: 84 / 255, blue: 88 / 255, alpha: 1)
+            : UIColor(red: 209 / 255, green: 209 / 255, blue: 214 / 255, alpha: 1)
+    })
 }
