@@ -281,6 +281,27 @@ struct PrayerListEditor: View {
 
     // MARK: Typing in list items
 
+    private func removeEmptyItem(at index: Int) {
+        let removed = blocks[index].id
+        let previous = blocks[index - 1]
+        if !previous.isItem {
+            selections[previous.id] = TextSelection(insertionPoint: previous.text.endIndex)
+        }
+        // Move up first, so the keyboard stays while this item goes.
+        focused = previous.id
+        Task { @MainActor in
+            guard let index = blocks.firstIndex(where: { $0.id == removed }) else { return }
+            blocks.remove(at: index)
+            // Plain text on both sides now meets: make it one text box.
+            if index > 0, index < blocks.count, !blocks[index - 1].isItem, !blocks[index].isItem {
+                let end = blocks[index - 1].text.endIndex
+                blocks[index - 1].text += "\n" + blocks[index].text
+                selections[blocks[index - 1].id] = TextSelection(insertionPoint: end)
+                blocks.remove(at: index)
+            }
+        }
+    }
+
     /// Return and backspace, which arrive as changes to an item's text.
     private func itemEdited(_ id: PrayerListBlock.ID, _ newText: String) {
         guard let index = blocks.firstIndex(where: { $0.id == id }), let style = blocks[index].style else { return }
@@ -302,6 +323,13 @@ struct PrayerListEditor: View {
             let next = PrayerListBlock.item(after, style: style)
             blocks.insert(next, at: index + 1)
             Task { @MainActor in self.focused = next.id }
+            return
+        }
+
+        if newText.isEmpty && index > 0 {
+            // Backspace on an empty item: it goes away and the cursor moves to the end of
+            // the line above, so you can keep deleting.
+            removeEmptyItem(at: index)
             return
         }
 
