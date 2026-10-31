@@ -73,7 +73,10 @@ struct ReaderView: View {
 
                 if book != nil {
                     controls
-                    PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
+                    if settings.showsPrayerList {
+                        PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
+                            .transition(.opacity)
+                    }
                 }
 
                 if showsSplash {

@@ -56,6 +56,11 @@ final class ReaderSettings {
         didSet { defaults.set(dropCap, forKey: Keys.dropCap) }
     }
 
+    /// The blue prayer list card in the page's corner. Turning it off only hides it; the list stays saved.
+    var showsPrayerList: Bool {
+        didSet { defaults.set(showsPrayerList, forKey: Keys.showsPrayerList) }
+    }
+
     /// Liquid Glass menus instead of the solid ones. Off by default, since solid is easier to read.
     var liquidGlassMenus: Bool {
         didSet { defaults.set(liquidGlassMenus, forKey: Keys.liquidGlassMenus) }
@@ -78,6 +83,7 @@ final class ReaderSettings {
         textSizeIndex = defaults.object(forKey: Keys.textSize) as? Int ?? 5
         dropCap = defaults.object(forKey: Keys.dropCap) as? Bool ?? true
         liquidGlassMenus = defaults.bool(forKey: Keys.liquidGlassMenus)
+        showsPrayerList = defaults.object(forKey: Keys.showsPrayerList) as? Bool ?? true
         lastPrayerID = defaults.object(forKey: Keys.lastPrayer) as? Int
         lastCharacterIndex = defaults.integer(forKey: Keys.lastCharacter)
     }
@@ -104,6 +110,7 @@ final class ReaderSettings {
         static let textSize = "textSize"
         static let dropCap = "dropCap"
         static let liquidGlassMenus = "liquidGlassMenus"
+        static let showsPrayerList = "showsPrayerList"
         static let lastPrayer = "lastPrayer"
         static let lastCharacter = "lastCharacter"
     }

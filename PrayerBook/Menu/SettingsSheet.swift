@@ -48,6 +48,13 @@ struct SettingsSheet: View {
             .frame(height: 52)
             .menuSurface(.capsule, interactive: false)
 
+            Toggle(isOn: $settings.showsPrayerList) {
+                Label("Prayer List", systemImage: "checklist")
+            }
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .menuSurface(.capsule, interactive: false)
+
             Toggle(isOn: $settings.liquidGlassMenus) {
                 Label("Liquid Glass", systemImage: "drop")
             }
