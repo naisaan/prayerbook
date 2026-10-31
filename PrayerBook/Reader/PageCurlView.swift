@@ -165,11 +165,11 @@ final class BookPageView: UIView {
                     UIBezierPath(roundedRect: line.box, cornerRadius: 4).fill()
                 case .underline(let color):
                     let size = line.font.pointSize
-                    let y = line.baseline + max(2.5, size * 0.16)
+                    let y = line.baseline + max(3, size * 0.18)
                     let path = UIBezierPath()
                     path.move(to: CGPoint(x: line.minX, y: y))
                     path.addLine(to: CGPoint(x: line.maxX, y: y))
-                    path.lineWidth = max(1.5, size * 0.09)
+                    path.lineWidth = max(2.5, size * 0.14)
                     path.lineCapStyle = .round
                     color.color.setStroke()
                     path.stroke()
