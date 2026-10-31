@@ -95,12 +95,30 @@ final class BookPageView: UIView {
         let maxX: CGFloat
         let baseline: CGFloat
         let font: UIFont
+        /// Set for the drop cap, which gets a box around just its letter.
+        var fixedBox: CGRect? = nil
 
         /// The rounded box drawn behind the words, from the tops of the tallest letters to
         /// just below the lowest.
         var box: CGRect {
-            CGRect(x: minX - 2, y: baseline - font.ascender - 1, width: maxX - minX + 4, height: font.ascender - font.descender + 3)
+            fixedBox ?? CGRect(x: minX - 2, y: baseline - font.ascender - 1, width: maxX - minX + 4, height: font.ascender - font.descender + 3)
         }
+    }
+
+    /// Where the drop cap's letter is on this page, if it's on this page: a box around the
+    /// letter, and its baseline.
+    var dropCapPlacement: (box: CGRect, baseline: CGFloat)? {
+        guard let prayerPage = book.pages[index].textPage,
+              let dropCap = prayerPage.layout.dropCap,
+              dropCap.containerIndex == prayerPage.pageInPrayer,
+              let font = dropCap.letter.attribute(.font, at: 0, effectiveRange: nil) as? UIFont
+        else { return nil }
+        let origin = book.metrics.textRect.origin
+        let left = origin.x + dropCap.origin.x
+        let baseline = origin.y + dropCap.origin.y + font.ascender
+        let width = ceil(dropCap.letter.size().width)
+        let box = CGRect(x: left - 3, y: baseline - font.capHeight - 4, width: width + 6, height: font.capHeight + 8)
+        return (box, baseline)
     }
 
     /// The highlighted passages on this page, each with its lines.
@@ -117,12 +135,26 @@ final class BookPageView: UIView {
         let layoutManager = layout.layoutManager
         let container = layout.containers[prayerPage.pageInPrayer]
         let origin = book.metrics.textRect.origin
+        var lines: [HighlightLine] = []
+
+        // The drop cap is drawn on its own, so it gets its own box when the highlight takes it in.
+        if let dropCap = layout.dropCap,
+           NSLocationInRange(dropCap.characterLocation, highlight.range),
+           let placement = dropCapPlacement {
+            lines.append(HighlightLine(
+                minX: placement.box.minX + 3,
+                maxX: placement.box.maxX - 3,
+                baseline: placement.baseline,
+                font: book.typography.bodyFont,
+                fixedBox: placement.box
+            ))
+        }
+
         let visible = NSIntersectionRange(layout.storageRange(highlight.range), prayerPage.characterRange)
-        guard visible.length > 0 else { return [] }
+        guard visible.length > 0 else { return lines }
 
         let text = layout.storage.string as NSString
         let glyphs = layoutManager.glyphRange(forCharacterRange: visible, actualCharacterRange: nil)
-        var lines: [HighlightLine] = []
         layoutManager.enumerateLineFragments(forGlyphRange: glyphs) { lineRect, _, lineContainer, lineGlyphs, _ in
             guard lineContainer === container else { return }
             var characters = layoutManager.characterRange(forGlyphRange: NSIntersectionRange(lineGlyphs, glyphs), actualGlyphRange: nil)
@@ -227,7 +259,7 @@ final class BookPageView: UIView {
 /// Hosts one page inside the page curl controller. Taps in the middle of the page show or
 /// hide the reading controls; taps near the edges turn the page. Pressing and holding on the
 /// text selects it, to highlight or underline it.
-final class PageViewController: UIViewController, UIGestureRecognizerDelegate, UITextViewDelegate {
+final class PageViewController: UIViewController, UIGestureRecognizerDelegate, UITextViewDelegate, UIEditMenuInteractionDelegate {
     let index: Int
     /// Where the page sits in the page curl. The same as `index`, except in a right-to-left
     /// book, where the order is reversed.
@@ -237,6 +269,11 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     var onCenterTap: (() -> Void)?
     var onOpenPrayer: ((Int) -> Void)?
     private var textView: PageTextView?
+    /// Sits over the drop cap, which the text view can't select because the letter is drawn
+    /// on its own. Pressing and holding it selects the first word, letter included, and it
+    /// tints like a selection whenever the selection takes in the letter.
+    private var dropCapTarget: UIView?
+    private var dropCapMenu: UIEditMenuInteraction?
     /// The colors shown over a highlight while it's being changed.
     private var palette: HighlightPalette?
     /// Whether text was selected, or the colors were showing, when the latest tap started.
@@ -278,6 +315,62 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
             view.addSubview(textView)
             self.textView = textView
         }
+
+        if let placement = pageView?.dropCapPlacement, book.pages[index].prayerPage != nil {
+            let target = UIView(frame: placement.box)
+            target.layer.cornerRadius = 4
+            let press = UILongPressGestureRecognizer(target: self, action: #selector(handleDropCapPress))
+            target.addGestureRecognizer(press)
+            let menu = UIEditMenuInteraction(delegate: self)
+            target.addInteraction(menu)
+            view.addSubview(target)
+            dropCapTarget = target
+            dropCapMenu = menu
+        }
+    }
+
+    // MARK: Drop cap
+
+    @objc private func handleDropCapPress(_ press: UILongPressGestureRecognizer) {
+        guard press.state == .began,
+              let textView,
+              let location = book.pages[index].prayerPage?.layout.dropCap?.characterLocation
+        else { return }
+        dismissPalette(animated: true)
+        // The rest of the first word: up to the first space or line break.
+        let text = textView.textStorage.string as NSString
+        let rest = NSRange(location: location, length: text.length - location)
+        let space = text.rangeOfCharacter(from: .whitespacesAndNewlines, range: rest)
+        let end = space.location == NSNotFound ? text.length : space.location
+        textView.becomeFirstResponder()
+        textView.selectedRange = NSRange(location: location, length: max(end - location, 0))
+        UISelectionFeedbackGenerator().selectionChanged()
+        let point = press.location(in: press.view)
+        dropCapMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: point))
+    }
+
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
+        guard let textView else { return nil }
+        let copy = UIAction(title: String(localized: "Copy"), image: UIImage(systemName: "doc.on.doc")) { [weak textView] _ in
+            textView?.copy(nil)
+            textView?.clearSelection()
+        }
+        let menu = self.textView(textView, editMenuForTextIn: textView.selectedRange, suggestedActions: [copy])
+        return menu
+    }
+
+    func editMenuInteraction(_ interaction: UIEditMenuInteraction, targetRectFor configuration: UIEditMenuConfiguration) -> CGRect {
+        dropCapTarget?.bounds ?? .zero
+    }
+
+    /// Tints the drop cap like the rest of the selection when the selection takes it in.
+    func textViewDidChangeSelection(_ textView: UITextView) {
+        guard let dropCapTarget,
+              let location = book.pages[index].prayerPage?.layout.dropCap?.characterLocation
+        else { return }
+        let range = textView.selectedRange
+        let selected = range.length > 0 && range.location <= location && location < NSMaxRange(range)
+        dropCapTarget.backgroundColor = selected ? textView.tintColor.withAlphaComponent(0.25) : nil
     }
 
     override func viewWillDisappear(_ animated: Bool) {

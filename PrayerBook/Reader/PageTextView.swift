@@ -46,6 +46,12 @@ final class PageTextView: UITextView {
 
     var hasSelection: Bool { selectedRange.length > 0 }
 
+    /// Tells the delegate about every change, including ones made in code, so the drop cap's
+    /// tint always matches the selection.
+    override var selectedRange: NSRange {
+        didSet { delegate?.textViewDidChangeSelection?(self) }
+    }
+
     func clearSelection() {
         selectedRange = NSRange(location: selectedRange.location, length: 0)
     }
