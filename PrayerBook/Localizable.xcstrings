@@ -2571,64 +2571,6 @@
         }
       }
     },
-    "Licensed under the GNU General Public License, version 3 or later.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lizenziert unter der GNU General Public License, Version 3 oder neuer."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Con licencia GNU General Public License, versión 3 o posterior."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Sous licence GNU General Public License, version 3 ou ultérieure."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Distribuita con licenza GNU General Public License, versione 3 o successiva."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gelicentieerd onder de GNU General Public License, versie 3 of later."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Gefið út með GNU General Public License, útgáfu 3 eða síðari."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Licencováno pod GNU General Public License, verze 3 nebo novější."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Licencované pod GNU General Public License, verzia 3 alebo novšia."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "منتشرشده با پروانهٔ عمومی همگانی گنو (GPL)، نسخهٔ ۳ یا بالاتر."
-          }
-        }
-      }
-    },
     "Light": {
       "localizations": {
         "de": {
@@ -5238,64 +5180,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "این برنامه با «وایب‌کدینگ» و با عشق ساخته شده است، به دست [نیسان ندیمی](https://naisaannadimi.net)"
-          }
-        }
-      }
-    },
-    "This app’s source code": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Quellcode dieser App"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Código fuente de esta app"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Code source de cette app"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Codice sorgente di questa app"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Broncode van deze app"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Frumkóði þessa forrits"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zdrojový kód této aplikace"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Zdrojový kód tejto aplikácie"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "کد منبع این برنامه"
           }
         }
       }

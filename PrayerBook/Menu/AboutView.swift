@@ -33,10 +33,6 @@ struct AboutView: View {
                     Text("This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)")
                     Link("Original Prayer Book source code", destination: URL(string: "https://github.com/arashpayan/prayer-book")!)
                     Link("Arash Payan’s Prayer Book Website", destination: URL(string: "https://www.prayerbook.app/")!)
-                    Link("This app’s source code", destination: URL(string: "https://github.com/naisaan/prayerbook")!)
-                    Text("Licensed under the GNU General Public License, version 3 or later.")
-                        .font(.footnote)
-                        .foregroundStyle(.secondary)
                 }
 
                 Section("Dedications") {
