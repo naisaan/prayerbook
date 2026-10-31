@@ -89,11 +89,11 @@ struct ReaderMenu: View {
                 MenuRow(title: "Search Book", systemImage: "magnifyingglass") {
                     onSelect(.search)
                 }
-                MenuRow(title: "Themes & Settings", systemImage: "textformat.size") {
-                    onSelect(.settings)
-                }
                 MenuRow(title: "Languages", systemImage: "globe") {
                     onSelect(.languages)
+                }
+                MenuRow(title: "Themes & Settings", systemImage: "textformat.size") {
+                    onSelect(.settings)
                 }
 
                 HStack(spacing: 8) {
