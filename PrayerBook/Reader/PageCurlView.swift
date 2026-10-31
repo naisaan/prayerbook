@@ -459,8 +459,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
 
     func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
         let system = PageTextView.menuWithoutTranslate(suggestedActions)
-        // Only prayers can be highlighted, not the verse on the book's opening page.
-        guard book.pages[index].prayerPage != nil else { return UIMenu(children: system) }
+        // Only prayers can be highlighted, not the verse on the book's opening page, and only
+        // when some text is actually selected.
+        guard book.pages[index].prayerPage != nil, range.length > 0 else { return UIMenu(children: system) }
         let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
             // Read the selection when tapped: the menu can outlive the selection it was made for.
             guard let self, let selected = self.textView?.selectionWithDropCap else { return }
@@ -619,12 +620,17 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     }
 
     func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
+        let point = gestureRecognizer.location(in: view)
         if tapStartedBusy {
-            textView?.clearSelection()
+            // A small drag of a selection handle can look like a tap, so leave the selection
+            // to the text view, which clears it on a real tap, unless the tap was well away
+            // from the text.
+            if let textView, !textView.frame.insetBy(dx: -24, dy: -24).contains(point) {
+                textView.clearSelection()
+            }
             dismissPalette(animated: true)
             return false
         }
-        let point = gestureRecognizer.location(in: view)
         if takesTap(at: point) { return true }
         let width = view.bounds.width
         return point.x > width * 0.25 && point.x < width * 0.75
