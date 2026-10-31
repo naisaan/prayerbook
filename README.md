@@ -49,4 +49,4 @@ by Arash Payan.
 
 Copyright © 2026 Naisaan Nadimi. All rights reserved. See [LICENSE](LICENSE).
 
-The prayer texts are the sacred writings of the Bahá’í Faith, copyright Bahá’í International Community. Thanks to Arash Payan, whose [original Prayer Book app](https://github.com/arashpayan/prayer-book) inspired this one.
+The prayer texts are the sacred writings of the Bahá’í Faith, copyright Bahá’í International Community.
