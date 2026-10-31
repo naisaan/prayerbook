@@ -22,7 +22,6 @@ struct ReaderView: View {
     @State private var showsSplash = true
     @State private var splashOpacity = 1.0
     @State private var showsPrayerList = false
-    @Namespace private var prayerListZoom
 
     var body: some View {
         GeometryReader { proxy in
@@ -74,7 +73,7 @@ struct ReaderView: View {
 
                 if book != nil {
                     controls
-                    prayerListCard
+                    PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
                 }
 
                 if showsSplash {
@@ -95,10 +94,6 @@ struct ReaderView: View {
             sheetContent(sheet)
                 .environment(library)
                 .environment(settings)
-        }
-        .fullScreenCover(isPresented: $showsPrayerList) {
-            PrayerListView()
-                .navigationTransition(.zoom(sourceID: "prayerList", in: prayerListZoom))
         }
         .onChange(of: currentPage) { _, page in
             pageDidChange(page)
@@ -129,26 +124,6 @@ struct ReaderView: View {
 
     // MARK: Controls
 
-    /// The prayer list's card, tilted and peeking in from the top corner of the page.
-    /// Apple's zoom transition opens the list out of it, and swiping the list down tosses
-    /// it back.
-    private var prayerListCard: some View {
-        Button {
-            setMenu(open: false)
-            showsPrayerList = true
-        } label: {
-            PrayerListCard()
-                .rotationEffect(.degrees(-30))
-        }
-        .buttonStyle(PressableButtonStyle())
-        .matchedTransitionSource(id: "prayerList", in: prayerListZoom)
-        .accessibilityLabel("Prayer List")
-        .offset(x: PrayerListCard.size * 0.48, y: PrayerListCard.size * 0.45)
-        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .topTrailing)
-        .ignoresSafeArea()
-        .opacity(menuOpen ? 0 : 1)
-        .allowsHitTesting(!menuOpen)
-    }
 
     private var controls: some View {
         VStack(alignment: .trailing, spacing: 12) {

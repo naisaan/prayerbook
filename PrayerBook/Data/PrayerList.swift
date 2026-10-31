@@ -1,47 +1,19 @@
 import Foundation
 import Observation
 
-/// Someone or something the reader wants to pray for.
-struct PrayerIntention: Identifiable, Codable, Hashable {
-    let id: UUID
-    var text: String
-    let created: Date
-}
-
-/// The reader's prayer list, saved on the device.
+/// The reader's prayer list: free text, saved on the device as it's typed.
 @Observable
 final class PrayerList {
     static let shared = PrayerList()
 
     private let defaults = UserDefaults.standard
-    private static let key = "prayerList"
+    private static let key = "prayerListText"
 
-    /// In the order the reader keeps them.
-    private(set) var intentions: [PrayerIntention]
+    var text: String {
+        didSet { defaults.set(text, forKey: Self.key) }
+    }
 
     private init() {
-        intentions = defaults.data(forKey: Self.key)
-            .flatMap { try? JSONDecoder().decode([PrayerIntention].self, from: $0) } ?? []
-    }
-
-    func add(_ text: String) {
-        let trimmed = text.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmed.isEmpty else { return }
-        intentions.append(PrayerIntention(id: UUID(), text: trimmed, created: .now))
-        save()
-    }
-
-    func remove(atOffsets offsets: IndexSet) {
-        intentions.remove(atOffsets: offsets)
-        save()
-    }
-
-    func move(fromOffsets source: IndexSet, toOffset destination: Int) {
-        intentions.move(fromOffsets: source, toOffset: destination)
-        save()
-    }
-
-    private func save() {
-        defaults.set(try? JSONEncoder().encode(intentions), forKey: Self.key)
+        text = defaults.string(forKey: Self.key) ?? ""
     }
 }
