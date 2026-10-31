@@ -343,10 +343,17 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         let space = text.rangeOfCharacter(from: .whitespacesAndNewlines, range: rest)
         let end = space.location == NSNotFound ? text.length : space.location
         textView.becomeFirstResponder()
-        textView.selectedRange = NSRange(location: location, length: max(end - location, 0))
+        // Apple's own "select the word here", the same as pressing and holding a word, so
+        // the blue handles and the usual menu appear.
+        textView.selectedRange = NSRange(location: location, length: 0)
+        textView.select(nil)
         UISelectionFeedbackGenerator().selectionChanged()
-        let point = press.location(in: press.view)
-        dropCapMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: point))
+        if textView.selectedRange.length == 0 {
+            // If iOS didn't select it, select the word ourselves and show the menu.
+            textView.selectedRange = NSRange(location: location, length: max(end - location, 0))
+            let point = press.location(in: press.view)
+            dropCapMenu?.presentEditMenu(with: UIEditMenuConfiguration(identifier: nil, sourcePoint: point))
+        }
     }
 
     func editMenuInteraction(_ interaction: UIEditMenuInteraction, menuFor configuration: UIEditMenuConfiguration, suggestedActions: [UIMenuElement]) -> UIMenu? {
