@@ -33,7 +33,7 @@ struct AboutView: View {
                 }
 
                 Section("Dedications") {
-                    Text("I dedicate this app to my parents Bahman and Jalal, to the Iranian Bahá’í Community, and the Italian Bahá’í Community.")
+                    Text("I dedicate this app to my parents Bahman and Jalal, to the Triangle Bahá’í Community, and Torpignattara.")
                 }
 
                 Section("Sources") {
