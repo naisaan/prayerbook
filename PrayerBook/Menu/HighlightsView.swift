@@ -35,7 +35,7 @@ struct HighlightsView: View {
                             Section {
                                 ForEach(group) { highlight in
                                     Button { onOpen(highlight) } label: {
-                                        HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID])
+                                        HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: false)
                                     }
                                     .tint(.primary)
                                 }
@@ -51,7 +51,7 @@ struct HighlightsView: View {
                     let notes = highlights.filter(\.hasNote)
                     ForEach(notes) { highlight in
                         Button { onOpen(highlight) } label: {
-                            HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID])
+                            HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: true)
                         }
                         .tint(.primary)
                     }
@@ -119,13 +119,25 @@ struct HighlightsView: View {
 private struct HighlightRow: View {
     let highlight: Highlight
     let prayer: Prayer?
+    /// The note's text is written out in the Notes list. In the Highlights list an icon
+    /// only says there is one.
+    let showsNote: Bool
 
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
-            passage
-                .font(.body)
-                .lineLimit(5)
-            if let note = highlight.note, highlight.hasNote {
+            HStack(alignment: .firstTextBaseline) {
+                passage
+                    .font(.body)
+                    .lineLimit(5)
+                if !showsNote && highlight.hasNote {
+                    Spacer(minLength: 8)
+                    Image(systemName: "note.text")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                        .accessibilityLabel("Note")
+                }
+            }
+            if showsNote, let note = highlight.note, highlight.hasNote {
                 Label {
                     Text(note)
                         .lineLimit(4)
