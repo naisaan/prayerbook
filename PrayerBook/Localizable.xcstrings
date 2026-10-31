@@ -715,6 +715,64 @@
     "Bahá’u’lláh": {
       "shouldTranslate": false
     },
+    "Bahá’í Faith": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahá’í-Religion"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fe bahá’í"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Foi bahá’íe"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fede bahá’í"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahá’í-geloof"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahá’í-trúin"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahá’í víra"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Bahá’í viera"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آیین بهائی"
+          }
+        }
+      }
+    },
     "Bahá’í Prayer Book": {
       "localizations": {
         "de": {
@@ -2516,6 +2574,64 @@
         }
       }
     },
+    "Official Bahá’í Website": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Offizielle Bahá’í-Website"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sitio web oficial bahá’í"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Site officiel bahá’í"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sito ufficiale bahá’í"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Officiële bahá’í-website"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Opinber vefur bahá’í"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oficiální bahá’í web"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oficiálny bahá’í web"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وب‌سایت رسمی بهائی"
+          }
+        }
+      }
+    },
     "Open the menu while reading and tap the bookmark button to save a prayer.": {
       "localizations": {
         "de": {
@@ -3850,6 +3966,64 @@
         }
       }
     },
+    "This app is an individual initiative. It is not an official publication of the Bahá’í Faith and is not endorsed by any Bahá’í institution.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese App ist eine individuelle Initiative. Sie ist keine offizielle Veröffentlichung der Bahá’í-Religion und wird von keiner Bahá’í-Institution unterstützt."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta app es una iniciativa individual. No es una publicación oficial de la Fe bahá’í ni cuenta con el respaldo de ninguna institución bahá’í."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette app est une initiative individuelle. Ce n’est pas une publication officielle de la Foi bahá’íe et elle n’est approuvée par aucune institution bahá’íe."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa app è un’iniziativa individuale. Non è una pubblicazione ufficiale della Fede bahá’í e non è approvata da alcuna istituzione bahá’í."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze app is een individueel initiatief. Het is geen officiële uitgave van het Bahá’í-geloof en wordt door geen enkele bahá’í-instelling onderschreven."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Þetta forrit er einkaframtak. Það er ekki opinber útgáfa Bahá’í-trúarinnar og nýtur ekki stuðnings neinnar bahá’í-stofnunar."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato aplikace je individuální iniciativa. Není oficiální publikací Bahá’í víry a není schválena žádnou bahá’í institucí."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Táto aplikácia je individuálna iniciatíva. Nie je oficiálnou publikáciou Bahá’í viery a nie je schválená žiadnou bahá’í inštitúciou."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "این برنامه یک ابتکار فردی است. نشریهٔ رسمی آیین بهائی نیست و مورد تأیید هیچ مؤسسهٔ بهائی قرار ندارد."
+          }
+        }
+      }
+    },
     "This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)": {
       "localizations": {
         "de": {
@@ -4020,6 +4194,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "نسخهٔ %@"
+          }
+        }
+      }
+    },
+    "What do Bahá’ís Believe?": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Woran glauben Bahá’í?"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¿Qué creen los bahá’ís?"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Que croient les bahá’ís ?"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In che cosa credono i bahá’í?"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wat geloven bahá’ís?"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Hverju trúa bahá’íar?"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čemu věří bahá’í?"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Čomu veria bahá’í?"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بهائیان به چه باور دارند؟"
           }
         }
       }

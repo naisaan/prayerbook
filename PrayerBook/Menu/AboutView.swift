@@ -13,13 +13,19 @@ struct AboutView: View {
                 Section {
                     VStack(spacing: 6) {
                         Text("Bahá’í Prayer Book")
-                            .font(ReaderFont.newYork.font(size: 30).weight(.semibold))
+                            .font(.system(size: 30, weight: .bold))
                         Text("Version \(version)")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
                     }
                     .frame(maxWidth: .infinity)
                     .padding(.vertical, 12)
+                }
+
+                Section("Bahá’í Faith") {
+                    Text("This app is an individual initiative. It is not an official publication of the Bahá’í Faith and is not endorsed by any Bahá’í institution.")
+                    Link("Official Bahá’í Website", destination: URL(string: "https://www.bahai.org/")!)
+                    Link("What do Bahá’ís Believe?", destination: URL(string: "https://www.bahai.org/beliefs")!)
                 }
 
                 Section("Credits") {
