@@ -1,7 +1,7 @@
 import SwiftUI
 
-/// The prayer list: a card shaped like the app icon, tilted and peeking in from the top
-/// corner of the page. Tapping it grows it into a square note hovering over the prayer,
+/// The prayer list: a blue card shaped like an app icon, tilted and peeking in from the top
+/// corner of the page. Tapping it grows it into a square note hovering in the middle of the screen,
 /// where the reader writes whatever they like. Tapping beside the note, or flicking it like
 /// Tweetbot's image viewer, sends it back into its corner. It's separate from the notes on
 /// highlights.
@@ -29,7 +29,12 @@ struct PrayerListNote: View {
         GeometryReader { proxy in
             let side = min(proxy.size.width - 40, 440)
             let closedCenter = CGPoint(x: proxy.size.width - Self.cardSize * 0.02, y: Self.cardSize * 0.95)
-            let openCenter = CGPoint(x: proxy.size.width / 2, y: safeAreaTop + 24 + side / 2)
+            // In the middle of the screen, rising to the top while typing so the keyboard
+            // doesn't cover it.
+            let openCenter = CGPoint(
+                x: proxy.size.width / 2,
+                y: isTyping ? safeAreaTop + 24 + side / 2 : proxy.size.height / 2
+            )
 
             ZStack {
                 // Tapping beside the note puts it back.
@@ -81,16 +86,15 @@ struct PrayerListNote: View {
             // While it's a card, a tap opens it instead of starting to type.
             .allowsHitTesting(isOpen)
 
-            // The app icon, while it's a card in the corner.
-            Image("PrayerListCard")
-                .resizable()
-                .scaledToFill()
+            // Solid blue, the highlighter's blue, while it's a card in the corner.
+            Color(uiColor: HighlightColor.blue.swatch)
                 .opacity(isOpen ? 0 : 1)
                 .allowsHitTesting(false)
         }
         .frame(width: side, height: side)
         .background(Color(uiColor: colorScheme == .dark ? .secondarySystemBackground : .systemBackground))
         .clipShape(RoundedRectangle(cornerRadius: isOpen ? 28 : side * 0.225, style: .continuous))
+        .animation(.spring(duration: 0.4, bounce: 0.15), value: isTyping)
         .shadow(color: .black.opacity(isOpen ? 0.25 : 0.35), radius: isOpen ? 24 : 6 * side / Self.cardSize, y: isOpen ? 8 : 3 * side / Self.cardSize)
     }
 
