@@ -105,15 +105,16 @@ final class HighlightPalette: UIView {
                 self?.choose(.underline(Highlights.shared.lastUnderlineColor), closes: false)
             })
         case .underline:
-            items.append(symbol("a.square.fill", label: String(localized: "Highlight")) { [weak self] in
-                self?.choose(.highlight(Highlights.shared.lastHighlightColor), closes: false)
-            })
             let isDark = traitCollection.userInterfaceStyle == .dark
             for color in UnderlineColor.allCases {
                 items.append(dot(color.color, isSelected: style == .underline(color), label: color.name(isDark: isDark)) { [weak self] in
                     self?.choose(.underline(color), closes: true)
                 })
             }
+            // In the same spot as the underline button, so the two swap places.
+            items.append(symbol("a.square.fill", label: String(localized: "Highlight")) { [weak self] in
+                self?.choose(.highlight(Highlights.shared.lastHighlightColor), closes: false)
+            })
         }
         items.append(symbol("trash", label: String(localized: "Remove Highlight"), action: onRemove))
 
