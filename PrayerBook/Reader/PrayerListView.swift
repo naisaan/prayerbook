@@ -62,42 +62,42 @@ struct PrayerListNote: View {
     }
 
     private func note(side: CGFloat) -> some View {
-        ZStack {
-            VStack(alignment: .leading, spacing: 10) {
-                // In the book's font, chosen in Themes & Settings.
-                Text("Prayer List")
-                    .font(settings.font.font(size: 28).weight(.semibold))
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .contentShape(Rectangle())
-                    // Tapping the heading puts the keyboard away.
-                    .onTapGesture { isTyping = false }
-                PrayerListTextView(
-                    text: Bindable(list).text,
-                    isTyping: $isTyping,
-                    font: settings.font.uiFont(size: 18)
-                )
-                    .overlay(alignment: .topLeading) {
-                        if list.text.isEmpty {
-                            Text("The people and things in your life you’d like to pray for…")
-                                .font(settings.font.font(size: 18))
-                                .foregroundStyle(.tertiary)
-                                .allowsHitTesting(false)
-                        }
-                    }
-            }
+        // While it's a card, everything is scaled down, so the corners and shadow are scaled up.
+        let cardScale: CGFloat = side / Self.cardSize
+        let cornerRadius: CGFloat = isOpen ? 28 : side * 0.225
+        let shadowRadius: CGFloat = isOpen ? 24 : 6 * cardScale
+        let shadowY: CGFloat = isOpen ? 8 : 3 * cardScale
+        let shadowOpacity: Double = isOpen ? 0.25 : 0.35
+
+        return noteContent
             .padding(20)
             .opacity(isOpen ? 1 : 0)
             // While it's a card, a tap opens it instead of starting to type.
             .allowsHitTesting(isOpen)
+            .frame(width: side, height: side)
+            // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
+            .background(Color(uiColor: HighlightColor.blue.swatch))
+            .environment(\.colorScheme, .light)
+            .tint(.black)
+            .clipShape(RoundedRectangle(cornerRadius: cornerRadius, style: .continuous))
+            .shadow(color: .black.opacity(shadowOpacity), radius: shadowRadius, y: shadowY)
+    }
 
+    private var noteContent: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            // In the book's font, chosen in Themes & Settings.
+            Text("Prayer List")
+                .font(settings.font.font(size: 28).weight(.semibold))
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .contentShape(Rectangle())
+                // Tapping the heading puts the keyboard away.
+                .onTapGesture { isTyping = false }
+            PrayerListEditor(
+                text: Bindable(list).text,
+                isTyping: $isTyping,
+                font: settings.font.font(size: 18)
+            )
         }
-        .frame(width: side, height: side)
-        // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
-        .background(Color(uiColor: HighlightColor.blue.swatch))
-        .environment(\.colorScheme, .light)
-        .tint(.black)
-        .clipShape(RoundedRectangle(cornerRadius: isOpen ? 28 : side * 0.225, style: .continuous))
-        .shadow(color: .black.opacity(isOpen ? 0.25 : 0.35), radius: isOpen ? 24 : 6 * side / Self.cardSize, y: isOpen ? 8 : 3 * side / Self.cardSize)
     }
 
     // MARK: Opening and closing
