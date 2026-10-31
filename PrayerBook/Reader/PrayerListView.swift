@@ -17,6 +17,7 @@ struct PrayerListNote: View {
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
     @FocusState private var isTyping: Bool
+    @Environment(ReaderSettings.self) private var settings
 
     private var list: PrayerList { .shared }
 
@@ -61,19 +62,20 @@ struct PrayerListNote: View {
     private func note(side: CGFloat) -> some View {
         ZStack {
             VStack(alignment: .leading, spacing: 10) {
+                // In the book's font, chosen in Themes & Settings.
                 Text("Prayer List")
-                    .font(.headline)
+                    .font(settings.font.font(size: 28).weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
                 TextEditor(text: Bindable(list).text)
                     .focused($isTyping)
-                    .font(.body)
+                    .font(settings.font.font(size: 18))
                     .scrollContentBackground(.hidden)
                     .padding(.horizontal, -5)
                     .overlay(alignment: .topLeading) {
                         if list.text.isEmpty {
                             Text("The people and things in your life you’d like to pray for…")
-                                .font(.body)
+                                .font(settings.font.font(size: 18))
                                 .foregroundStyle(.tertiary)
                                 .padding(.top, 8)
                                 .allowsHitTesting(false)
