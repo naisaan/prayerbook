@@ -105,7 +105,7 @@ final class HighlightPalette: UIView {
                 self?.choose(.underline(Highlights.shared.lastUnderlineColor), closes: false)
             })
         case .underline:
-            items.append(symbol("highlighter", label: String(localized: "Highlight")) { [weak self] in
+            items.append(symbol("a.square.fill", label: String(localized: "Highlight")) { [weak self] in
                 self?.choose(.highlight(Highlights.shared.lastHighlightColor), closes: false)
             })
             let isDark = traitCollection.userInterfaceStyle == .dark
