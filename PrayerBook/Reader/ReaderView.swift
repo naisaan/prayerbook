@@ -341,14 +341,10 @@ struct ReaderView: View {
 }
 
 /// The gold star, on white in light mode and on black in dark mode, shown while the book opens.
-/// It continues the launch screen iOS shows before the app starts, so it follows the phone's
-/// own light or dark mode, like the launch screen does, even when the app's Themes setting
-/// picks the other one. The fade then carries it into the app's colors.
+/// It follows the app's own Light or Dark setting. The launch screen iOS shows just before it
+/// can only follow the phone's setting, so the two differ when the settings do.
 private struct SplashView: View {
-    private let colorScheme: ColorScheme = {
-        let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
-        return screen?.traitCollection.userInterfaceStyle == .dark ? .dark : .light
-    }()
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
         ZStack {
@@ -357,7 +353,6 @@ private struct SplashView: View {
             Image("Splash")
                 .accessibilityLabel("Bahá’í Prayer Book")
         }
-        .environment(\.colorScheme, colorScheme)
         .ignoresSafeArea()
     }
 }
