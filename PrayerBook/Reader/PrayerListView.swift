@@ -174,19 +174,20 @@ struct PrayerListNote: View {
                     .onTapGesture { isTyping = false }
                 if isTyping {
                     // Done: puts the keyboard away, to read the list.
+                    // Apple's round glass button, like the close buttons on its sheets.
                     Button { isTyping = false } label: {
                         Image(systemName: "checkmark")
                             .font(.system(size: 17, weight: .semibold))
-                            .foregroundStyle(Color(uiColor: HighlightColor.blue.swatch))
-                            .frame(width: 38, height: 38)
-                            .background(.black, in: .circle)
+                            .frame(width: 24, height: 24)
                     }
-                    .buttonStyle(PressableButtonStyle())
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .controlSize(.large)
                     .accessibilityLabel("Done")
                     .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
             }
-            .frame(height: 38)
+            .frame(height: 44)
             PrayerListEditor(
                 text: Bindable(list).text,
                 isTyping: $isTyping,

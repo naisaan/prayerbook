@@ -17,7 +17,6 @@ struct NoteEditorView: View {
     let onSave: (String, HighlightColor) -> Void
 
     @Environment(\.dismiss) private var dismiss
-    @Environment(\.colorScheme) private var colorScheme
     @State private var text: String
     @State private var color: HighlightColor
     @FocusState private var isTyping: Bool
@@ -49,13 +48,14 @@ struct NoteEditorView: View {
                     onSave(text, color)
                     dismiss()
                 } label: {
+                    // Apple's round glass button, like the close buttons on its sheets.
                     Image(systemName: "checkmark")
-                        .font(.system(size: 22, weight: .semibold))
-                        .foregroundStyle(colorScheme == .dark ? Color.black : Color.white)
-                        .frame(width: 52, height: 52)
-                        .background(Color.primary, in: .circle)
+                        .font(.system(size: 20, weight: .semibold))
+                        .frame(width: 32, height: 32)
                 }
-                .buttonStyle(PressableButtonStyle())
+                .buttonStyle(.glass)
+                .buttonBorderShape(.circle)
+                .controlSize(.large)
                 .accessibilityLabel("Save")
             }
 
