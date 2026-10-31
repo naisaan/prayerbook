@@ -69,10 +69,13 @@ struct PrayerListNote: View {
                     .font(settings.font.font(size: 28).weight(.semibold))
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .contentShape(Rectangle())
+                    // Tapping the heading puts the keyboard away.
+                    .onTapGesture { isTyping = false }
                 TextEditor(text: Bindable(list).text)
                     .focused($isTyping)
                     .font(settings.font.font(size: 18))
                     .scrollContentBackground(.hidden)
+                    .scrollDismissesKeyboard(.interactively)
                     .padding(.horizontal, -5)
                     .overlay(alignment: .topLeading) {
                         if list.text.isEmpty {
