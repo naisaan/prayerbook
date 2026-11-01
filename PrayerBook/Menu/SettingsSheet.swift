@@ -230,7 +230,16 @@ private struct DropCapIcon: View {
             line
         }
         .frame(width: 20)
+        // The letter A inside would otherwise line up with the words beside it and push the
+        // icon up. Line up the middle of the icon with the middle of the words instead, like
+        // the other icons.
+        .alignmentGuide(.firstTextBaseline) { $0.height / 2 + Self.halfCapHeight }
+        .alignmentGuide(.lastTextBaseline) { $0.height / 2 + Self.halfCapHeight }
         .accessibilityHidden(true)
+    }
+
+    private static var halfCapHeight: CGFloat {
+        UIFont.preferredFont(forTextStyle: .body).capHeight / 2
     }
 
     private var line: some View {
