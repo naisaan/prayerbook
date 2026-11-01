@@ -80,6 +80,11 @@ final class Library {
     private func reload() {
         let prayers = database.prayers(languageCodes: enabledLanguageCodes)
         prayersByID = Dictionary(prayers.map { ($0.id, $0) }, uniquingKeysWith: { first, _ in first })
+        // "Intone, O My servant" opens the English book, so its highlights, notes and
+        // bookmarks are found like any prayer's.
+        if enabledLanguageCodes.contains(Language.english.code) {
+            prayersByID[TitlePage.intone.id] = TitlePage.intone
+        }
 
         var result: [BookSection] = []
         for language in enabledLanguages {

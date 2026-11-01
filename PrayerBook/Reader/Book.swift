@@ -43,9 +43,8 @@ struct BookPage {
         /// A page with just the section's name, before its first prayer.
         case sectionTitle
         case prayer(PrayerPage)
-        /// The book's opening page: its title with a verse beneath, and any page the verse
-        /// runs on to.
-        case opening(PrayerPage)
+        /// The book's cover: just its picture.
+        case cover
     }
 
     let sectionName: String
@@ -60,25 +59,26 @@ struct BookPage {
 
     var prayer: Prayer? { prayerPage?.prayer }
 
-    /// The text on this page, for a prayer or the opening verse.
+    /// The text on this page, for a prayer.
     var textPage: PrayerPage? {
         switch content {
-        case .prayer(let page), .opening(let page): page
-        case .sectionTitle: nil
+        case .prayer(let page): page
+        case .sectionTitle, .cover: nil
         }
     }
 }
 
-/// The large title of a section's title page or of the book's opening page.
+/// The large title of a section's title page, and the book's own pages.
 enum TitlePage {
     static let bookTitle = "Bahá’í Prayers"
 
-    /// The verse on the opening page, set like a prayer.
-    static let openingVerse = Prayer(
+    /// "Intone, O My servant", right after the cover in English, read like any other prayer:
+    /// it can be highlighted, noted and bookmarked, and counts toward the % read.
+    static let intone = Prayer(
         id: -1,
-        category: "",
+        category: bookTitle,
         html: "<p class=\"opening\"><span class=\"versal\">I</span>ntone, O My servant, the verses of God that have been received by thee, as intoned by them who have drawn nigh unto Him, that the sweetness of thy melody may kindle thine own soul, and attract the hearts of all men. Whoso reciteth, in the privacy of his chamber, the verses revealed by God, the scattering angels of the Almighty shall scatter abroad the fragrance of the words uttered by his mouth, and shall cause the heart of every righteous man to throb. Though he may, at first, remain unaware of its effect, yet the virtue of the grace vouchsafed unto him must needs sooner or later exercise its influence upon his soul. Thus have the mysteries of the Revelation of God been decreed by virtue of the Will of Him Who is the Source of power and wisdom.</p>",
-        title: bookTitle,
+        title: "Intone, O My servant",
         citation: "",
         author: "Bahá’u’lláh",
         languageCode: "en",
@@ -109,15 +109,6 @@ enum TitlePage {
     /// The space between a title and the thin line beneath it.
     static func lineGap(_ typography: Typography) -> CGFloat { typography.size * 1.1 }
 
-    /// Where the opening page's title starts, measured from the top of the text area.
-    static func openingTitleOffset(textHeight: CGFloat) -> CGFloat { (textHeight * 0.03).rounded() }
-
-    /// How much of the opening page's text area the title and line take up, above the verse.
-    static func openingHeaderHeight(typography: Typography, metrics: PageMetrics) -> CGFloat {
-        let textRect = metrics.textRect
-        let titleHeight = height(of: title(bookTitle, typography: typography), width: textRect.width)
-        return openingTitleOffset(textHeight: textRect.height) + titleHeight + lineGap(typography) + 1 + typography.size * 2
-    }
 }
 
 /// A spot in the book that survives paginating again: a prayer and how far into it.
@@ -217,19 +208,20 @@ enum Paginator {
         var onEarlyBook = onEarlyBook
         /// Prayers left to lay out before the early book goes out. Counting starts at the
         /// early prayer, or right away if there isn't one.
-        var earlyCountdown: Int? = earlyPrayerID == nil ? 4 : nil
-        // The book opens with its own title page, like a printed book, with a verse beneath the title.
-        var pages: [BookPage] = []
-        let opening = PrayerLayout(
-            prayer: TitlePage.openingVerse,
-            isRightToLeft: false,
-            typography: typography,
-            pageSize: metrics.textRect.size,
-            firstPageTop: TitlePage.openingHeaderHeight(typography: typography, metrics: metrics)
-        )
-        for index in 0..<opening.pageCount {
-            let page = PrayerPage(layout: opening, pageInPrayer: index, prayer: TitlePage.openingVerse, characterRange: opening.characterRange(forPage: index))
-            pages.append(BookPage(sectionName: TitlePage.bookTitle, sectionFirstPrayerID: nil, content: .opening(page)))
+        var earlyCountdown: Int? = earlyPrayerID == nil || earlyPrayerID == TitlePage.intone.id ? 4 : nil
+        // The book opens with its cover, then, in English, "Intone, O My servant".
+        var pages: [BookPage] = [BookPage(sectionName: TitlePage.bookTitle, sectionFirstPrayerID: nil, content: .cover)]
+        if sections.contains(where: { $0.language.code == Language.english.code }) {
+            let intone = PrayerLayout(
+                prayer: TitlePage.intone,
+                isRightToLeft: false,
+                typography: typography,
+                pageSize: metrics.textRect.size
+            )
+            for index in 0..<intone.pageCount {
+                let page = PrayerPage(layout: intone, pageInPrayer: index, prayer: TitlePage.intone, characterRange: intone.characterRange(forPage: index))
+                pages.append(BookPage(sectionName: TitlePage.bookTitle, sectionFirstPrayerID: nil, content: .prayer(page)))
+            }
         }
         var count = 0
         for section in sections {

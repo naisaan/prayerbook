@@ -32,7 +32,14 @@ struct ContentsView: View {
                         .foregroundStyle(.secondary)
                     }
                 } footer: {
-                    Text("A prayer counts as read once you reach its last page.")
+                    // Takes you to "Intone, O My servant", which opens the English book.
+                    if library.enabledLanguageCodes.contains(Language.english.code) {
+                        Button { onOpen(TitlePage.intone.id) } label: {
+                            Text(verbatim: "Intone, O My servant…")
+                        }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
+                    }
                 }
                 if let obligatory {
                     Section("Obligatory Prayers") {

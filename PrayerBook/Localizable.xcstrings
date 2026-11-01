@@ -184,64 +184,6 @@
     "A": {
       "shouldTranslate": false
     },
-    "A prayer counts as read once you reach its last page.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ein Gebet gilt als gelesen, sobald du seine letzte Seite erreichst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una oración cuenta como leída cuando llegas a su última página."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Une prière compte comme lue dès que vous atteignez sa dernière page."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Una preghiera è considerata letta quando arrivi alla sua ultima pagina."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Een gebed telt als gelezen zodra je de laatste pagina bereikt."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bæn telst lesin þegar þú kemst á síðustu síðu hennar."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modlitba se počítá jako přečtená, jakmile dojdete na její poslední stránku."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Modlitba sa počíta ako prečítaná, keď prídete na jej poslednú stranu."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "هر دعا وقتی به صفحهٔ آخرش برسید، خوانده‌شده حساب می‌شود."
-          }
-        }
-      }
-    },
     "Aa": {
       "shouldTranslate": false
     },

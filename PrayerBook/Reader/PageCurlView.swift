@@ -50,18 +50,15 @@ final class BookPageView: UIView {
         let metrics = book.metrics
 
         switch page.content {
+        case .cover:
+            // Only the picture: no header and no page number.
+            drawCover()
+            return
         case .sectionTitle:
-            drawTitle(page.sectionName, opening: false)
+            drawTitle(page.sectionName)
         case .prayer(let prayerPage):
             drawPrayerPage(prayerPage, origin: metrics.textRect.origin)
             drawCentered(page.sectionName, in: metrics.headerRect, font: .systemFont(ofSize: 13, weight: .medium))
-        case .opening(let prayerPage):
-            if prayerPage.pageInPrayer == 0 {
-                drawTitle(page.sectionName, opening: true)
-            } else {
-                drawCentered(page.sectionName, in: metrics.headerRect, font: .systemFont(ofSize: 13, weight: .medium))
-            }
-            drawPrayerPage(prayerPage, origin: metrics.textRect.origin)
         }
 
         let number = showsTotal ? String(localized: "\(index + 1) of \(book.pages.count)") : "\(index + 1)"
@@ -288,18 +285,23 @@ final class BookPageView: UIView {
         }
     }
 
-    /// A title, large and centered, with a thin line beneath it. A section's title sits a little
-    /// above the middle of the page, like a chapter opening; the book's title sits near the top,
-    /// above the opening verse.
-    private func drawTitle(_ name: String, opening: Bool) {
+    /// The cover picture, filling the whole page.
+    private func drawCover() {
+        guard let image = UIImage(named: "BookCover"), image.size.width > 0, image.size.height > 0 else { return }
+        let scale = max(bounds.width / image.size.width, bounds.height / image.size.height)
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        image.draw(in: CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height))
+    }
+
+    /// A section's title, large and centered, with a thin line beneath it, a little above the
+    /// middle of the page, like a chapter opening.
+    private func drawTitle(_ name: String) {
         let typography = book.typography
         let textRect = book.metrics.textRect
 
         let title = TitlePage.title(name, typography: typography)
         let height = TitlePage.height(of: title, width: textRect.width)
-        let top = opening
-            ? textRect.minY + TitlePage.openingTitleOffset(textHeight: textRect.height)
-            : textRect.minY + textRect.height * 0.38 - height / 2
+        let top = textRect.minY + textRect.height * 0.38 - height / 2
         title.draw(with: CGRect(x: textRect.minX, y: top, width: textRect.width, height: height),
                    options: [.usesLineFragmentOrigin, .usesFontLeading], context: nil)
 
@@ -539,8 +541,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
 
     func textView(_ textView: UITextView, editMenuForTextIn range: NSRange, suggestedActions: [UIMenuElement]) -> UIMenu? {
         let system = PageTextView.menuWithoutTranslate(suggestedActions)
-        // Only prayers can be highlighted, not the verse on the book's opening page, and only
-        // when some text is actually selected.
+        // Only when some text is actually selected.
         guard book.pages[index].prayerPage != nil, range.length > 0 else { return UIMenu(children: system) }
         let highlight = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
             // Read the selection when tapped: the menu can outlive the selection it was made for.
@@ -863,10 +864,23 @@ struct PageCurlView: UIViewControllerRepresentable {
         /// Stops the page curl's own taps from turning the page when the tap is on a link or
         /// a highlight.
         func gestureRecognizerShouldBegin(_ gestureRecognizer: UIGestureRecognizer) -> Bool {
-            guard gestureRecognizer is UITapGestureRecognizer,
-                  let page = pageController?.viewControllers?.first as? PageViewController
-            else { return true }
-            return !page.takesTap(at: gestureRecognizer.location(in: page.view))
+            guard let page = pageController?.viewControllers?.first as? PageViewController else { return true }
+            // Nothing before the first page or after the last: don't even start a turn there,
+            // since asking the page curl to turn past either end can crash it.
+            let isFirst = page.displayIndex == 0
+            let isLast = page.displayIndex == pageCount - 1
+            if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+                let velocity = pan.velocity(in: page.view)
+                if isFirst && velocity.x > 0 { return false }
+                if isLast && velocity.x < 0 { return false }
+                return true
+            }
+            guard gestureRecognizer is UITapGestureRecognizer else { return true }
+            let location = gestureRecognizer.location(in: page.view)
+            let onLeft = location.x < page.view.bounds.midX
+            if isFirst && onLeft { return false }
+            if isLast && !onLeft { return false }
+            return !page.takesTap(at: location)
         }
 
         /// The book page on screen.
