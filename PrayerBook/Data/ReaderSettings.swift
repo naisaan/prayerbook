@@ -61,6 +61,12 @@ final class ReaderSettings {
         didSet { defaults.set(showsPrayerList, forKey: Keys.showsPrayerList) }
     }
 
+    /// The menu button stays on screen all the time. Off, it comes and goes with a tap, like
+    /// the page count.
+    var alwaysShowsMenu: Bool {
+        didSet { defaults.set(alwaysShowsMenu, forKey: Keys.alwaysShowsMenu) }
+    }
+
     /// Liquid Glass menus instead of the solid ones. Off by default, since solid is easier to read.
     var liquidGlassMenus: Bool {
         didSet { defaults.set(liquidGlassMenus, forKey: Keys.liquidGlassMenus) }
@@ -84,6 +90,7 @@ final class ReaderSettings {
         dropCap = defaults.object(forKey: Keys.dropCap) as? Bool ?? true
         liquidGlassMenus = defaults.bool(forKey: Keys.liquidGlassMenus)
         showsPrayerList = defaults.object(forKey: Keys.showsPrayerList) as? Bool ?? true
+        alwaysShowsMenu = defaults.object(forKey: Keys.alwaysShowsMenu) as? Bool ?? true
         lastPrayerID = defaults.object(forKey: Keys.lastPrayer) as? Int
         lastCharacterIndex = defaults.integer(forKey: Keys.lastCharacter)
     }
@@ -111,6 +118,7 @@ final class ReaderSettings {
         static let dropCap = "dropCap"
         static let liquidGlassMenus = "liquidGlassMenus"
         static let showsPrayerList = "showsPrayerList"
+        static let alwaysShowsMenu = "alwaysShowsMenu"
         static let lastPrayer = "lastPrayer"
         static let lastCharacter = "lastCharacter"
     }

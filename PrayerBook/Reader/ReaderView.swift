@@ -163,27 +163,33 @@ struct ReaderView: View {
                 MenuButton {
                     setMenu(open: true)
                 }
-                .opacity(showsControls && !menuOpen ? 1 : 0)
-                .allowsHitTesting(showsControls && !menuOpen)
+                .opacity(menuButtonShows && !menuOpen ? 1 : 0)
+                .allowsHitTesting(menuButtonShows && !menuOpen)
                 .overlay(alignment: .topTrailing) {
-                    if let currentBookmarkColor, showsControls && !menuOpen {
+                    if let currentBookmarkColor, menuButtonShows && !menuOpen {
                         BookmarkBadge(color: currentBookmarkColor)
                             .offset(x: 6, y: -6)
                             .allowsHitTesting(false)
                             .transition(.scale(scale: 0.5).combined(with: .opacity))
                     }
                 }
-                if let currentBookmarkColor, !showsControls {
+                if let currentBookmarkColor, !menuButtonShows {
                     BookmarkBadge(size: 52, color: currentBookmarkColor)
                         .onTapGesture(perform: toggleControls)
                         .transition(.scale(scale: 0.6).combined(with: .opacity))
                 }
             }
             .animation(.spring(duration: 0.3, bounce: 0), value: currentBookmarkColor)
-            .animation(.spring(duration: 0.3, bounce: 0), value: showsControls)
+            .animation(.spring(duration: 0.3, bounce: 0), value: menuButtonShows)
         }
         .padding(.trailing, 20)
         .padding(.bottom, 4)
+    }
+
+    /// The menu button shows with the other controls, or all the time if the reader chose
+    /// Always Show Menu in General Settings.
+    private var menuButtonShows: Bool {
+        showsControls || settings.alwaysShowsMenu
     }
 
     /// Nil on a section title page, where there's no prayer to bookmark.

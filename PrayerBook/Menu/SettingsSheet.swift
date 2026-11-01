@@ -1,33 +1,65 @@
 import SwiftUI
 
 /// Themes & Settings: text size, light or dark, the font, the drop cap, the menu style, and
-/// the way to About.
+/// the ways to General Settings (the prayer list and the menu button) and About.
 struct SettingsSheet: View {
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
     @State private var showsAbout = false
+    /// General Settings, shown in place of the main page.
+    @State private var showsGeneral = false
     /// The sheet is exactly as tall as what's in it.
     @State private var contentHeight: CGFloat = 520
 
     var body: some View {
-        @Bindable var settings = settings
-
         VStack(alignment: .leading, spacing: 20) {
-            HStack(spacing: 14) {
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark")
-                        .font(.system(size: 17, weight: .semibold))
-                        .frame(width: 44, height: 44)
-                        .contentShape(.circle)
-                }
-                .buttonStyle(PressableButtonStyle())
-                .menuSurface(.circle)
-                .accessibilityLabel("Close")
-
-                Text("Themes & Settings")
-                    .font(.title3.weight(.semibold))
+            header
+            if showsGeneral {
+                generalSettings
+                    .transition(.push(from: .trailing))
+            } else {
+                mainSettings
+                    .transition(.push(from: .leading))
             }
+        }
+        .foregroundStyle(.primary)
+        .padding(24)
+        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
+        .presentationDetents([.height(contentHeight)])
+        .animation(.smooth(duration: 0.3), value: showsGeneral)
+        .sheet(isPresented: $showsAbout) {
+            AboutView()
+        }
+        .sensoryFeedback(.selection, trigger: settings.font)
+        .sensoryFeedback(.selection, trigger: settings.appearance)
+        .sensoryFeedback(.selection, trigger: settings.textSizeIndex)
+    }
 
+    /// Close, or back from General Settings, then the title.
+    private var header: some View {
+        HStack(spacing: 14) {
+            Button {
+                if showsGeneral { showsGeneral = false } else { dismiss() }
+            } label: {
+                Image(systemName: showsGeneral ? "chevron.left" : "xmark")
+                    .font(.system(size: 17, weight: .semibold))
+                    .frame(width: 44, height: 44)
+                    .contentShape(.circle)
+                    .contentTransition(.symbolEffect(.replace))
+            }
+            .buttonStyle(PressableButtonStyle())
+            .menuSurface(.circle)
+            .accessibilityLabel(showsGeneral ? "Back" : "Close")
+
+            Text(showsGeneral ? "General Settings" : "Themes & Settings")
+                .font(.title3.weight(.semibold))
+                .contentTransition(.opacity)
+        }
+    }
+
+    private var mainSettings: some View {
+        @Bindable var settings = settings
+        return VStack(alignment: .leading, spacing: 20) {
             HStack(spacing: 12) {
                 textSizeControl
                 appearanceControl
@@ -41,52 +73,46 @@ struct SettingsSheet: View {
                 }
             }
 
-            Toggle(isOn: $settings.dropCap) {
-                Label("Drop Cap", systemImage: "textformat.size.larger")
-            }
-            .padding(.horizontal, 20)
-            .frame(height: 52)
-            .menuSurface(.capsule, interactive: false)
-
-            Toggle(isOn: $settings.showsPrayerList) {
-                Label("Prayer List", systemImage: "checklist")
-            }
-            .padding(.horizontal, 20)
-            .frame(height: 52)
-            .menuSurface(.capsule, interactive: false)
-
-            Toggle(isOn: $settings.liquidGlassMenus) {
-                Label("Liquid Glass", systemImage: "drop")
-            }
-            .padding(.horizontal, 20)
-            .frame(height: 52)
-            .menuSurface(.capsule, interactive: false)
-
-            Button { showsAbout = true } label: {
-                HStack {
-                    Label("About", systemImage: "info.circle")
-                    Spacer()
-                    Image(systemName: "chevron.right")
-                        .font(.footnote.weight(.semibold))
-                        .foregroundStyle(.secondary)
-                }
-                .padding(.horizontal, 20)
-                .frame(height: 52)
-                .contentShape(.capsule)
-            }
-            .buttonStyle(PressableButtonStyle())
-            .menuSurface(.capsule)
+            toggleRow("Drop Cap", systemImage: "textformat.size.larger", isOn: $settings.dropCap)
+            toggleRow("Liquid Glass", systemImage: "drop", isOn: $settings.liquidGlassMenus)
+            linkRow("General", systemImage: "gearshape") { showsGeneral = true }
+            linkRow("About", systemImage: "info.circle") { showsAbout = true }
         }
-        .foregroundStyle(.primary)
-        .padding(24)
-        .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
-        .presentationDetents([.height(contentHeight)])
-        .sheet(isPresented: $showsAbout) {
-            AboutView()
+    }
+
+    private var generalSettings: some View {
+        @Bindable var settings = settings
+        return VStack(alignment: .leading, spacing: 20) {
+            toggleRow("Prayer List", systemImage: "checklist", isOn: $settings.showsPrayerList)
+            toggleRow("Always Show Menu", systemImage: "line.3.horizontal.circle", isOn: $settings.alwaysShowsMenu)
         }
-        .sensoryFeedback(.selection, trigger: settings.font)
-        .sensoryFeedback(.selection, trigger: settings.appearance)
-        .sensoryFeedback(.selection, trigger: settings.textSizeIndex)
+    }
+
+    private func toggleRow(_ title: LocalizedStringKey, systemImage: String, isOn: Binding<Bool>) -> some View {
+        Toggle(isOn: isOn) {
+            Label(title, systemImage: systemImage)
+        }
+        .padding(.horizontal, 20)
+        .frame(height: 52)
+        .menuSurface(.capsule, interactive: false)
+    }
+
+    /// A row that opens another page, with a chevron.
+    private func linkRow(_ title: LocalizedStringKey, systemImage: String, action: @escaping () -> Void) -> some View {
+        Button(action: action) {
+            HStack {
+                Label(title, systemImage: systemImage)
+                Spacer()
+                Image(systemName: "chevron.right")
+                    .font(.footnote.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .contentShape(.capsule)
+        }
+        .buttonStyle(PressableButtonStyle())
+        .menuSurface(.capsule)
     }
 
     private var textSizeControl: some View {
