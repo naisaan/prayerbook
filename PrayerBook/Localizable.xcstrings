@@ -3212,6 +3212,64 @@
         }
       }
     },
+    "Natural Alignment": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natürliche Ausrichtung"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alineación natural"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alignement naturel"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Allineamento naturale"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Natuurlijke uitlijning"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Náttúruleg jöfnun"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Přirozené zarovnání"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Prirodzené zarovnanie"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تراز طبیعی"
+          }
+        }
+      }
+    },
     "New Bookmark List": {
       "localizations": {
         "de": {

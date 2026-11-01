@@ -45,6 +45,9 @@ struct Typography: Equatable {
     var font: ReaderFont
     var size: CGFloat
     var dropCap: Bool
+    /// Lines run edge to edge, like a printed book. Off, they end where the words end,
+    /// lined up on the left (or the right, for Persian).
+    var justified: Bool = true
 
     /// Pure black in light mode, pure white in dark mode.
     static let textColor = UIColor { traits in

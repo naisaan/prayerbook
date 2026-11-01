@@ -178,6 +178,7 @@ struct ReaderView: View {
         guard typography.size != book.typography.size else { return nil }
         typography.font = book.typography.font
         typography.dropCap = book.typography.dropCap
+        typography.justified = book.typography.justified
         return previewCache.preview(of: book, page: currentPage, typography: typography)
     }
 

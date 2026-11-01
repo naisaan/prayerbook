@@ -57,6 +57,12 @@ final class ReaderSettings {
         didSet { defaults.set(dropCap, forKey: Keys.dropCap) }
     }
 
+    /// Lines end where the words end instead of running edge to edge. Off by default; it
+    /// turns on with Greenlandic and off without it.
+    var naturalAlignment: Bool {
+        didSet { defaults.set(naturalAlignment, forKey: Keys.naturalAlignment) }
+    }
+
     /// The blue prayer list card in the page's corner. Turning it off only hides it; the list stays saved.
     var showsPrayerList: Bool {
         didSet { defaults.set(showsPrayerList, forKey: Keys.showsPrayerList) }
@@ -97,6 +103,7 @@ final class ReaderSettings {
         }
         dropCap = defaults.object(forKey: Keys.dropCap) as? Bool ?? true
         liquidGlassMenus = defaults.bool(forKey: Keys.liquidGlassMenus)
+        naturalAlignment = defaults.bool(forKey: Keys.naturalAlignment)
         showsPrayerList = defaults.object(forKey: Keys.showsPrayerList) as? Bool ?? true
         alwaysShowsMenu = defaults.object(forKey: Keys.alwaysShowsMenu) as? Bool ?? true
         lastPrayerID = defaults.object(forKey: Keys.lastPrayer) as? Int
@@ -123,7 +130,7 @@ final class ReaderSettings {
 
     var typography: Typography {
         let size = min(max(textSize, Self.textSizeRange.lowerBound), Self.textSizeRange.upperBound)
-        return Typography(font: font, size: size, dropCap: dropCap)
+        return Typography(font: font, size: size, dropCap: dropCap, justified: !naturalAlignment)
     }
 
     private enum Keys {
@@ -134,6 +141,7 @@ final class ReaderSettings {
         static let dropCap = "dropCap"
         static let liquidGlassMenus = "liquidGlassMenus"
         static let showsPrayerList = "showsPrayerList"
+        static let naturalAlignment = "naturalAlignment"
         static let alwaysShowsMenu = "alwaysShowsMenu"
         static let lastPrayer = "lastPrayer"
         static let lastCharacter = "lastCharacter"

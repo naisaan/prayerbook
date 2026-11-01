@@ -96,6 +96,7 @@ struct SettingsSheet: View {
             VStack(alignment: .leading, spacing: 20) {
                 toggleRow("Prayer List", systemImage: "checklist", isOn: $settings.showsPrayerList)
                 toggleRow("Always Show Menu", systemImage: "line.3.horizontal.circle", isOn: $settings.alwaysShowsMenu)
+                toggleRow("Natural Alignment", systemImage: "text.alignleft", isOn: $settings.naturalAlignment)
             }
         }
         .scrollBounceBehavior(.basedOnSize)

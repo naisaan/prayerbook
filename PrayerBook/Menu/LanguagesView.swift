@@ -3,6 +3,7 @@ import SwiftUI
 /// Turn languages on or off, like the original app. Each language adds its own sections.
 struct LanguagesView: View {
     @Environment(Library.self) private var library
+    @Environment(ReaderSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -47,7 +48,12 @@ struct LanguagesView: View {
     private func binding(for language: Language) -> Binding<Bool> {
         Binding(
             get: { library.isEnabled(language) },
-            set: { library.setLanguage(language, enabled: $0) }
+            set: { isOn in
+                library.setLanguage(language, enabled: isOn)
+                // Greenlandic's long words read better without justified lines, so Natural
+                // Alignment follows it: on with Greenlandic, off without it.
+                if language.code == "kl" { settings.naturalAlignment = isOn }
+            }
         )
     }
 }

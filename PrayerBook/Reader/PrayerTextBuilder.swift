@@ -154,7 +154,7 @@ struct PrayerTextBuilder {
         paragraph.minimumLineHeight = lineHeight
         paragraph.maximumLineHeight = lineHeight
         paragraph.paragraphSpacing = typography.size * 0.7
-        paragraph.alignment = .justified
+        paragraph.alignment = typography.justified ? .justified : .natural
         paragraph.hyphenationFactor = isRightToLeft ? 0 : 0.6
         paragraph.baseWritingDirection = writingDirection
 
