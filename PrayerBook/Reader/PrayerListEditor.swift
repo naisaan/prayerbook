@@ -99,6 +99,7 @@ struct PrayerListEditor: View {
     @FocusState private var focused: PrayerListBlock.ID?
 
     var body: some View {
+        GeometryReader { proxy in
         ScrollView {
             VStack(alignment: .leading, spacing: 6) {
                 ForEach($blocks) { $block in
@@ -108,12 +109,16 @@ struct PrayerListEditor: View {
                         textBox($block)
                     }
                 }
-                // Tapping below the last line types on it.
+                // Tapping below the last line types on it. It only fills the room that's
+                // left, so the list doesn't scroll until it's longer than the note.
                 Color.clear
-                    .frame(maxWidth: .infinity, minHeight: 100)
+                    .frame(maxWidth: .infinity, minHeight: 24, maxHeight: .infinity)
                     .contentShape(Rectangle())
                     .onTapGesture { focused = blocks.last?.id }
             }
+            // At least as tall as the note's space, so the empty part is all tappable.
+            .frame(minHeight: proxy.size.height, alignment: .top)
+        }
         }
         .scrollDismissesKeyboard(.interactively)
         .scrollBounceBehavior(.basedOnSize)
