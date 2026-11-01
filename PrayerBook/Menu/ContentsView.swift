@@ -116,6 +116,8 @@ struct ContentsView: View {
                                 }
                             }
                         }
+                        // Half the usual gap between the languages, so they read as a set.
+                        .listSectionSpacing(language == library.enabledLanguages.last ? .default : .custom(16))
                     }
                 } else if let language = library.enabledLanguages.first {
                     Section {
