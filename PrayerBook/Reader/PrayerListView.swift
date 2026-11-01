@@ -20,6 +20,8 @@ struct PrayerListNote: View {
     @State private var openings = 0
     /// Picked up by pressing and holding, ready to drag.
     @State private var isLifted = false
+    /// The list is longer than the note, so dragging on it scrolls it instead.
+    @State private var listOverflows = false
     @State private var listCommand: PrayerListStyle?
     @State private var currentListStyle: PrayerListStyle?
     /// How much of the screen the keyboard covers, from the system's keyboard notices.
@@ -60,11 +62,13 @@ struct PrayerListNote: View {
                     .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
+                    // Drag anywhere on it, even on the text, to throw it around. It works
+                    // alongside the text's own taps, so a tap on the text still starts typing.
                     // While typing, the note stays still.
-                    .gesture(flick(side: side), isEnabled: isOpen && !isTyping)
-                    // Alongside the text's own taps rather than ahead of them, so a quick tap on
-                    // the text still starts typing.
-                    .simultaneousGesture(holdAndFlick(side: side), isEnabled: isOpen && (!isTyping || isLifted))
+                    .simultaneousGesture(flick(side: side), isEnabled: isOpen && !isTyping && !listOverflows)
+                    // A list longer than the note scrolls when dragged, so then press and
+                    // hold first to pick the note up.
+                    .simultaneousGesture(holdAndFlick(side: side), isEnabled: isOpen && listOverflows && (!isTyping || isLifted))
             }
         }
         .ignoresSafeArea()
@@ -200,6 +204,7 @@ struct PrayerListNote: View {
                 isTyping: $isTyping,
                 command: $listCommand,
                 currentStyle: $currentListStyle,
+                overflows: $listOverflows,
                 font: settings.font.font(size: 18)
             )
             // A fresh editor each time the list opens, so it opens for reading, never

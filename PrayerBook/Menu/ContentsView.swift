@@ -60,47 +60,48 @@ struct ContentsView: View {
                         NavigationLink("Alláh-u-Abhá (95 Times)", value: ContentsDestination.allahuAbha)
                     }
                 }
-                if !library.bookmarkedPrayers.isEmpty {
+                if !library.bookmarkedPrayers.isEmpty || !library.bookmarkLists.isEmpty {
+                    // All the bookmark lists together in one block.
                     Section {
-                        BookmarkGroup(
-                            name: String(localized: "Bookmarks"),
-                            color: .red,
-                            prayers: library.bookmarkedPrayers,
-                            currentPrayerID: currentPrayerID,
-                            isExpanded: expansion("bookmarks"),
-                            onOpen: onOpen,
-                            onDelete: { library.removeBookmarks(at: $0) }
-                        )
-                    }
-                }
-                ForEach(library.bookmarkLists) { list in
-                    Section {
-                        BookmarkGroup(
-                            name: list.name,
-                            color: list.color,
-                            prayers: library.prayers(in: list),
-                            currentPrayerID: currentPrayerID,
-                            isExpanded: expansion(list.id.uuidString),
-                            onOpen: onOpen,
-                            onDelete: { library.removePrayers(at: $0, from: list) }
-                        )
-                        .contextMenu {
-                            Button("Rename", systemImage: "pencil") {
-                                renameText = list.name
-                                renamingList = list
-                            }
-                            Button("Delete List", systemImage: "trash", role: .destructive) {
-                                deletingList = list
+                        if !library.bookmarkedPrayers.isEmpty {
+                            BookmarkGroup(
+                                name: String(localized: "Bookmarks"),
+                                color: .red,
+                                prayers: library.bookmarkedPrayers,
+                                currentPrayerID: currentPrayerID,
+                                isExpanded: expansion("bookmarks"),
+                                onOpen: onOpen,
+                                onDelete: { library.removeBookmarks(at: $0) }
+                            )
+                        }
+                        ForEach(library.bookmarkLists) { list in
+                            BookmarkGroup(
+                                name: list.name,
+                                color: list.color,
+                                prayers: library.prayers(in: list),
+                                currentPrayerID: currentPrayerID,
+                                isExpanded: expansion(list.id.uuidString),
+                                onOpen: onOpen,
+                                onDelete: { library.removePrayers(at: $0, from: list) }
+                            )
+                            .contextMenu {
+                                Button("Rename", systemImage: "pencil") {
+                                    renameText = list.name
+                                    renamingList = list
+                                }
+                                Button("Delete List", systemImage: "trash", role: .destructive) {
+                                    deletingList = list
+                                }
                             }
                         }
                     }
                 }
                 if library.enabledLanguages.count > 1 {
-                    // With more than one language, each language folds up, so the reader sees
-                    // every language at a glance and opens only the one they want.
-                    Section {
-                        ForEach(library.enabledLanguages) { language in
-                            let sections = sections(in: language)
+                    // With more than one language, each language folds up in its own block, so
+                    // the reader sees every language at a glance and opens only the one they want.
+                    ForEach(library.enabledLanguages) { language in
+                        let sections = sections(in: language)
+                        Section {
                             DisclosureGroup(isExpanded: expansion("language-\(language.code)")) {
                                 ForEach(sections) { section in sectionRow(section) }
                             } label: {

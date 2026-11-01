@@ -92,6 +92,8 @@ struct PrayerListEditor: View {
     @Binding var command: PrayerListStyle?
     /// The list the line being typed is in, so its button in that bar shows as on.
     @Binding var currentStyle: PrayerListStyle?
+    /// Whether the list is longer than the note, so it scrolls.
+    @Binding var overflows: Bool
     let font: Font
 
     @State private var blocks: [PrayerListBlock] = []
@@ -122,6 +124,11 @@ struct PrayerListEditor: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .scrollBounceBehavior(.basedOnSize)
+        .onScrollGeometryChange(for: Bool.self) { geometry in
+            geometry.contentSize.height > geometry.containerSize.height + 1
+        } action: { _, longer in
+            overflows = longer
+        }
         .font(font)
         .overlay(alignment: .topLeading) {
             if blocks.allSatisfy({ !$0.isItem && $0.text.isEmpty }) && focused == nil {
