@@ -18,6 +18,8 @@ struct PrayerListNote: View {
     @State private var tilt: Angle = .zero
     @State private var isTyping = false
     @State private var openings = 0
+    /// Picked up by pressing and holding, ready to drag.
+    @State private var isLifted = false
     @State private var listCommand: PrayerListStyle?
     @State private var currentListStyle: PrayerListStyle?
     /// How much of the screen the keyboard covers, from the system's keyboard notices.
@@ -49,7 +51,7 @@ struct PrayerListNote: View {
                     .allowsHitTesting(isOpen)
 
                 note(side: side)
-                    .scaleEffect(isOpen ? 1 : Self.cardSize / side)
+                    .scaleEffect(isOpen ? (isLifted ? 1.03 : 1) : Self.cardSize / side)
                     .rotationEffect(isOpen ? tilt : Self.cardTilt)
                     .position(isOpen ? openCenter : closedCenter)
                     .offset(drag)
@@ -58,7 +60,9 @@ struct PrayerListNote: View {
                     .opacity(isOpen ? 1 : (isHidden ? 0 : 1))
                     .allowsHitTesting(!isHidden)
                     .onTapGesture { if !isOpen { open() } }
-                    .gesture(flick(side: side), isEnabled: isOpen)
+                    // While typing, the note stays still.
+                    .gesture(flick(side: side), isEnabled: isOpen && !isTyping)
+                    .highPriorityGesture(holdAndFlick(side: side), isEnabled: isOpen && !isTyping)
             }
         }
         .ignoresSafeArea()
@@ -77,6 +81,7 @@ struct PrayerListNote: View {
             followKeyboard(height: 0, notice: notice)
         }
         .sensoryFeedback(.impact(weight: .light), trigger: isOpen)
+        .sensoryFeedback(.impact(weight: .medium), trigger: isLifted) { _, lifted in lifted }
     }
 
     // MARK: The keyboard
@@ -224,31 +229,55 @@ struct PrayerListNote: View {
     /// quickly and it flies back to its corner; let go slowly and it springs back into place.
     private func flick(side: CGFloat) -> some Gesture {
         DragGesture(minimumDistance: 12)
+            .onChanged { dragChanged($0, side: side) }
+            .onEnded { dragEnded($0, side: side) }
+    }
+
+    /// Press and hold anywhere on the note, even on the text, to pick it up; then drag it
+    /// around and flick it home. A quick tap on the text still starts typing.
+    private func holdAndFlick(side: CGFloat) -> some Gesture {
+        LongPressGesture(minimumDuration: 0.3)
+            .sequenced(before: DragGesture(minimumDistance: 0))
             .onChanged { value in
-                isTyping = false
-                drag = value.translation
-                // Held above the middle, it turns with the drag; held below, against it.
-                let grabbedAbove = value.startLocation.y < side / 2
-                tilt = .degrees(value.translation.width / 14 * (grabbedAbove ? 1 : -1))
+                guard case .second(true, let drag) = value else { return }
+                if !isLifted {
+                    withAnimation(.spring(duration: 0.25, bounce: 0.3)) { isLifted = true }
+                }
+                if let drag { dragChanged(drag, side: side) }
             }
             .onEnded { value in
-                let velocity = value.velocity
-                let speed = hypot(velocity.width, velocity.height)
-                let distance = hypot(value.translation.width, value.translation.height)
-                guard speed > 700 || distance > side * 0.6 else {
-                    withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
-                        drag = .zero
-                        tilt = .zero
-                    }
-                    return
-                }
-                // However it's thrown, it flies home to its corner and shrinks back into the card.
-                isTyping = false
-                withAnimation(.spring(duration: 0.5, bounce: 0.2)) {
-                    isOpen = false
-                    drag = .zero
-                    tilt = .zero
+                withAnimation(.spring(duration: 0.25)) { isLifted = false }
+                if case .second(true, let drag?) = value {
+                    dragEnded(drag, side: side)
                 }
             }
+    }
+
+    private func dragChanged(_ value: DragGesture.Value, side: CGFloat) {
+        isTyping = false
+        drag = value.translation
+        // Held above the middle, it turns with the drag; held below, against it.
+        let grabbedAbove = value.startLocation.y < side / 2
+        tilt = .degrees(value.translation.width / 14 * (grabbedAbove ? 1 : -1))
+    }
+
+    private func dragEnded(_ value: DragGesture.Value, side: CGFloat) {
+        let velocity = value.velocity
+        let speed = hypot(velocity.width, velocity.height)
+        let distance = hypot(value.translation.width, value.translation.height)
+        guard speed > 700 || distance > side * 0.6 else {
+            withAnimation(.spring(duration: 0.4, bounce: 0.3)) {
+                drag = .zero
+                tilt = .zero
+            }
+            return
+        }
+        // However it's thrown, it flies home to its corner and shrinks back into the card.
+        isTyping = false
+        withAnimation(.spring(duration: 0.5, bounce: 0.2)) {
+            isOpen = false
+            drag = .zero
+            tilt = .zero
+        }
     }
 }
