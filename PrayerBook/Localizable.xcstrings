@@ -2281,6 +2281,64 @@
         }
       }
     },
+    "Feel free to write the people, Spiritual Qualities, and anything else you want to remember to pray about…": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schreib hier gern die Menschen, geistigen Eigenschaften und alles andere auf, woran du beim Beten denken möchtest …"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Escribe aquí las personas, las cualidades espirituales y todo lo demás por lo que quieras recordar orar…"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "N’hésitez pas à écrire les personnes, les qualités spirituelles et tout ce pour quoi vous voulez penser à prier…"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scrivi pure le persone, le qualità spirituali e tutto ciò per cui vuoi ricordarti di pregare…"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Schrijf gerust de mensen, geestelijke eigenschappen en al het andere op waarvoor je wilt onthouden te bidden…"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Skrifaðu endilega niður fólkið, andlegu eiginleikana og allt annað sem þú vilt muna að biðja fyrir…"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klidně si sem napište lidi, duchovní vlastnosti a cokoli dalšího, za co se nechcete zapomenout modlit…"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pokojne si sem napíšte ľudí, duchovné vlastnosti a čokoľvek ďalšie, za čo sa nechcete zabudnúť modliť…"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "افراد، صفات روحانی و هر چیز دیگری را که می‌خواهید به یاد داشته باشید برایش دعا کنید، اینجا بنویسید…"
+          }
+        }
+      }
+    },
     "Green": {
       "localizations": {
         "de": {
@@ -5122,64 +5180,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "کتاب دعاها را به همهٔ زبان‌های روشن نشان می‌دهد و هر زبان بخش‌های خودش را دارد."
-          }
-        }
-      }
-    },
-    "The people you wish to remember, the Spiritual Qualities you seek to develop, and anything else you want to pray for…": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Die Menschen, an die du denken möchtest, die geistigen Eigenschaften, die du entwickeln möchtest, und alles andere, wofür du beten möchtest…"
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Las personas que deseas recordar, las cualidades espirituales que buscas desarrollar y todo lo demás por lo que quieras orar…"
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Les personnes dont vous souhaitez vous souvenir, les qualités spirituelles que vous cherchez à développer et tout ce pour quoi vous voulez prier…"
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Le persone che desideri ricordare, le qualità spirituali che cerchi di sviluppare e tutto ciò per cui vuoi pregare…"
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "De mensen die je wilt gedenken, de geestelijke eigenschappen die je wilt ontwikkelen en al het andere waarvoor je wilt bidden…"
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Fólkið sem þú vilt minnast, andlegu eiginleikarnir sem þú vilt þroska og allt annað sem þú vilt biðja fyrir…"
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Lidé, na které chcete pamatovat, duchovní vlastnosti, které se snažíte rozvíjet, a vše ostatní, za co se chcete modlit…"
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ľudia, na ktorých chcete pamätať, duchovné vlastnosti, ktoré sa snažíte rozvíjať, a všetko ostatné, za čo sa chcete modliť…"
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "کسانی که می‌خواهید به یاد آورید، صفات روحانی که می‌کوشید در خود پرورش دهید، و هر چیز دیگری که می‌خواهید برایش دعا کنید…"
           }
         }
       }

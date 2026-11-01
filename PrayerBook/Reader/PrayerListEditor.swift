@@ -120,7 +120,7 @@ struct PrayerListEditor: View {
         .font(font)
         .overlay(alignment: .topLeading) {
             if blocks.allSatisfy({ !$0.isItem && $0.text.isEmpty }) && focused == nil {
-                Text("The people you wish to remember, the Spiritual Qualities you seek to develop, and anything else you want to pray for…")
+                Text("Feel free to write the people, Spiritual Qualities, and anything else you want to remember to pray about…")
                     .foregroundStyle(.black.opacity(0.4))
                     .font(font)
                     .allowsHitTesting(false)
