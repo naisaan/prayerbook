@@ -69,9 +69,15 @@ struct HighlightsView: View {
                                         HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: false)
                                     }
                                     .tint(.primary)
-                                }
-                                .onDelete { offsets in
-                                    for offset in offsets { Highlights.shared.remove(group[offset].id) }
+                                    // Swipe left to delete, like everywhere in iOS. A note on
+                                    // the highlight goes with it.
+                                    .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                        Button(role: .destructive) {
+                                            withAnimation { Highlights.shared.remove(highlight.id) }
+                                        } label: {
+                                            Label("Delete", systemImage: "trash")
+                                        }
+                                    }
                                 }
                             } header: {
                                 header(for: style)
@@ -87,18 +93,25 @@ struct HighlightsView: View {
                                 HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: true)
                             }
                             .tint(.primary)
+                            // Deleting a note here keeps its highlight.
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    withAnimation { Highlights.shared.setNote(nil, for: highlight.id) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
+                            }
                         case .prayer(let note):
                             Button { onOpenPrayer(note.prayerID) } label: {
                                 PrayerNoteRow(note: note, prayer: library.prayersByID[note.prayerID])
                             }
                             .tint(.primary)
-                        }
-                    }
-                    .onDelete { offsets in
-                        for offset in offsets {
-                            switch items[offset] {
-                            case .highlight(let highlight): Highlights.shared.setNote(nil, for: highlight.id)
-                            case .prayer(let note): Highlights.shared.removePrayerNote(for: note.prayerID)
+                            .swipeActions(edge: .trailing, allowsFullSwipe: true) {
+                                Button(role: .destructive) {
+                                    withAnimation { Highlights.shared.removePrayerNote(for: note.prayerID) }
+                                } label: {
+                                    Label("Delete", systemImage: "trash")
+                                }
                             }
                         }
                     }
