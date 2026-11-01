@@ -44,9 +44,15 @@ struct CornerPeel: View {
     }
 
     /// The lifted corner: the page beneath where it was, and the flap folded back over it.
-    private struct Fold: View {
+    private struct Fold: View, Animatable {
         var size: CGFloat
         let area: CGSize
+
+        /// Lets SwiftUI animate the corner smoothly between sizes.
+        var animatableData: CGFloat {
+            get { size }
+            set { size = newValue }
+        }
 
         init(size: CGFloat, in area: CGSize) {
             self.size = size
