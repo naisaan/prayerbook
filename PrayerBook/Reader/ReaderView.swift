@@ -71,7 +71,12 @@ struct ReaderView: View {
                         .onTapGesture { setMenu(open: false) }
                 }
 
-                if book != nil {
+                if isOnCover {
+                    // The cover is just the cover: no menu or prayer list, only a corner that
+                    // lifts now and then to say "turn me".
+                    CornerPeel(isRightToLeft: bookIsRightToLeft)
+                        .transition(.opacity)
+                } else if book != nil {
                     controls
                     if settings.showsPrayerList {
                         PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
@@ -296,6 +301,12 @@ struct ReaderView: View {
     /// language turned on. With any other language on too, it opens the Western way.
     private var bookIsRightToLeft: Bool {
         library.enabledLanguageCodes == ["fa"]
+    }
+
+    private var isOnCover: Bool {
+        guard let book, book.pages.indices.contains(currentPage) else { return false }
+        if case .cover = book.pages[currentPage].content { return true }
+        return false
     }
 
     private var currentPrayer: Prayer? {
