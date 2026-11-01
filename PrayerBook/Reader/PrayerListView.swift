@@ -62,7 +62,9 @@ struct PrayerListNote: View {
                     .onTapGesture { if !isOpen { open() } }
                     // While typing, the note stays still.
                     .gesture(flick(side: side), isEnabled: isOpen && !isTyping)
-                    .highPriorityGesture(holdAndFlick(side: side), isEnabled: isOpen && !isTyping)
+                    // Alongside the text's own taps rather than ahead of them, so a quick tap on
+                    // the text still starts typing.
+                    .simultaneousGesture(holdAndFlick(side: side), isEnabled: isOpen && (!isTyping || isLifted))
             }
         }
         .ignoresSafeArea()
@@ -203,6 +205,8 @@ struct PrayerListNote: View {
             // A fresh editor each time the list opens, so it opens for reading, never
             // picking up the typing where it was left.
             .id(openings)
+            // Once the note is picked up, the text lets go of the touch.
+            .allowsHitTesting(!isLifted)
         }
     }
 
