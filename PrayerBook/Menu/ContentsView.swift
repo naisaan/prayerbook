@@ -95,28 +95,30 @@ struct ContentsView: View {
                         }
                     }
                 }
-                ForEach(library.enabledLanguages) { language in
+                if library.enabledLanguages.count > 1 {
+                    // With more than one language, each language folds up, so the reader sees
+                    // every language at a glance and opens only the one they want.
                     Section {
-                        ForEach(library.sections.filter { $0.language == language && $0 != obligatory }) { section in
-                            NavigationLink(value: section) {
+                        ForEach(library.enabledLanguages) { language in
+                            let sections = sections(in: language)
+                            DisclosureGroup(isExpanded: expansion("language-\(language.code)")) {
+                                ForEach(sections) { section in sectionRow(section) }
+                            } label: {
                                 HStack {
-                                    Text(section.name)
+                                    Text(language.name)
                                     Spacer()
-                                    if section.prayers.contains(where: { $0.id == currentPrayerID }) {
+                                    if sections.contains(where: { $0.prayers.contains { $0.id == currentPrayerID } }) {
                                         Image(systemName: "book.fill")
                                             .font(.footnote)
                                             .foregroundStyle(.secondary)
                                     }
-                                    Text("\(section.prayers.count)")
-                                        .monospacedDigit()
-                                        .foregroundStyle(.secondary)
                                 }
                             }
                         }
-                    } header: {
-                        if library.enabledLanguages.count > 1 {
-                            Text(language.name)
-                        }
+                    }
+                } else if let language = library.enabledLanguages.first {
+                    Section {
+                        ForEach(sections(in: language)) { section in sectionRow(section) }
                     }
                 }
             }
@@ -154,6 +156,28 @@ struct ContentsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     CloseButton { dismiss() }
                 }
+            }
+        }
+    }
+
+    private func sections(in language: Language) -> [BookSection] {
+        library.sections.filter { $0.language == language && $0 != obligatory }
+    }
+
+    /// A section of prayers, with how many prayers it holds.
+    private func sectionRow(_ section: BookSection) -> some View {
+        NavigationLink(value: section) {
+            HStack {
+                Text(section.name)
+                Spacer()
+                if section.prayers.contains(where: { $0.id == currentPrayerID }) {
+                    Image(systemName: "book.fill")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
+                }
+                Text("\(section.prayers.count)")
+                    .monospacedDigit()
+                    .foregroundStyle(.secondary)
             }
         }
     }
