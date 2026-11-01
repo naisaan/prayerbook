@@ -10,7 +10,9 @@ struct PageMetrics: Equatable {
         // Low enough to leave room for the prayer list's card in the top corner, whether
         // or not it's turned on, so the text doesn't jump when it's switched.
         let top = safeArea.top + 72
-        let bottom = safeArea.bottom + 44
+        // High enough to clear the menu button and bookmark in the bottom corner (52 points,
+        // 4 above the safe area), with a little room to spare.
+        let bottom = safeArea.bottom + 66
         return CGRect(
             x: Self.sideMargin,
             y: top,
