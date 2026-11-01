@@ -26,6 +26,7 @@ struct ReaderView: View {
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
     @State private var pinchStartSize: CGFloat = 0
+    @State private var previewCache = LivePagePreviewCache()
 
     var body: some View {
         GeometryReader { proxy in
@@ -61,11 +62,17 @@ struct ReaderView: View {
                         }
                     )
                     .id(reduceMotion)
-                    // Until the book is laid out again at a new text size, the pages grow or
-                    // shrink right away, so the size follows the fingers (or the buttons).
-                    .scaleEffect(previewScale(for: book), anchor: UnitPoint(x: 0.5, y: metrics.textRect.minY / max(metrics.size.height, 1)))
-                    .animation(.smooth(duration: 0.2), value: settings.textSize)
                     .ignoresSafeArea()
+                    .overlay {
+                        // Until the book is laid out again at a new text size, the page on
+                        // screen is laid out at that size right away, so the words follow the
+                        // fingers (or the buttons).
+                        if let preview = livePreview(of: book) {
+                            LivePageView(preview: preview)
+                                .ignoresSafeArea()
+                                .allowsHitTesting(false)
+                        }
+                    }
                     .simultaneousGesture(pinchToResize, isEnabled: !isOnCover && !menuOpen)
                 } else {
                     ProgressView()
@@ -91,19 +98,6 @@ struct ReaderView: View {
                         PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
                             .transition(.opacity)
                     }
-                }
-
-                if let pinchSize {
-                    Text(verbatim: "\(Int(pinchSize.rounded())) pt")
-                        .font(.subheadline.weight(.semibold).monospacedDigit())
-                        .contentTransition(.numericText())
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .glassEffect(.regular, in: .capsule)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .top)
-                        .padding(.top, 8)
-                        .allowsHitTesting(false)
-                        .transition(.opacity)
                 }
 
                 if showsSplash {
@@ -165,20 +159,26 @@ struct ReaderView: View {
                 }
                 let range = ReaderSettings.textSizeRange
                 let size = min(max(pinchStartSize * value.magnification, range.lowerBound), range.upperBound)
-                withAnimation(.easeOut(duration: 0.15)) { pinchSize = size }
+                pinchSize = size
             }
             .onEnded { _ in
                 if let pinchSize { settings.setTextSize(pinchSize) }
-                withAnimation(.easeOut(duration: 0.2)) { pinchSize = nil }
+                pinchSize = nil
             }
     }
 
-    /// How much bigger the pages show than they're laid out: the size being pinched (or just
-    /// chosen) compared with the size the book on screen was laid out at.
-    private func previewScale(for book: Book) -> CGFloat {
-        let wanted = pinchSize ?? settings.typography.size
-        guard book.typography.size > 0 else { return 1 }
-        return wanted / book.typography.size
+    /// The page on screen at the size being pinched (or just chosen with the buttons), while
+    /// the book itself is still laid out at the old size. Nil once they match.
+    private func livePreview(of book: Book) -> LivePagePreview? {
+        var typography = settings.typography
+        if let pinchSize {
+            // Half point steps: smooth to the eye, and not a new layout for every tiny move.
+            typography.size = (pinchSize * 2).rounded() / 2
+        }
+        guard typography.size != book.typography.size else { return nil }
+        typography.font = book.typography.font
+        typography.dropCap = book.typography.dropCap
+        return previewCache.preview(of: book, page: currentPage, typography: typography)
     }
 
     // MARK: Controls

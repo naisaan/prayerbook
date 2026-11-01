@@ -12,10 +12,14 @@ final class BookPageView: UIView {
         didSet { if showsTotal != oldValue { setNeedsDisplay() } }
     }
 
-    init(book: Book, index: Int, showsTotal: Bool) {
+    /// Off for a live preview while the text size changes, where the number isn't known yet.
+    private let showsNumber: Bool
+
+    init(book: Book, index: Int, showsTotal: Bool, showsNumber: Bool = true) {
         self.book = book
         self.index = index
         self.showsTotal = showsTotal
+        self.showsNumber = showsNumber
         super.init(frame: CGRect(origin: .zero, size: book.metrics.size))
         backgroundColor = Typography.pageColor
         isOpaque = true
@@ -35,6 +39,11 @@ final class BookPageView: UIView {
             self.setNeedsDisplay()
         }
         NotificationCenter.default.addObserver(self, selector: #selector(highlightsDidChange), name: .highlightsDidChange, object: nil)
+    }
+
+    /// Whether this view draws that page of that book.
+    func shows(_ other: Book, at otherIndex: Int) -> Bool {
+        other === book && otherIndex == index
     }
 
     @objc private func highlightsDidChange() {
@@ -61,6 +70,7 @@ final class BookPageView: UIView {
             drawCentered(page.sectionName, in: metrics.headerRect, font: .systemFont(ofSize: 13, weight: .medium))
         }
 
+        guard showsNumber else { return }
         let number = showsTotal ? String(localized: "\(index + 1) of \(book.pages.count)") : "\(index + 1)"
         drawCentered(number, in: metrics.footerRect, font: .monospacedDigitSystemFont(ofSize: 13, weight: .regular))
     }

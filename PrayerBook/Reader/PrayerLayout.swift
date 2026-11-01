@@ -13,6 +13,7 @@ final class PrayerLayout {
     }
 
     let storage: NSTextStorage
+    let isRightToLeft: Bool
     let layoutManager = NSLayoutManager()
     private(set) var containers: [NSTextContainer] = []
     private(set) var dropCap: DropCap?
@@ -27,6 +28,7 @@ final class PrayerLayout {
             showsTitle: PrayerTextBuilder.showsTitle(for: prayer)
         ).build(prayer)
         self.pageSize = pageSize
+        self.isRightToLeft = isRightToLeft
         self.firstPageTop = firstPageTop
         storage = NSTextStorage(attributedString: built.text)
         storage.addLayoutManager(layoutManager)
