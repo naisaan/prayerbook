@@ -10,6 +10,8 @@ struct SettingsSheet: View {
     @State private var showsGeneral = false
     /// The sheet is exactly as tall as what's in it.
     @State private var contentHeight: CGFloat = 520
+    /// How tall the main page is, so General Settings can be just as tall.
+    @State private var mainHeight: CGFloat = 400
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -19,6 +21,7 @@ struct SettingsSheet: View {
                     .transition(.push(from: .trailing))
             } else {
                 mainSettings
+                    .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { mainHeight = $0 }
                     .transition(.push(from: .leading))
             }
         }
@@ -32,7 +35,7 @@ struct SettingsSheet: View {
         }
         .sensoryFeedback(.selection, trigger: settings.font)
         .sensoryFeedback(.selection, trigger: settings.appearance)
-        .sensoryFeedback(.selection, trigger: settings.textSizeIndex)
+        .sensoryFeedback(.selection, trigger: settings.textSize)
     }
 
     /// Close, or back from General Settings, then the title.
@@ -73,7 +76,12 @@ struct SettingsSheet: View {
                 }
             }
 
-            toggleRow("Drop Cap", systemImage: "textformat.size.larger", isOn: $settings.dropCap)
+            Toggle(isOn: $settings.dropCap) {
+                Label { Text("Drop Cap") } icon: { DropCapIcon() }
+            }
+            .padding(.horizontal, 20)
+            .frame(height: 52)
+            .menuSurface(.capsule, interactive: false)
             toggleRow("Liquid Glass", systemImage: "drop", isOn: $settings.liquidGlassMenus)
             linkRow("General", systemImage: "gearshape") { showsGeneral = true }
             linkRow("About", systemImage: "info.circle") { showsAbout = true }
@@ -82,10 +90,17 @@ struct SettingsSheet: View {
 
     private var generalSettings: some View {
         @Bindable var settings = settings
-        return VStack(alignment: .leading, spacing: 20) {
-            toggleRow("Prayer List", systemImage: "checklist", isOn: $settings.showsPrayerList)
-            toggleRow("Always Show Menu", systemImage: "line.3.horizontal.circle", isOn: $settings.alwaysShowsMenu)
+        // As tall as the main page, so the sheet doesn't change height, and scrolls if more
+        // settings are added than fit.
+        return ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                toggleRow("Prayer List", systemImage: "checklist", isOn: $settings.showsPrayerList)
+                toggleRow("Always Show Menu", systemImage: "line.3.horizontal.circle", isOn: $settings.alwaysShowsMenu)
+            }
         }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollClipDisabled()
+        .frame(height: mainHeight, alignment: .top)
     }
 
     private func toggleRow(_ title: LocalizedStringKey, systemImage: String, isOn: Binding<Bool>) -> some View {
@@ -138,6 +153,8 @@ struct SettingsSheet: View {
             .disabled(!settings.canIncreaseTextSize)
             .accessibilityLabel("Larger text")
         }
+        // Holding a button keeps changing the size, a point at a time.
+        .buttonRepeatBehavior(.enabled)
         .buttonStyle(PressableButtonStyle())
         .menuSurface(.capsule)
     }
@@ -190,5 +207,34 @@ private struct FontTile: View {
         .animation(.easeOut(duration: 0.15), value: isSelected)
         .accessibilityLabel(font.displayName)
         .accessibilityAddTraits(isSelected ? .isSelected : [])
+    }
+}
+
+/// A big letter A with lines of text beside and below it, like the first letter of a prayer.
+private struct DropCapIcon: View {
+    var body: some View {
+        VStack(alignment: .leading, spacing: 2.5) {
+            HStack(alignment: .top, spacing: 2.5) {
+                Text(verbatim: "A")
+                    .font(.system(size: 15, weight: .bold, design: .serif))
+                    .fixedSize()
+                    .frame(width: 10, height: 11)
+                VStack(spacing: 2.5) {
+                    line
+                    line
+                    line
+                }
+                .padding(.top, 0.5)
+            }
+            line
+            line
+        }
+        .frame(width: 20)
+        .accessibilityHidden(true)
+    }
+
+    private var line: some View {
+        Capsule()
+            .frame(height: 1.6)
     }
 }

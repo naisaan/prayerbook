@@ -870,6 +870,8 @@ struct PageCurlView: UIViewControllerRepresentable {
             let isFirst = page.displayIndex == 0
             let isLast = page.displayIndex == pageCount - 1
             if let pan = gestureRecognizer as? UIPanGestureRecognizer {
+                // Two fingers are a pinch to change the text size, not a page turn.
+                if pan.numberOfTouches > 1 { return false }
                 let velocity = pan.velocity(in: page.view)
                 if isFirst && velocity.x > 0 { return false }
                 if isLast && velocity.x < 0 { return false }

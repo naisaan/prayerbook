@@ -37,8 +37,9 @@ enum Appearance: String, CaseIterable, Identifiable {
 final class ReaderSettings {
     private let defaults = UserDefaults.standard
 
-    /// Text sizes in points, from smallest to largest.
-    static let sizes: [CGFloat] = [14, 15, 16, 17, 18, 19, 20, 22, 24, 26, 28, 32]
+    /// The smallest and largest text sizes, in points. The size moves in 1 point steps
+    /// with the buttons, and smoothly with a pinch.
+    static let textSizeRange: ClosedRange<CGFloat> = 12...40
 
     var appearance: Appearance {
         didSet { defaults.set(appearance.rawValue, forKey: Keys.appearance) }
@@ -48,8 +49,8 @@ final class ReaderSettings {
         didSet { defaults.set(font.rawValue, forKey: Keys.font) }
     }
 
-    var textSizeIndex: Int {
-        didSet { defaults.set(textSizeIndex, forKey: Keys.textSize) }
+    var textSize: CGFloat {
+        didSet { defaults.set(Double(textSize), forKey: Keys.textSizePoints) }
     }
 
     var dropCap: Bool {
@@ -86,7 +87,14 @@ final class ReaderSettings {
         let defaults = UserDefaults.standard
         appearance = defaults.string(forKey: Keys.appearance).flatMap { Appearance(rawValue: $0) } ?? .system
         font = defaults.string(forKey: Keys.font).flatMap { ReaderFont(rawValue: $0) } ?? .newYork
-        textSizeIndex = defaults.object(forKey: Keys.textSize) as? Int ?? 5
+        if let points = defaults.object(forKey: Keys.textSizePoints) as? Double {
+            textSize = CGFloat(points)
+        } else {
+            // Earlier versions saved a position in a short list of sizes.
+            let oldSizes: [CGFloat] = [14, 15, 16, 17, 18, 19, 20, 22, 24, 26, 28, 32]
+            let index = defaults.object(forKey: Keys.textSize) as? Int ?? 5
+            textSize = oldSizes[min(max(index, 0), oldSizes.count - 1)]
+        }
         dropCap = defaults.object(forKey: Keys.dropCap) as? Bool ?? true
         liquidGlassMenus = defaults.bool(forKey: Keys.liquidGlassMenus)
         showsPrayerList = defaults.object(forKey: Keys.showsPrayerList) as? Bool ?? true
@@ -95,26 +103,34 @@ final class ReaderSettings {
         lastCharacterIndex = defaults.integer(forKey: Keys.lastCharacter)
     }
 
-    var canDecreaseTextSize: Bool { textSizeIndex > 0 }
-    var canIncreaseTextSize: Bool { textSizeIndex < Self.sizes.count - 1 }
+    var canDecreaseTextSize: Bool { textSize > Self.textSizeRange.lowerBound }
+    var canIncreaseTextSize: Bool { textSize < Self.textSizeRange.upperBound }
 
     func decreaseTextSize() {
-        if canDecreaseTextSize { textSizeIndex -= 1 }
+        setTextSize(textSize.rounded() - 1)
     }
 
     func increaseTextSize() {
-        if canIncreaseTextSize { textSizeIndex += 1 }
+        setTextSize(textSize.rounded() + 1)
+    }
+
+    /// Sets the text size, kept inside the allowed range and rounded to half a point.
+    func setTextSize(_ size: CGFloat) {
+        let clamped = min(max(size, Self.textSizeRange.lowerBound), Self.textSizeRange.upperBound)
+        let rounded = (clamped * 2).rounded() / 2
+        if rounded != textSize { textSize = rounded }
     }
 
     var typography: Typography {
-        let index = min(max(textSizeIndex, 0), Self.sizes.count - 1)
-        return Typography(font: font, size: Self.sizes[index], dropCap: dropCap)
+        let size = min(max(textSize, Self.textSizeRange.lowerBound), Self.textSizeRange.upperBound)
+        return Typography(font: font, size: size, dropCap: dropCap)
     }
 
     private enum Keys {
         static let appearance = "appearance"
         static let font = "font"
         static let textSize = "textSize"
+        static let textSizePoints = "textSizePoints"
         static let dropCap = "dropCap"
         static let liquidGlassMenus = "liquidGlassMenus"
         static let showsPrayerList = "showsPrayerList"
