@@ -20,6 +20,8 @@ struct ReaderView: View {
     @State private var namingList = false
     @State private var newListName = ""
     @State private var showsSplash = true
+    /// The first time the app opens after it's installed, the splash is the book's cover.
+    @State private var isFirstOpen = !UserDefaults.standard.bool(forKey: "hasOpenedBefore")
     @State private var splashOpacity = 1.0
     @State private var showsPrayerList = false
     /// The reader has turned past the cover, or started pulling it, at least once.
@@ -115,7 +117,7 @@ struct ReaderView: View {
 
                 if showsSplash {
                     // Flattened into one layer first, so the background and the star fade together.
-                    SplashView()
+                    SplashView(showsCover: isFirstOpen)
                         .compositingGroup()
                         .opacity(splashOpacity)
                         .allowsHitTesting(splashOpacity > 0)
@@ -148,6 +150,7 @@ struct ReaderView: View {
             } completion: {
                 showsSplash = false
             }
+            UserDefaults.standard.set(true, forKey: "hasOpenedBefore")
         }
         .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
         .alert("New Bookmark List", isPresented: $namingList) {
@@ -436,6 +439,9 @@ struct ReaderView: View {
 /// so it looks like one splash screen rather than two. Like the launch screen, which iOS
 /// draws before the app starts, it follows the phone's light or dark mode, not the app's.
 private struct SplashView: View {
+    /// The book's cover instead of the star, for the very first open.
+    var showsCover = false
+
     private let colorScheme: ColorScheme = {
         let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
         return screen?.traitCollection.userInterfaceStyle == .dark ? .dark : .light
@@ -444,9 +450,21 @@ private struct SplashView: View {
     var body: some View {
         ZStack {
             colorScheme == .dark ? Color.black : Color.white
-            // At its own size, exactly like the launch screen.
-            Image("Splash")
-                .accessibilityLabel("Bahá’í Prayer Book")
+            if showsCover {
+                // Filling the screen, exactly like the cover page it fades into.
+                Color.clear
+                    .overlay {
+                        Image("BookCover")
+                            .resizable()
+                            .aspectRatio(contentMode: .fill)
+                    }
+                    .clipped()
+                    .accessibilityLabel("Bahá’í Prayer Book")
+            } else {
+                // At its own size, exactly like the launch screen.
+                Image("Splash")
+                    .accessibilityLabel("Bahá’í Prayer Book")
+            }
         }
         .environment(\.colorScheme, colorScheme)
         .ignoresSafeArea()
