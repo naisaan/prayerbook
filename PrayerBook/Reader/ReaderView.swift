@@ -22,10 +22,8 @@ struct ReaderView: View {
     @State private var showsSplash = true
     @State private var splashOpacity = 1.0
     @State private var showsPrayerList = false
-    /// The reader has turned past the cover at least once.
+    /// The reader has turned past the cover, or started pulling it, at least once.
     @AppStorage("hasTurnedCover") private var hasTurnedCover = false
-    /// A finger is on the cover, so the curl hint steps aside for the real page turn.
-    @State private var isTouchingCover = false
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -78,10 +76,11 @@ struct ReaderView: View {
                         }
                     }
                     .simultaneousGesture(pinchToResize, isEnabled: !isOnCover && !menuOpen)
+                    // Once the reader starts pulling the cover themselves, the curl hint has
+                    // done its job and never comes back, even if they let the page fall back.
                     .simultaneousGesture(
-                        DragGesture(minimumDistance: 0)
-                            .onChanged { _ in if !isTouchingCover { isTouchingCover = true } }
-                            .onEnded { _ in isTouchingCover = false },
+                        DragGesture(minimumDistance: 8)
+                            .onChanged { _ in if !hasTurnedCover { hasTurnedCover = true } },
                         isEnabled: isOnCover && !hasTurnedCover
                     )
                 } else {
@@ -101,7 +100,7 @@ struct ReaderView: View {
                     // The cover is just the cover: no menu or prayer list. Until the reader
                     // turns it the first time, its corner is pulled in now and then to show
                     // there's a page beneath.
-                    if !hasTurnedCover, !isTouchingCover, let book, book.pages.count > 1 {
+                    if !hasTurnedCover, let book, book.pages.count > 1 {
                         CoverCurlHint(book: book, isRightToLeft: bookIsRightToLeft)
                             .ignoresSafeArea()
                             .allowsHitTesting(false)
