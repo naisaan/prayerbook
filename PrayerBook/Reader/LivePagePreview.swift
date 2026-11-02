@@ -8,6 +8,12 @@ struct LivePagePreview {
     let book: Book
     let index: Int
 
+    /// A page of the book as it is.
+    init(book: Book, index: Int) {
+        self.book = book
+        self.index = index
+    }
+
     /// Lays out just the prayer on `page` at `typography`, and finds the page that starts
     /// where `page` starts. Nil for the cover, which doesn't change with the text size.
     init?(of page: BookPage, typography: Typography, metrics: PageMetrics) {
