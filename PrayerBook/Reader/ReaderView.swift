@@ -24,6 +24,8 @@ struct ReaderView: View {
     @State private var showsPrayerList = false
     /// The reader has turned past the cover at least once.
     @AppStorage("hasTurnedCover") private var hasTurnedCover = false
+    /// A finger is on the cover, so the curl hint steps aside for the real page turn.
+    @State private var isTouchingCover = false
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -76,6 +78,12 @@ struct ReaderView: View {
                         }
                     }
                     .simultaneousGesture(pinchToResize, isEnabled: !isOnCover && !menuOpen)
+                    .simultaneousGesture(
+                        DragGesture(minimumDistance: 0)
+                            .onChanged { _ in if !isTouchingCover { isTouchingCover = true } }
+                            .onEnded { _ in isTouchingCover = false },
+                        isEnabled: isOnCover && !hasTurnedCover
+                    )
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -93,11 +101,10 @@ struct ReaderView: View {
                     // The cover is just the cover: no menu or prayer list. Until the reader
                     // turns it the first time, its corner is pulled in now and then to show
                     // there's a page beneath.
-                    if !hasTurnedCover, let book, book.pages.count > 1 {
-                        CornerPeel(isRightToLeft: bookIsRightToLeft) {
-                            LivePageView(preview: LivePagePreview(book: book, index: 1))
-                        }
-                        .transition(.opacity)
+                    if !hasTurnedCover, !isTouchingCover, let book, book.pages.count > 1 {
+                        CoverCurlHint(book: book, isRightToLeft: bookIsRightToLeft)
+                            .ignoresSafeArea()
+                            .allowsHitTesting(false)
                     }
                 } else if book != nil {
                     controls
