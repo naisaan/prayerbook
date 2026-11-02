@@ -442,11 +442,17 @@ private struct SplashView: View {
     }()
 
     var body: some View {
-        ZStack {
-            colorScheme == .dark ? Color.black : Color.white
-            // At its own size, exactly like the launch screen.
-            Image("Splash")
-                .accessibilityLabel("Bahá’í Prayer Book")
+        GeometryReader { proxy in
+            ZStack {
+                colorScheme == .dark ? Color.black : Color.white
+                // Centered like the launch screen, and exactly as big as the star on the
+                // cover, so the star doesn't move when the splash fades into the cover.
+                let width = CoverArt.splashWidth(in: proxy.size)
+                Image("Splash")
+                    .resizable()
+                    .frame(width: width, height: width)
+                    .accessibilityLabel("Bahá’í Prayer Book")
+            }
         }
         .environment(\.colorScheme, colorScheme)
         .ignoresSafeArea()
