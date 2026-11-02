@@ -135,6 +135,7 @@ struct ReaderView: View {
             } completion: {
                 showsSplash = false
             }
+            await turnCoverOnFirstOpen()
         }
         .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
         .alert("New Bookmark List", isPresented: $namingList) {
@@ -144,6 +145,23 @@ struct ReaderView: View {
         } message: {
             Text("What would you like to call this list?")
         }
+    }
+
+    // MARK: First open
+
+    /// The very first time the app opens after it's installed, the cover turns over by
+    /// itself with the real page curl, as if the reader had pulled its corner, so they see
+    /// how the book works. Never again after that.
+    private func turnCoverOnFirstOpen() async {
+        let key = "hasTurnedCoverOnFirstOpen"
+        let defaults = UserDefaults.standard
+        // Someone who has read before (lastPrayerID is set) isn't opening it for the first time.
+        guard !defaults.bool(forKey: key), settings.lastPrayerID == nil else { return }
+        // A moment on the cover first, so it's seen before it turns.
+        try? await Task.sleep(for: .seconds(1.4))
+        guard isOnCover, sheet == nil, !menuOpen, let book, book.pages.count > 1 else { return }
+        defaults.set(true, forKey: key)
+        currentPage = 1
     }
 
     // MARK: Text size
