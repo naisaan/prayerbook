@@ -111,6 +111,12 @@ struct PrayerListNote: View {
     // MARK: The list bar
 
     private static let noteCornerRadius: CGFloat = 28
+    /// The empty margin inside the note.
+    private static let edge: CGFloat = 30
+
+    /// A long list scrolls when its text is dragged, so then the note is picked up by its
+    /// edge or heading instead.
+    private var canGrabEdge: Bool { isOpen && !isTyping && listOverflows }
     /// The list bar sits in the note's bottom corner, this far in.
     private static let barInset: CGFloat = 10
 
@@ -148,8 +154,10 @@ struct PrayerListNote: View {
         let shadowY: CGFloat = isOpen ? 8 : 3 * cardScale
         let shadowOpacity: Double = isOpen ? 0.25 : 0.35
 
-        return noteContent
-            .padding(20)
+        return noteContent(side: side)
+            // A wider edge than usual, with nothing to tap in it, so there's always somewhere
+            // to grab the note, even when the list is long enough to scroll.
+            .padding(Self.edge)
             // While typing, the list buttons sit in the note's bottom corner.
             .overlay(alignment: .bottomLeading) {
                 if isTyping {
@@ -163,6 +171,13 @@ struct PrayerListNote: View {
             // While it's a card, a tap opens it instead of starting to type.
             .allowsHitTesting(isOpen)
             .frame(width: side, height: side)
+            // The edge (and anywhere else without text or buttons) picks up the note when a
+            // long list's text is busy scrolling.
+            .background {
+                Color.clear
+                    .contentShape(Rectangle())
+                    .gesture(flick(side: side), isEnabled: canGrabEdge)
+            }
             // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
             .background(Color(uiColor: HighlightColor.blue.swatch))
             // Dark text on the blue in light and dark mode. The colors are set here rather
@@ -173,7 +188,7 @@ struct PrayerListNote: View {
             .shadow(color: .black.opacity(shadowOpacity), radius: shadowRadius, y: shadowY)
     }
 
-    private var noteContent: some View {
+    private func noteContent(side: CGFloat) -> some View {
         VStack(alignment: .leading, spacing: 10) {
             // In the book's font, chosen in Themes & Settings.
             HStack(alignment: .center) {
@@ -183,6 +198,8 @@ struct PrayerListNote: View {
                     .contentShape(Rectangle())
                     // Tapping the heading puts the keyboard away.
                     .onTapGesture { isTyping = false }
+                    // The heading is a handle too, for a long list.
+                    .gesture(flick(side: side), isEnabled: canGrabEdge)
                 if isTyping {
                     // Done: puts the keyboard away, to read the list.
                     // Apple's round glass button, like the close buttons on its sheets.
