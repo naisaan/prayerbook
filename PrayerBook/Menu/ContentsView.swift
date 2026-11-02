@@ -42,7 +42,7 @@ struct ContentsView: View {
                     }
                 }
                 if let obligatory {
-                    Section("Obligatory Prayers") {
+                    Section("Daily Prayers") {
                         ForEach(obligatory.prayers) { prayer in
                             Button { onOpen(prayer.id) } label: {
                                 HStack {
@@ -115,12 +115,16 @@ struct ContentsView: View {
                                     }
                                 }
                             }
+                        } header: {
+                            if language == library.enabledLanguages.first {
+                                Text("Prayers")
+                            }
                         }
                         // Half the usual gap between the languages, so they read as a set.
                         .listSectionSpacing(language == library.enabledLanguages.last ? .default : .custom(16))
                     }
                 } else if let language = library.enabledLanguages.first {
-                    Section {
+                    Section("Prayers") {
                         ForEach(sections(in: language)) { section in sectionRow(section) }
                     }
                 }
