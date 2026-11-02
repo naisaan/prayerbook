@@ -295,11 +295,12 @@ final class BookPageView: UIView {
         }
     }
 
-    /// The cover picture, filling the whole page, with its star exactly where the splash
-    /// screen's star was.
+    /// The cover picture, filling the whole page.
     private func drawCover() {
-        guard let image = UIImage(named: "BookCover") else { return }
-        image.draw(in: CoverArt.coverRect(in: bounds.size))
+        guard let image = UIImage(named: "BookCover"), image.size.width > 0, image.size.height > 0 else { return }
+        let scale = max(bounds.width / image.size.width, bounds.height / image.size.height)
+        let size = CGSize(width: image.size.width * scale, height: image.size.height * scale)
+        image.draw(in: CGRect(x: bounds.midX - size.width / 2, y: bounds.midY - size.height / 2, width: size.width, height: size.height))
     }
 
     /// A section's title, large and centered, with a thin line beneath it, a little above the

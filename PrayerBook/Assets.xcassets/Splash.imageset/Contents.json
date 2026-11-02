@@ -3,7 +3,7 @@
     {
       "filename": "SplashLight.png",
       "idiom": "universal",
-      "scale": "3x"
+      "scale": "2x"
     },
     {
       "appearances": [
@@ -14,7 +14,7 @@
       ],
       "filename": "SplashDark.png",
       "idiom": "universal",
-      "scale": "3x"
+      "scale": "2x"
     }
   ],
   "info": {
