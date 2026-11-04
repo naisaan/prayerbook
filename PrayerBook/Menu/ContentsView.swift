@@ -151,12 +151,13 @@ struct ContentsView: View {
             .navigationDestination(for: BookSection.self) { section in
                 SectionPrayersView(section: section, currentPrayerID: currentPrayerID, onOpen: onOpen)
             }
-            .alert("Rename List", isPresented: isPresenting($renamingList)) {
-                TextField("Name", text: $renameText)
-                Button("Cancel", role: .cancel) {}
-                Button("Rename") {
-                    if let renamingList { library.renameBookmarkList(renamingList.id, to: renameText) }
-                }
+            .fallingTextFieldAlert(
+                "Rename List",
+                isPresented: isPresenting($renamingList),
+                text: $renameText,
+                confirm: "Rename"
+            ) {
+                if let renamingList { library.renameBookmarkList(renamingList.id, to: renameText) }
             }
             .confirmationDialog(
                 "Delete “\(deletingList?.name ?? "")”?",

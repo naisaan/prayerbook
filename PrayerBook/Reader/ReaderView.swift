@@ -150,12 +150,14 @@ struct ReaderView: View {
             }
         }
         .sensoryFeedback(.impact(weight: .light), trigger: bookmarkFeedback)
-        .alert("New Bookmark List", isPresented: $namingList) {
-            TextField("Name", text: $newListName)
-            Button("Cancel", role: .cancel) {}
-            Button("Add") { library.addBookmarkList(named: newListName) }
-        } message: {
-            Text("What would you like to call this list?")
+        .fallingTextFieldAlert(
+            "New Bookmark List",
+            isPresented: $namingList,
+            text: $newListName,
+            message: "What would you like to call this list?",
+            confirm: "Add"
+        ) {
+            library.addBookmarkList(named: newListName)
         }
     }
 
