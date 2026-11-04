@@ -383,10 +383,12 @@ private struct BeadCounter: View {
                     // Until the finger has moved far enough to settle the direction, the
                     // (still invisible) next bead swings round to follow it.
                     let length = diameter + Self.travel
-                    let radius = diameter / 2 + 8
+                    // It may run off the edge of the screen, as long as at least 15% of it
+                    // still shows, so the whole width of the screen can be used for the pull.
+                    let overhang = diameter * 0.35
                     var point = CGPoint(x: start.x + t.width / distance * length, y: start.y + t.height / distance * length)
-                    point.x = min(max(point.x, radius), bounds.width - radius)
-                    point.y = min(max(point.y, radius), bounds.height - radius)
+                    point.x = min(max(point.x, -overhang), bounds.width + overhang)
+                    point.y = min(max(point.y, -overhang), bounds.height + overhang)
                     target = point
                 }
                 guard let target else { return }
@@ -415,13 +417,12 @@ private struct BeadCounter: View {
                         start = nil
                     }
                 } else {
-                    // Let go too soon: the bead slides back and both fade away.
+                    // Let go too soon: nothing counts, and the beads and string simply fade
+                    // away where they are, without sliding.
                     haptics.stopPulling()
-                    withAnimation(.spring(duration: 0.35, bounce: 0.25)) { progress = 0 } completion: {
-                        withAnimation(.easeOut(duration: 0.3)) {
-                            target = nil
-                            start = nil
-                        }
+                    withAnimation(.easeOut(duration: 0.3)) {
+                        target = nil
+                        start = nil
                     }
                 }
                 countedThisPull = false
