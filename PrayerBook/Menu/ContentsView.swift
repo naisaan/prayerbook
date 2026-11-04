@@ -174,8 +174,9 @@ struct ContentsView: View {
                     AllahuAbhaView()
                         .toolbar {
                             ToolbarItem(placement: .topBarLeading) {
+                                // Points down, the way the counter slides away.
                                 Button { showsCounter = false } label: {
-                                    Label("Back", systemImage: "chevron.left")
+                                    Label("Back", systemImage: "chevron.down")
                                 }
                             }
                         }
