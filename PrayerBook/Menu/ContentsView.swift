@@ -3,11 +3,13 @@ import SwiftUI
 /// Every section of the book. Tap a section to see its prayers, shortest first.
 struct ContentsView: View {
     @Environment(Library.self) private var library
+    @Environment(ReaderSettings.self) private var settings
     @Environment(\.dismiss) private var dismiss
 
     let currentPrayerID: Int?
     let onOpen: (Int) -> Void
 
+    @State private var showsCounter = false
     @State private var expandedBookmarks: Set<String> = []
     @State private var renamingList: BookmarkList?
     @State private var renameText = ""
@@ -52,7 +54,18 @@ struct ContentsView: View {
                             }
                             .tint(.primary)
                         }
-                        NavigationLink("Alláh-u-Abhá (95 Times)", value: ContentsDestination.allahuAbha)
+                        // Opens full screen, on the page's own black or white.
+                        Button { showsCounter = true } label: {
+                            HStack {
+                                Text("Alláh-u-Abhá (95 Times)")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .contentShape(Rectangle())
+                        }
+                        .tint(.primary)
                     }
                 }
                 if !library.bookmarkedPrayers.isEmpty || !library.bookmarkLists.isEmpty {
@@ -148,7 +161,6 @@ struct ContentsView: View {
             }
             .navigationDestination(for: ContentsDestination.self) { destination in
                 switch destination {
-                case .allahuAbha: AllahuAbhaView()
                 case .fiveSteps: FiveStepsView()
                 }
             }
@@ -156,6 +168,20 @@ struct ContentsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     CloseButton { dismiss() }
                 }
+            }
+            .fullScreenCover(isPresented: $showsCounter) {
+                NavigationStack {
+                    AllahuAbhaView()
+                        .toolbar {
+                            ToolbarItem(placement: .topBarLeading) {
+                                Button { showsCounter = false } label: {
+                                    Label("Back", systemImage: "chevron.left")
+                                }
+                            }
+                        }
+                }
+                .environment(settings)
+                .environment(library)
             }
         }
     }
@@ -202,7 +228,6 @@ struct ContentsView: View {
 }
 
 private enum ContentsDestination: Hashable {
-    case allahuAbha
     case fiveSteps
 }
 

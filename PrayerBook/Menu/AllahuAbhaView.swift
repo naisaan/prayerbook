@@ -40,7 +40,8 @@ struct AllahuAbhaView: View {
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
-        .background(Color(uiColor: Typography.pageColor))
+        // Pure white in light mode, pure black in dark mode, edge to edge.
+        .background(Color(uiColor: Typography.pageColor).ignoresSafeArea())
         .navigationTitle("Alláh-u-Abhá")
         .navigationBarTitleDisplayMode(.inline)
         .toolbar {
