@@ -24,11 +24,15 @@ struct ContentsView: View {
                         NavigationLink(value: ContentsDestination.fiveSteps) {
                             Text(verbatim: FiveStepsView.title)
                         }
-                    } footer: {
+                    } header: {
+                        // Above the five steps, in the same small gray as before.
                         Button { onOpen(TitlePage.intone.id) } label: {
                             Text(verbatim: "Intone, O My servant…")
                         }
                         .buttonStyle(.plain)
+                        .font(.footnote)
+                        .fontWeight(.regular)
+                        .textCase(nil)
                         .foregroundStyle(.secondary)
                     }
                 }
