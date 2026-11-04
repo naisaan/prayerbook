@@ -288,14 +288,21 @@ private struct BeadCounter: View {
         if let bead = beadInHand(diameter: diameter) {
             ZStack(alignment: .topLeading) {
                 if let target {
-                    // The string between the two beads.
+                    // The string between the two beads, with flat ends so it meets each bead's edge.
+                    // From the edge of one bead to the edge of the other, never through them.
                     Path { path in
-                        path.move(to: bead)
-                        path.addLine(to: target)
+                        let dx = target.x - bead.x, dy = target.y - bead.y
+                        let length = hypot(dx, dy)
+                        let radius = diameter / 2
+                        if length > diameter {
+                            let ux = dx / length, uy = dy / length
+                            path.move(to: CGPoint(x: bead.x + ux * radius, y: bead.y + uy * radius))
+                            path.addLine(to: CGPoint(x: target.x - ux * radius, y: target.y - uy * radius))
+                        }
                     }
                     .stroke(
                         LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
-                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
+                        style: StrokeStyle(lineWidth: 6, lineCap: .butt)
                     )
                     .opacity(fadeIn)
                     .transition(.opacity)
@@ -473,7 +480,7 @@ private final class BeadHaptics {
                 ], relativeTime: 0, duration: 30),
             ], parameters: [])
             let player = try engine.makeAdvancedPlayer(with: pattern)
-            try player.sendParameters([.init(parameterID: .hapticIntensityControl, value: 0.08, relativeTime: 0)], atTime: CHHapticTimeImmediate)
+            try player.sendParameters([.init(parameterID: .hapticIntensityControl, value: 0.18, relativeTime: 0)], atTime: CHHapticTimeImmediate)
             try player.start(atTime: CHHapticTimeImmediate)
             pullPlayer = player
         } catch {
@@ -483,7 +490,7 @@ private final class BeadHaptics {
 
     /// The pull grows stronger the further the bead is drawn.
     func pull(_ amount: CGFloat) {
-        let intensity = Float(0.08 + 0.42 * amount)
+        let intensity = Float(0.18 + 0.4 * amount)
         try? pullPlayer?.sendParameters([.init(parameterID: .hapticIntensityControl, value: intensity, relativeTime: 0)], atTime: CHHapticTimeImmediate)
     }
 
