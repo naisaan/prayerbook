@@ -143,7 +143,9 @@ private struct FallingAlert: View {
         }
         .padding(22)
         .frame(width: 300)
-        .glassEffect(.regular, in: .rect(cornerRadius: 34))
+        // A frosted background rather than Liquid Glass: glass stretches when it tips over.
+        .background(.regularMaterial, in: .rect(cornerRadius: 34))
+        .compositingGroup()
     }
 
     private func cancelTapped() {
