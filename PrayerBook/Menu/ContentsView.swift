@@ -16,14 +16,15 @@ struct ContentsView: View {
     var body: some View {
         NavigationStack {
             List {
-                Section {
-                    // Shoghi Effendi's five steps, on a page of their own.
-                    NavigationLink(value: ContentsDestination.fiveSteps) {
-                        Text(verbatim: FiveStepsView.title)
-                    }
-                } footer: {
-                    // Takes you to "Intone, O My servant", which opens the English book.
-                    if library.enabledLanguageCodes.contains(Language.english.code) {
+                // Only with English on: the five steps are in English only, and "Intone, O My
+                // servant" opens the English book.
+                if library.enabledLanguageCodes.contains(Language.english.code) {
+                    Section {
+                        // Shoghi Effendi's five steps, on a page of their own.
+                        NavigationLink(value: ContentsDestination.fiveSteps) {
+                            Text(verbatim: FiveStepsView.title)
+                        }
+                    } footer: {
                         Button { onOpen(TitlePage.intone.id) } label: {
                             Text(verbatim: "Intone, O My servant…")
                         }
