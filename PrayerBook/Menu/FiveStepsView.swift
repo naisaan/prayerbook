@@ -4,7 +4,8 @@ import UIKit
 /// The five steps for prayer, from a letter written on behalf of Shoghi Effendi, with the
 /// Universal House of Justice's note about them. Shown exactly as written, in English, and
 /// laid out like a prayer in the book: the reader's font and size, a title with a rule under
-/// it, the drop cap, and justified lines (or not, with Natural Alignment).
+/// it, and justified lines (or not, with Natural Alignment). No drop cap, and it scrolls
+/// rather than turning pages. It's only opened from Contents, never part of the book.
 struct FiveStepsView: View {
     @Environment(ReaderSettings.self) private var settings
     @State private var cache = LayoutCache()
@@ -34,11 +35,18 @@ struct FiveStepsView: View {
         searchText: ""
     )
 
+    private var typography: Typography {
+        var typography = settings.typography
+        typography.dropCap = false
+        return typography
+    }
+
     var body: some View {
         GeometryReader { proxy in
             let margin = PageMetrics.sideMargin
             let width = max(proxy.size.width - margin * 2, 1)
-            let layout = cache.layout(width: width, typography: settings.typography)
+            // Everything as the reader set it, except the drop cap, which this page never has.
+            let layout = cache.layout(width: width, typography: typography)
             ScrollView {
                 PrayerTextCanvas(layout: layout)
                     .frame(width: width, height: layout.height)
