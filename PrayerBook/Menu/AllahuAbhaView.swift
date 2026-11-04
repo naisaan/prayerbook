@@ -214,8 +214,9 @@ private struct BeadCounter: View {
     /// The pull's direction is settled. Until then the string and the next bead follow the
     /// finger round as they fade in.
     @State private var committed = false
-    /// How far the string and the next bead have faded in, from 0 to 1.
-    @State private var reveal: CGFloat = 0
+    /// How far along the bead in hand was when the direction settled. The string and the
+    /// next bead start fading in from there.
+    @State private var commitProgress: CGFloat = 0
     /// A fresh identity for each pull, so the old beads fade out as new ones appear.
     @State private var pullID = UUID()
 
@@ -263,11 +264,12 @@ private struct BeadCounter: View {
         }
     }
 
-    /// The next bead only fades in toward the end of the pull, from a third of the way to
-    /// four fifths, as if it were coming into view.
-    private var targetOpacity: CGFloat {
-        let t = min(max((progress - 0.33) / (0.8 - 0.33), 0), 1)
-        return reveal * t * t * (3 - 2 * t)
+    /// The string and the next bead fade in together, only once the direction has settled,
+    /// over the next stretch of the pull.
+    private var fadeIn: CGFloat {
+        guard committed else { return 0 }
+        let t = min(max((progress - commitProgress) / 0.3, 0), 1)
+        return t * t * (3 - 2 * t)
     }
 
     /// Where the bead in hand is now.
@@ -295,11 +297,11 @@ private struct BeadCounter: View {
                         LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
                         style: StrokeStyle(lineWidth: 6, lineCap: .round)
                     )
-                    .opacity(reveal)
+                    .opacity(fadeIn)
                     .transition(.opacity)
                     Bead(diameter: diameter)
                         .position(target)
-                        .opacity(targetOpacity)
+                        .opacity(fadeIn)
                         .transition(.opacity)
                 }
                 Bead(diameter: diameter, number: countedThisPull || start == nil ? count : nil)
@@ -320,7 +322,7 @@ private struct BeadCounter: View {
                     progress = 0
                     target = nil
                     committed = false
-                    reveal = 0
+                    commitProgress = 0
                     withAnimation(.spring(duration: 0.3, bounce: 0.25)) { start = value.startLocation }
                     haptics.startPulling()
                 }
@@ -330,17 +332,14 @@ private struct BeadCounter: View {
 
                 if !committed {
                     guard distance > 8 else { return }
-                    // The next bead fades in ahead of the finger, along with the string, and
-                    // swings round to follow it until the finger has moved far enough to settle
-                    // the direction.
+                    // Until the finger has moved far enough to settle the direction, the
+                    // (still invisible) next bead swings round to follow it.
                     let length = diameter + Self.travel
                     let radius = diameter / 2 + 8
                     var point = CGPoint(x: start.x + t.width / distance * length, y: start.y + t.height / distance * length)
                     point.x = min(max(point.x, radius), bounds.width - radius)
                     point.y = min(max(point.y, radius), bounds.height - radius)
                     target = point
-                    reveal = min(max((distance - 8) / (Self.commitDistance - 8), 0), 1)
-                    if distance >= Self.commitDistance { committed = true }
                 }
                 guard let target else { return }
                 let dx = target.x - start.x, dy = target.y - start.y
@@ -351,6 +350,10 @@ private struct BeadCounter: View {
                 let along = (t.width * dx + t.height * dy) / length
                 let amount = min(max(along / room, 0), 1)
                 progress = amount
+                if !committed && distance >= Self.commitDistance {
+                    committed = true
+                    commitProgress = amount
+                }
                 haptics.pull(amount)
                 if amount >= 1 { landBead() }
             }
