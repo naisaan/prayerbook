@@ -65,12 +65,10 @@ private struct AllahuAbhaInstruction: View {
                 .font(settings.font.font(size: size))
             Text("Bahá’u’lláh")
                 .font(settings.font.font(size: size * 0.9))
-                .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
             if let hint {
                 Text(hint)
-                    .font(.footnote)
-                    .foregroundStyle(.secondary)
+                    .font(.callout)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .padding(.top, 14)
             }
@@ -272,7 +270,7 @@ private struct BeadCounter: View {
         GeometryReader { proxy in
             let diameter = min(proxy.size.width * 0.27, 120)
             ZStack(alignment: .topLeading) {
-                AllahuAbhaInstruction(hint: "Slowly drag your finger anywhere on the screen as you say “Alláh-u-Abhá”. When your bead reaches the next one, let go and begin again. Tap with three fingers for settings.")
+                AllahuAbhaInstruction(hint: "Slowly drag your finger from anywhere to begin.\nTap with 3 fingers for Settings")
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
                     .frame(width: proxy.size.width)

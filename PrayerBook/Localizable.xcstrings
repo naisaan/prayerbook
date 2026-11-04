@@ -5532,6 +5532,64 @@
         }
       }
     },
+    "Slowly drag your finger from anywhere to begin.\nTap with 3 fingers for Settings": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziehe deinen Finger langsam von einer beliebigen Stelle, um zu beginnen.\nTippe mit 3 Fingern für die Einstellungen"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza el dedo despacio desde cualquier lugar para empezar.\nToca con 3 dedos para ver los ajustes"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser lentement votre doigt depuis n’importe où pour commencer.\nTouchez avec 3 doigts pour les réglages"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trascina lentamente il dito da qualsiasi punto per iniziare.\nTocca con 3 dita per le impostazioni"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep je vinger langzaam vanaf elke plek om te beginnen.\nTik met 3 vingers voor de instellingen"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dragðu fingurinn hægt hvaðan sem er til að byrja.\nPikkaðu með 3 fingrum til að sjá stillingar"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomalu táhněte prstem odkudkoli a začněte.\nKlepnutím 3 prsty zobrazíte nastavení"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomaly ťahajte prstom odkiaľkoľvek a začnite.\nŤuknutím 3 prstami zobrazíte nastavenia"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "برای شروع، انگشت خود را از هر جا آرام بکشید.\nبرای تنظیمات با ۳ انگشت ضربه بزنید"
+          }
+        }
+      }
+    },
     "Smaller text": {
       "localizations": {
         "de": {
