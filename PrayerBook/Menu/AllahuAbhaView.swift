@@ -13,6 +13,7 @@ import CoreHaptics
 struct AllahuAbhaView: View {
     @Environment(ReaderSettings.self) private var settings
     @AppStorage("allahuAbhaClassicView") private var classicView = false
+    @AppStorage("prayerBeadColor") private var beadColor = BeadColor.blue
     @State private var count = 0
     @State private var showsSettings = false
 
@@ -23,7 +24,7 @@ struct AllahuAbhaView: View {
             if classicView {
                 ClassicCounter(count: $count)
             } else {
-                BeadCounter(count: $count)
+                BeadCounter(count: $count, color: beadColor)
             }
         }
         .contentShape(Rectangle())
@@ -43,8 +44,8 @@ struct AllahuAbhaView: View {
             }
         }
         .sheet(isPresented: $showsSettings) {
-            CounterSettings(classicView: $classicView)
-                .presentationDetents([.height(170)])
+            CounterSettings(classicView: $classicView, beadColor: $beadColor)
+                .presentationDetents([.height(classicView ? 170 : 290)])
         }
     }
 }
@@ -82,6 +83,7 @@ private struct AllahuAbhaInstruction: View {
 /// The card opened with a three-finger tap.
 private struct CounterSettings: View {
     @Binding var classicView: Bool
+    @Binding var beadColor: BeadColor
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -105,10 +107,48 @@ private struct CounterSettings: View {
             .padding(.horizontal, 20)
             .frame(height: 52)
             .menuSurface(.capsule, interactive: false)
+
+            if !classicView {
+                VStack(alignment: .leading, spacing: 12) {
+                    Text("Choose the main color of your prayer bead")
+                        .font(.subheadline)
+                        .foregroundStyle(.secondary)
+                    // Round swatches with a ring on the chosen one, like the note colors.
+                    HStack(spacing: 18) {
+                        ForEach(BeadColor.allCases, id: \.self) { option in
+                            Button { beadColor = option } label: {
+                                Circle()
+                                    .fill(option.deep)
+                                    .overlay {
+                                        if option == .white {
+                                            Circle().strokeBorder(Color.primary.opacity(0.15), lineWidth: 1)
+                                        }
+                                    }
+                                    .frame(width: 28, height: 28)
+                                    .padding(4)
+                                    .overlay {
+                                        if option == beadColor {
+                                            Circle().strokeBorder(Color.primary, lineWidth: 2)
+                                        }
+                                    }
+                            }
+                            .buttonStyle(PressableButtonStyle())
+                            .accessibilityLabel(option.name)
+                            .accessibilityAddTraits(option == beadColor ? .isSelected : [])
+                        }
+                    }
+                    .frame(maxWidth: .infinity)
+                }
+                .padding(20)
+                .menuSurface(.rect(cornerRadius: 26), interactive: false)
+                .transition(.opacity)
+            }
         }
         .padding(24)
         .frame(maxHeight: .infinity, alignment: .top)
+        .animation(.smooth(duration: 0.25), value: classicView)
         .sensoryFeedback(.selection, trigger: classicView)
+        .sensoryFeedback(.selection, trigger: beadColor)
     }
 }
 
@@ -199,6 +239,7 @@ private struct ClassicCounter: View {
 /// thunk, and the count shows on it. Let go and touch again for the next.
 private struct BeadCounter: View {
     @Binding var count: Int
+    let color: BeadColor
     @State private var haptics = BeadHaptics()
 
     /// Where the finger came down, which is where the bead in hand starts.
@@ -301,17 +342,17 @@ private struct BeadCounter: View {
                         }
                     }
                     .stroke(
-                        LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
+                        LinearGradient(colors: [color.light, color.deep], startPoint: .top, endPoint: .bottom),
                         style: StrokeStyle(lineWidth: 6, lineCap: .butt)
                     )
                     .opacity(fadeIn)
                     .transition(.opacity)
-                    Bead(diameter: diameter)
+                    Bead(diameter: diameter, color: color)
                         .position(target)
                         .opacity(fadeIn)
                         .transition(.opacity)
                 }
-                Bead(diameter: diameter, number: countedThisPull || start == nil ? count : nil)
+                Bead(diameter: diameter, color: color, number: countedThisPull || start == nil ? count : nil)
                     .position(bead)
                     .transition(.scale(scale: 0.6).combined(with: .opacity))
             }
@@ -400,18 +441,59 @@ private struct BeadCounter: View {
     }
 }
 
+/// The main color of the prayer beads, chosen in the three-finger settings. Each is that
+/// color above, with the same soft white cloud below.
+enum BeadColor: String, CaseIterable {
+    case blue, green, purple, red, white
+
+    /// The bead's top, and its swatch in the settings.
+    var deep: Color {
+        switch self {
+        case .blue: Color(red: 0.31, green: 0.45, blue: 0.90)
+        case .green: Color(red: 0.20, green: 0.60, blue: 0.40)
+        case .purple: Color(red: 0.50, green: 0.36, blue: 0.86)
+        case .red: Color(red: 0.84, green: 0.26, blue: 0.31)
+        case .white: Color(red: 0.84, green: 0.86, blue: 0.90)
+        }
+    }
+
+    /// The lighter end of the string.
+    var light: Color {
+        switch self {
+        case .blue: Color(red: 0.42, green: 0.62, blue: 0.98)
+        case .green: Color(red: 0.36, green: 0.76, blue: 0.54)
+        case .purple: Color(red: 0.66, green: 0.52, blue: 0.96)
+        case .red: Color(red: 0.95, green: 0.45, blue: 0.48)
+        case .white: Color(red: 0.93, green: 0.94, blue: 0.97)
+        }
+    }
+
+    /// Behind the count, so the white number stands out.
+    var shadow: Color {
+        self == .white ? Color(red: 0.35, green: 0.38, blue: 0.46) : deep
+    }
+
+    var name: String {
+        switch self {
+        case .blue: String(localized: "Blue")
+        case .green: String(localized: "Green")
+        case .purple: String(localized: "Purple")
+        case .red: String(localized: "Red")
+        case .white: String(localized: "White")
+        }
+    }
+}
+
 /// One bead: blue above, with soft white cloud rising from below, like a glass sphere of sky.
 private struct Bead: View {
     let diameter: CGFloat
+    let color: BeadColor
     /// The count, shown on the bead once it has landed.
     var number: Int?
 
-    static let deep = Color(red: 0.31, green: 0.45, blue: 0.90)
-    static let light = Color(red: 0.42, green: 0.62, blue: 0.98)
-
     var body: some View {
         Circle()
-            .fill(Self.deep)
+            .fill(color.deep)
             .overlay {
                 // Cloud, soft-edged, filling the lower half.
                 Ellipse()
@@ -436,7 +518,7 @@ private struct Bead: View {
                         .font(.system(size: diameter * 0.34, weight: .bold))
                         .monospacedDigit()
                         .foregroundStyle(.white)
-                        .shadow(color: Self.deep.opacity(0.8), radius: 4)
+                        .shadow(color: color.shadow.opacity(0.8), radius: 4)
                         .contentTransition(.numericText(value: Double(number)))
                         .transition(.opacity.combined(with: .scale(scale: 0.8)))
                 }

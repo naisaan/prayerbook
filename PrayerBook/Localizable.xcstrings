@@ -1469,6 +1469,64 @@
         }
       }
     },
+    "Choose the main color of your prayer bead": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Wähle die Hauptfarbe deiner Gebetsperle"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Elige el color principal de tu cuenta de oración"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Choisissez la couleur principale de votre perle de prière"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Scegli il colore principale del tuo grano di preghiera"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Kies de hoofdkleur van je gebedskraal"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Veldu aðallit bænaperlunnar þinnar"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte hlavní barvu svého modlitebního korálku"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Vyberte hlavnú farbu svojho modlitebného korálika"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رنگ اصلی دانهٔ تسبیح خود را انتخاب کنید"
+          }
+        }
+      }
+    },
     "Classic View": {
       "localizations": {
         "de": {
@@ -4368,6 +4426,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "سیاست حریم خصوصی"
+          }
+        }
+      }
+    },
+    "Purple": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Lila"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Morado"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Violet"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Viola"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Paars"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fjólublár"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fialová"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Fialová"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بنفش"
           }
         }
       }
