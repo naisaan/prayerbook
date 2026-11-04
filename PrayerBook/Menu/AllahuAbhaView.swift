@@ -454,14 +454,15 @@ enum BeadColor: String, CaseIterable {
         case .purple: Color(red: 0.50, green: 0.36, blue: 0.86)
         case .red: Color(red: 0.84, green: 0.26, blue: 0.31)
         // Black on the white page in light mode, white on the black page in dark mode.
-        case .white: Self.adaptive(dark: UIColor(red: 0.84, green: 0.86, blue: 0.90, alpha: 1), light: UIColor(white: 0.1, alpha: 1))
+        case .white: Color(uiColor: Typography.textColor)
         }
     }
 
     /// The soft cloud in the bead's lower half.
     var cloud: Color {
         switch self {
-        case .white: Self.adaptive(dark: UIColor(red: 0.97, green: 0.97, blue: 1, alpha: 1), light: UIColor(white: 0.5, alpha: 1))
+        // Solid, with no cloud.
+        case .white: deep
         default: Color(red: 0.92, green: 0.93, blue: 0.99)
         }
     }
@@ -469,13 +470,9 @@ enum BeadColor: String, CaseIterable {
     /// The brighter wisp along the cloud's top.
     var wisp: Color {
         switch self {
-        case .white: Self.adaptive(dark: UIColor(white: 1, alpha: 0.55), light: UIColor(white: 0.75, alpha: 0.5))
+        case .white: .clear
         default: .white.opacity(0.55)
         }
-    }
-
-    private static func adaptive(dark: UIColor, light: UIColor) -> Color {
-        Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? dark : light })
     }
 
     /// The lighter end of the string.
@@ -485,13 +482,18 @@ enum BeadColor: String, CaseIterable {
         case .green: Color(red: 0.36, green: 0.76, blue: 0.54)
         case .purple: Color(red: 0.66, green: 0.52, blue: 0.96)
         case .red: Color(red: 0.95, green: 0.45, blue: 0.48)
-        case .white: Self.adaptive(dark: UIColor(red: 0.93, green: 0.94, blue: 0.97, alpha: 1), light: UIColor(white: 0.35, alpha: 1))
+        case .white: deep
         }
     }
 
-    /// Behind the count, so the white number stands out.
+    /// Behind the count, so the white number stands out. None on the solid bead.
     var shadow: Color {
-        self == .white ? Self.adaptive(dark: UIColor(red: 0.35, green: 0.38, blue: 0.46, alpha: 1), light: .black) : deep
+        self == .white ? .clear : deep
+    }
+
+    /// The count: white, or the page's color on the solid white or black bead.
+    var number: Color {
+        self == .white ? Color(uiColor: Typography.pageColor) : .white
     }
 
     var name: String {
@@ -538,7 +540,7 @@ private struct Bead: View {
                     Text("\(number)")
                         .font(.system(size: diameter * 0.34, weight: .bold))
                         .monospacedDigit()
-                        .foregroundStyle(.white)
+                        .foregroundStyle(color.number)
                         .shadow(color: color.shadow.opacity(0.8), radius: 4)
                         .contentTransition(.numericText(value: Double(number)))
                         .transition(.opacity.combined(with: .scale(scale: 0.8)))
