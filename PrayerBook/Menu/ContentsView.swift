@@ -9,7 +9,8 @@ struct ContentsView: View {
     let currentPrayerID: Int?
     let onOpen: (Int) -> Void
 
-    @State private var showsCounter = false
+    /// The full-screen page open over Contents, if any.
+    @State private var fullScreen: FullScreenPage?
     @State private var expandedBookmarks: Set<String> = []
     @State private var renamingList: BookmarkList?
     @State private var renameText = ""
@@ -23,9 +24,18 @@ struct ContentsView: View {
                 if library.enabledLanguageCodes.contains(Language.english.code) {
                     Section {
                         // Shoghi Effendi's five steps, on a page of their own.
-                        NavigationLink(value: ContentsDestination.fiveSteps) {
-                            Text(verbatim: FiveStepsView.title)
+                        // Opens full screen, like a prayer, on the page's own black or white.
+                        Button { fullScreen = .fiveSteps } label: {
+                            HStack {
+                                Text(verbatim: FiveStepsView.title)
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.footnote.weight(.semibold))
+                                    .foregroundStyle(.tertiary)
+                            }
+                            .contentShape(Rectangle())
                         }
+                        .tint(.primary)
                     } header: {
                         // Above the five steps, in the same small gray as before.
                         Button { onOpen(TitlePage.intone.id) } label: {
@@ -55,7 +65,7 @@ struct ContentsView: View {
                             .tint(.primary)
                         }
                         // Opens full screen, on the page's own black or white.
-                        Button { showsCounter = true } label: {
+                        Button { fullScreen = .counter } label: {
                             HStack {
                                 Text("Alláh-u-Abhá (95 Times)")
                                 Spacer()
@@ -159,27 +169,27 @@ struct ContentsView: View {
             } message: {
                 Text("The prayers stay in the book; only this list is removed.")
             }
-            .navigationDestination(for: ContentsDestination.self) { destination in
-                switch destination {
-                case .fiveSteps: FiveStepsView()
-                }
-            }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
                     CloseButton { dismiss() }
                 }
             }
-            .fullScreenCover(isPresented: $showsCounter) {
+            .fullScreenCover(item: $fullScreen) { page in
                 NavigationStack {
-                    AllahuAbhaView()
-                        .toolbar {
-                            ToolbarItem(placement: .topBarLeading) {
-                                // Points down, the way the counter slides away.
-                                Button { showsCounter = false } label: {
-                                    Label("Back", systemImage: "chevron.down")
-                                }
+                    Group {
+                        switch page {
+                        case .counter: AllahuAbhaView()
+                        case .fiveSteps: FiveStepsView()
+                        }
+                    }
+                    .toolbar {
+                        ToolbarItem(placement: .topBarLeading) {
+                            // Points down, the way the page slides away.
+                            Button { fullScreen = nil } label: {
+                                Label("Back", systemImage: "chevron.down")
                             }
                         }
+                    }
                 }
                 .environment(settings)
                 .environment(library)
@@ -228,8 +238,10 @@ struct ContentsView: View {
     }
 }
 
-private enum ContentsDestination: Hashable {
-    case fiveSteps
+/// The pages that open full screen from Contents.
+private enum FullScreenPage: String, Identifiable {
+    case counter, fiveSteps
+    var id: String { rawValue }
 }
 
 /// A bookmark list that opens on tap to show its prayers.

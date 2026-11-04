@@ -17,7 +17,7 @@ struct PrayerTextBuilder {
         "Huqúqu'lláh", "Occasional Prayers", "Special Tablets", "Obligatory Prayers", "The Holy Land", "Holy Days",
         "Ḥuqúqu’lláh", "Tavole speciali", "Preghiere obbligatorie", "Pinngitsoorani Qinnutissat",
     ]
-    static let titledPrayers: Set<String> = ["Prayer for the Dead", "Preghiera dei defunti", "The Nineteen Day Feast"]
+    static let titledPrayers: Set<String> = ["Prayer for the Dead", "Preghiera dei defunti", "The Nineteen Day Feast", "5 Steps for Prayer from Shoghi Effendi"]
 
     static func showsTitle(for prayer: Prayer) -> Bool {
         titledSections.contains(prayer.category)
