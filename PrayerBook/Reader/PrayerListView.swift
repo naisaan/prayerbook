@@ -22,6 +22,9 @@ struct PrayerListNote: View {
     @State private var isLifted = false
     /// The list is longer than the note, so dragging on it scrolls it instead.
     @State private var listOverflows = false
+    /// Whether the drag under way moves the note. Decided when it starts: on a long list,
+    /// only a drag that starts on the frame around the text does.
+    @State private var flickMoves: Bool?
     @State private var listCommand: PrayerListStyle?
     @State private var currentListStyle: PrayerListStyle?
     /// How much of the screen the keyboard covers, from the system's keyboard notices.
@@ -65,7 +68,10 @@ struct PrayerListNote: View {
                     // Drag anywhere on it, even on the text, to throw it around. It works
                     // alongside the text's own taps, so a tap on the text still starts typing.
                     // While typing, the note stays still.
-                    .simultaneousGesture(flick(side: side), isEnabled: isOpen && !isTyping && !listOverflows)
+                    .simultaneousGesture(
+                        flick(side: side, noteFrame: CGRect(x: openCenter.x - side / 2, y: openCenter.y - side / 2, width: side, height: side)),
+                        isEnabled: isOpen && !isTyping
+                    )
                     // A list longer than the note scrolls when dragged, so then press and
                     // hold first to pick the note up.
                     .simultaneousGesture(holdAndFlick(side: side), isEnabled: isOpen && listOverflows && (!isTyping || isLifted))
@@ -111,6 +117,8 @@ struct PrayerListNote: View {
     // MARK: The list bar
 
     private static let noteCornerRadius: CGFloat = 28
+    /// The empty frame between the note's edge and its text.
+    private static let frameWidth: CGFloat = 30
     /// The list bar sits in the note's bottom corner, this far in.
     private static let barInset: CGFloat = 10
 
@@ -149,7 +157,9 @@ struct PrayerListNote: View {
         let shadowOpacity: Double = isOpen ? 0.25 : 0.35
 
         return noteContent
-            .padding(20)
+            // A frame around the text with nothing to tap in it, so there's always somewhere
+            // to grab the note, even when the list is long enough to scroll.
+            .padding(Self.frameWidth)
             // While typing, the list buttons sit in the note's bottom corner.
             .overlay(alignment: .bottomLeading) {
                 if isTyping {
@@ -236,10 +246,27 @@ struct PrayerListNote: View {
 
     /// Drag the note around, tilting it the way a card held at that spot would turn. Let go
     /// quickly and it flies back to its corner; let go slowly and it springs back into place.
-    private func flick(side: CGFloat) -> some Gesture {
+    ///
+    /// A short list moves from anywhere. A long list scrolls when its text is dragged, so then
+    /// only a drag that starts on the frame around the text moves the note. It's one gesture
+    /// either way, so throwing feels exactly the same.
+    private func flick(side: CGFloat, noteFrame: CGRect) -> some Gesture {
         DragGesture(minimumDistance: 12)
-            .onChanged { dragChanged($0, side: side) }
-            .onEnded { dragEnded($0, side: side) }
+            .onChanged { value in
+                if flickMoves == nil {
+                    let onFrame = noteFrame.contains(value.startLocation)
+                        && !noteFrame.insetBy(dx: Self.frameWidth, dy: Self.frameWidth).contains(value.startLocation)
+                    // Press and hold has already picked the note up; leave the drag to it.
+                    flickMoves = !isLifted && (!listOverflows || onFrame)
+                }
+                guard flickMoves == true else { return }
+                dragChanged(value, side: side)
+            }
+            .onEnded { value in
+                let moves = flickMoves == true
+                flickMoves = nil
+                if moves { dragEnded(value, side: side) }
+            }
     }
 
     /// Press and hold anywhere on the note, even on the text, to pick it up; then drag it
