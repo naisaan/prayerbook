@@ -184,137 +184,222 @@ private struct ClassicCounter: View {
 
 // MARK: Prayer beads
 
-/// A strand of small beads running down the middle of the screen. Beads above the middle are
-/// still to say; pulling draws the next one down across the middle, and the ones below are
-/// said.
+/// Two prayer beads on a string. Touch anywhere and a bead appears under the finger. Start
+/// pulling, in any direction, and the next bead appears ahead, joined by the string; the bead
+/// in hand follows the finger along the string until it knocks against the other one with a
+/// thunk, and the count shows on it. Let go and touch again for the next.
 private struct BeadCounter: View {
-    @Environment(ReaderSettings.self) private var settings
     @Binding var count: Int
     @State private var haptics = BeadHaptics()
-    /// How far the bead being pulled has come, from 0 (not yet) to 1 (it drops into place).
-    @State private var progress: CGFloat = 0
-    /// The drag under way has already counted a bead, so it waits for the finger to lift.
-    @State private var countedThisPull = false
-    @State private var isPulling = false
 
-    /// How far a finger travels, in any direction, to draw one bead.
-    private static let pullDistance: CGFloat = 90
-    private static let beadSize: CGFloat = 16
-    private static let spacing: CGFloat = 34
+    /// Where the finger came down, which is where the bead in hand starts.
+    @State private var start: CGPoint?
+    /// The bead being pulled toward, set once the pull's direction is known.
+    @State private var target: CGPoint?
+    /// How far the bead in hand has come along the string, from 0 to 1 (touching).
+    @State private var progress: CGFloat = 0
+    /// This pull has counted, so it waits for the finger to lift.
+    @State private var countedThisPull = false
+    /// After a count, the bead stays where it landed, showing the count, until the next touch.
+    @State private var restingBead: CGPoint?
+    /// A fresh identity for each pull, so the old beads fade out as new ones appear.
+    @State private var pullID = UUID()
+
+    /// How far the bead travels along the string before it touches the other.
+    private static let travel: CGFloat = 130
 
     private var isFinished: Bool { count >= AllahuAbhaView.goal }
 
     var body: some View {
         GeometryReader { proxy in
-            let middle = proxy.size.height * 0.56
-            ZStack(alignment: .top) {
+            let diameter = min(proxy.size.width * 0.38, 170)
+            ZStack(alignment: .topLeading) {
                 AllahuAbhaInstruction()
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
+                    .frame(width: proxy.size.width)
 
-                strand(middle: middle, height: proxy.size.height)
-                    .frame(width: proxy.size.width, height: proxy.size.height)
+                beads(diameter: diameter)
+                    .id(pullID)
+                    .transition(.opacity.animation(.easeOut(duration: 0.35)))
                     // Once all ninety-five are said, the beads fade away.
-                    .opacity(isFinished ? 0 : 1)
+                    .opacity(isFinished && start == nil ? 0 : 1)
                     .animation(.easeOut(duration: 1.6), value: isFinished)
-
-                Text("\(count)")
-                    .font(settings.font.font(size: 17))
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                    .contentTransition(.numericText(value: Double(count)))
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .bottom)
-                    .padding(.bottom, 24)
             }
+            .frame(width: proxy.size.width, height: proxy.size.height, alignment: .topLeading)
+            .contentShape(Rectangle())
+            .gesture(pull(diameter: diameter, bounds: proxy.size))
         }
-        .contentShape(Rectangle())
-        .gesture(pull)
         .onAppear { haptics.prepare() }
         .onDisappear { haptics.stopPulling() }
         .onChange(of: count) { _, new in
-            // Start Over.
-            if new == 0 { progress = 0 }
+            // Start Over clears the beads.
+            if new == 0 { restingBead = nil }
         }
         .accessibilityElement()
         .accessibilityLabel("Alláh-u-Abhá counter")
         .accessibilityValue("\(count) of \(AllahuAbhaView.goal)")
         .accessibilityAddTraits(.allowsDirectInteraction)
-        .accessibilityAction(named: Text("Count one more")) { countOne() }
-    }
-
-    /// The beads near the middle of the screen; the rest are off screen.
-    private func strand(middle: CGFloat, height: CGFloat) -> some View {
-        let visible = Int(height / Self.spacing / 2) + 2
-        let first = max(0, count - visible)
-        let last = min(AllahuAbhaView.goal - 1, count + visible)
-        return ZStack {
-            // The string the beads are on, fading out above and below like the beads.
-            Rectangle()
-                .fill(Color(uiColor: Typography.textColor).opacity(0.12))
-                .frame(width: 1.5)
-                .mask {
-                    LinearGradient(stops: [
-                        .init(color: .clear, location: max(0, (middle - height * 0.42) / height)),
-                        .init(color: .black, location: middle / height),
-                        .init(color: .clear, location: min(1, (middle + height * 0.42) / height)),
-                    ], startPoint: .top, endPoint: .bottom)
-                }
-            ForEach(first...last, id: \.self) { bead in
-                // Said beads sit below the middle, the rest above. The bead being pulled
-                // slides from just above the middle to just below it.
-                let y = middle + (CGFloat(count - bead) - 0.5 + progress) * Self.spacing
-                let said = y > middle
-                let fade = max(0, 1 - abs(y - middle) / (height * 0.42))
-                Circle()
-                    .fill(Color(uiColor: Typography.textColor))
-                    .frame(width: Self.beadSize, height: Self.beadSize)
-                    .opacity((said ? 1 : 0.35) * fade)
-                    .position(x: 0, y: y)
-            }
-            .frame(width: 0)
+        .accessibilityAction(named: Text("Count one more")) {
+            guard !isFinished else { return }
+            count += 1
+            count == AllahuAbhaView.goal ? haptics.bigThunk() : haptics.thunk()
         }
     }
 
-    private var pull: some Gesture {
+    /// Where the bead in hand is now.
+    private func beadInHand(diameter: CGFloat) -> CGPoint? {
+        guard let start else { return restingBead }
+        guard let target else { return start }
+        let dx = target.x - start.x, dy = target.y - start.y
+        let length = hypot(dx, dy)
+        guard length > 0 else { return start }
+        let along = progress * max(length - diameter, 0)
+        return CGPoint(x: start.x + dx / length * along, y: start.y + dy / length * along)
+    }
+
+    @ViewBuilder
+    private func beads(diameter: CGFloat) -> some View {
+        if let bead = beadInHand(diameter: diameter) {
+            ZStack(alignment: .topLeading) {
+                if let target {
+                    // The string between the two beads.
+                    Path { path in
+                        path.move(to: bead)
+                        path.addLine(to: target)
+                    }
+                    .stroke(
+                        LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
+                        lineWidth: 2
+                    )
+                    Bead(diameter: diameter)
+                        .position(target)
+                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                }
+                Bead(diameter: diameter, number: countedThisPull || start == nil ? count : nil)
+                    .position(bead)
+                    .transition(.scale(scale: 0.6).combined(with: .opacity))
+            }
+        }
+    }
+
+    private func pull(diameter: CGFloat, bounds: CGSize) -> some Gesture {
         DragGesture(minimumDistance: 0)
             .onChanged { value in
-                guard !isFinished, !countedThisPull else { return }
-                if !isPulling {
-                    // A small touch to say the bead is in hand.
-                    isPulling = true
+                guard !isFinished else { return }
+                if start == nil {
+                    // A new bead under the finger; the last one fades away.
+                    pullID = UUID()
+                    restingBead = nil
+                    progress = 0
+                    target = nil
+                    withAnimation(.spring(duration: 0.3, bounce: 0.25)) { start = value.startLocation }
                     haptics.startPulling()
                 }
-                let distance = hypot(value.translation.width, value.translation.height)
-                let amount = min(distance / Self.pullDistance, 1)
+                guard let start, !countedThisPull else { return }
+                let t = value.translation
+                let distance = hypot(t.width, t.height)
+
+                if target == nil {
+                    guard distance > 8 else { return }
+                    // The pull's direction is known: the other bead appears ahead, on the screen.
+                    let length = diameter + Self.travel
+                    let radius = diameter / 2 + 8
+                    var point = CGPoint(x: start.x + t.width / distance * length, y: start.y + t.height / distance * length)
+                    point.x = min(max(point.x, radius), bounds.width - radius)
+                    point.y = min(max(point.y, radius), bounds.height - radius)
+                    withAnimation(.spring(duration: 0.3, bounce: 0.2)) { target = point }
+                }
+                guard let target else { return }
+                let dx = target.x - start.x, dy = target.y - start.y
+                let length = hypot(dx, dy)
+                let room = length - diameter
+                guard room > 1 else { return }
+                // Only the part of the drag along the string moves the bead.
+                let along = (t.width * dx + t.height * dy) / length
+                let amount = min(max(along / room, 0), 1)
                 progress = amount
                 haptics.pull(amount)
-                if amount >= 1 {
-                    countedThisPull = true
-                    countOne()
-                }
+                if amount >= 1 { landBead() }
             }
             .onEnded { _ in
-                if isPulling && !countedThisPull {
-                    // Let go too soon: the bead slides back.
+                guard start != nil else { return }
+                if countedThisPull {
+                    // The bead stays where it landed with the count; the other one fades.
+                    restingBead = beadInHand(diameter: diameter)
+                    withAnimation(.easeOut(duration: 0.4)) {
+                        target = nil
+                        start = nil
+                    }
+                } else {
+                    // Let go too soon: the bead slides back and both fade away.
                     haptics.stopPulling()
-                    withAnimation(.spring(duration: 0.35, bounce: 0.3)) { progress = 0 }
+                    withAnimation(.spring(duration: 0.35, bounce: 0.25)) { progress = 0 } completion: {
+                        withAnimation(.easeOut(duration: 0.3)) {
+                            target = nil
+                            start = nil
+                        }
+                    }
                 }
-                isPulling = false
                 countedThisPull = false
             }
     }
 
-    private func countOne() {
+    private func landBead() {
         guard !isFinished else { return }
+        countedThisPull = true
         haptics.stopPulling()
-        // The bead's place is the same before and after, so this doesn't jump.
-        progress = 0
         withAnimation(.snappy(duration: 0.2)) { count += 1 }
         if count == AllahuAbhaView.goal {
             haptics.bigThunk()
         } else {
             haptics.thunk()
         }
+    }
+}
+
+/// One bead: blue above, with soft white cloud rising from below, like a glass sphere of sky.
+private struct Bead: View {
+    let diameter: CGFloat
+    /// The count, shown on the bead once it has landed.
+    var number: Int?
+
+    static let deep = Color(red: 0.31, green: 0.45, blue: 0.90)
+    static let light = Color(red: 0.42, green: 0.62, blue: 0.98)
+
+    var body: some View {
+        Circle()
+            .fill(Self.deep)
+            .overlay {
+                // Cloud, soft-edged, filling the lower half.
+                Ellipse()
+                    .fill(Color(red: 0.92, green: 0.93, blue: 0.99))
+                    .frame(width: diameter * 1.25, height: diameter * 0.7)
+                    .offset(y: diameter * 0.36)
+                    .blur(radius: diameter * 0.07)
+            }
+            .overlay {
+                // A brighter wisp along the cloud's top.
+                Ellipse()
+                    .fill(.white.opacity(0.55))
+                    .frame(width: diameter * 0.7, height: diameter * 0.3)
+                    .offset(x: -diameter * 0.08, y: diameter * 0.08)
+                    .blur(radius: diameter * 0.06)
+            }
+            .clipShape(Circle())
+            .frame(width: diameter, height: diameter)
+            .overlay {
+                if let number {
+                    Text("\(number)")
+                        .font(.system(size: diameter * 0.34, weight: .bold))
+                        .monospacedDigit()
+                        .foregroundStyle(.white)
+                        .shadow(color: Self.deep.opacity(0.8), radius: 4)
+                        .contentTransition(.numericText(value: Double(number)))
+                        .transition(.opacity.combined(with: .scale(scale: 0.8)))
+                }
+            }
+            .animation(.snappy(duration: 0.25), value: number)
     }
 }
 
