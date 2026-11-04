@@ -17,14 +17,18 @@ struct AllahuAbhaView: View {
     @State private var count = 0
     @State private var showsSettings = false
 
-    static let goal = 95
+    /// How many to count to, chosen in the three-finger settings. Ninety-five unless changed.
+    @AppStorage("allahuAbhaGoal") private var goal = 95
+
+    /// The counts to choose from.
+    static let goals = [5, 9, 18, 19, 95, 500, 12_000]
 
     var body: some View {
         Group {
             if classicView {
-                ClassicCounter(count: $count)
+                ClassicCounter(count: $count, goal: goal)
             } else {
-                BeadCounter(count: $count, color: beadColor)
+                BeadCounter(count: $count, goal: goal, color: beadColor)
             }
         }
         .contentShape(Rectangle())
@@ -43,9 +47,11 @@ struct AllahuAbhaView: View {
                 }
             }
         }
+        // A new goal starts the count again.
+        .onChange(of: goal) { count = 0 }
         .sheet(isPresented: $showsSettings) {
-            CounterSettings(classicView: $classicView, beadColor: $beadColor)
-                .presentationDetents([.height(classicView ? 170 : 290)])
+            CounterSettings(classicView: $classicView, beadColor: $beadColor, goal: $goal)
+                .presentationDetents([.height(classicView ? 240 : 360)])
         }
     }
 }
@@ -82,6 +88,7 @@ private struct AllahuAbhaInstruction: View {
 private struct CounterSettings: View {
     @Binding var classicView: Bool
     @Binding var beadColor: BeadColor
+    @Binding var goal: Int
     @Environment(\.dismiss) private var dismiss
 
     var body: some View {
@@ -103,6 +110,25 @@ private struct CounterSettings: View {
                 Label("Classic View", systemImage: "circle.fill")
             }
             .padding(.horizontal, 20)
+            .frame(height: 52)
+            .menuSurface(.capsule, interactive: false)
+
+            // How many to count to, picked from Apple's pop-up menu.
+            HStack {
+                Label("Count To", systemImage: "number")
+                Spacer()
+                Picker(selection: $goal) {
+                    ForEach(AllahuAbhaView.goals, id: \.self) { option in
+                        Text(option, format: .number).tag(option)
+                    }
+                } label: {
+                    Text("Count To")
+                }
+                .pickerStyle(.menu)
+                .tint(.primary)
+            }
+            .padding(.leading, 20)
+            .padding(.trailing, 8)
             .frame(height: 52)
             .menuSurface(.capsule, interactive: false)
 
@@ -147,6 +173,7 @@ private struct CounterSettings: View {
         .animation(.smooth(duration: 0.25), value: classicView)
         .sensoryFeedback(.selection, trigger: classicView)
         .sensoryFeedback(.selection, trigger: beadColor)
+        .sensoryFeedback(.selection, trigger: goal)
     }
 }
 
@@ -185,6 +212,7 @@ private struct ThreeFingerTap: UIGestureRecognizerRepresentable {
 private struct ClassicCounter: View {
     @Environment(ReaderSettings.self) private var settings
     @Binding var count: Int
+    let goal: Int
     @State private var haptics = CompletionHaptics()
 
     var body: some View {
@@ -199,33 +227,37 @@ private struct ClassicCounter: View {
                         .fill(Color(uiColor: Typography.textColor))
                         .frame(width: diameter, height: diameter)
                         .overlay {
-                            Text("\(count)")
+                            Text(count, format: .number)
                                 .font(settings.font.font(size: diameter * 0.36))
                                 .monospacedDigit()
+                                // Big numbers shrink to fit on one line inside the circle.
+                                .lineLimit(1)
+                                .minimumScaleFactor(0.2)
+                                .padding(.horizontal, diameter * 0.12)
                                 .foregroundStyle(Color(uiColor: Typography.pageColor))
                                 .contentTransition(.numericText(value: Double(count)))
                         }
                 }
                 .buttonStyle(PressableCircleStyle())
                 .accessibilityLabel("Alláh-u-Abhá counter")
-                .accessibilityValue("\(count) of \(AllahuAbhaView.goal)")
-                .accessibilityHint(count < AllahuAbhaView.goal ? Text("Double-tap to count one more") : Text(verbatim: ""))
+                .accessibilityValue("\(count) of \(goal)")
+                .accessibilityHint(count < goal ? Text("Double-tap to count one more") : Text(verbatim: ""))
             }
             .padding(.horizontal, 24)
             .padding(.vertical, 16)
             .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
         .sensoryFeedback(trigger: count) { old, new in
-            new > old && new < AllahuAbhaView.goal ? .impact(weight: .medium, intensity: 0.8) : nil
+            new > old && new < goal ? .impact(weight: .medium, intensity: 0.8) : nil
         }
         .onAppear { haptics.prepare() }
     }
 
     private func tap() {
         // Past ninety-five a tap does nothing, so no haptic plays either.
-        guard count < AllahuAbhaView.goal else { return }
+        guard count < goal else { return }
         withAnimation(.snappy(duration: 0.2)) { count += 1 }
-        if count == AllahuAbhaView.goal { haptics.play() }
+        if count == goal { haptics.play() }
     }
 }
 
@@ -237,6 +269,7 @@ private struct ClassicCounter: View {
 /// thunk, and the count shows on it. Let go and touch again for the next.
 private struct BeadCounter: View {
     @Binding var count: Int
+    let goal: Int
     let color: BeadColor
     @State private var haptics = BeadHaptics()
 
@@ -264,7 +297,7 @@ private struct BeadCounter: View {
     /// How far the finger moves before the direction is settled.
     private static let commitDistance: CGFloat = 110
 
-    private var isFinished: Bool { count >= AllahuAbhaView.goal }
+    private var isFinished: Bool { count >= goal }
 
     var body: some View {
         GeometryReader { proxy in
@@ -294,12 +327,12 @@ private struct BeadCounter: View {
         }
         .accessibilityElement()
         .accessibilityLabel("Alláh-u-Abhá counter")
-        .accessibilityValue("\(count) of \(AllahuAbhaView.goal)")
+        .accessibilityValue("\(count) of \(goal)")
         .accessibilityAddTraits(.allowsDirectInteraction)
         .accessibilityAction(named: Text("Count one more")) {
             guard !isFinished else { return }
             count += 1
-            count == AllahuAbhaView.goal ? haptics.bigThunk() : haptics.thunk()
+            count == goal ? haptics.bigThunk() : haptics.thunk()
         }
     }
 
@@ -432,7 +465,7 @@ private struct BeadCounter: View {
         countedThisPull = true
         haptics.stopPulling()
         withAnimation(.snappy(duration: 0.2)) { count += 1 }
-        if count == AllahuAbhaView.goal {
+        if count == goal {
             haptics.bigThunk()
         } else {
             haptics.thunk()
@@ -536,9 +569,13 @@ private struct Bead: View {
             .frame(width: diameter, height: diameter)
             .overlay {
                 if let number {
-                    Text("\(number)")
+                    Text(number, format: .number)
                         .font(.system(size: diameter * 0.34, weight: .bold))
                         .monospacedDigit()
+                        // Big numbers shrink to fit on one line inside the bead.
+                        .lineLimit(1)
+                        .minimumScaleFactor(0.2)
+                        .padding(.horizontal, diameter * 0.12)
                         .foregroundStyle(color.number)
                         .shadow(color: color.shadow.opacity(0.8), radius: 4)
                         .contentTransition(.numericText(value: Double(number)))
