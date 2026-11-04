@@ -211,17 +211,24 @@ private struct BeadCounter: View {
     @State private var countedThisPull = false
     /// After a count, the bead stays where it landed, showing the count, until the next touch.
     @State private var restingBead: CGPoint?
+    /// The pull's direction is settled. Until then the string and the next bead follow the
+    /// finger round as they fade in.
+    @State private var committed = false
+    /// How far the string and the next bead have faded in, from 0 to 1.
+    @State private var reveal: CGFloat = 0
     /// A fresh identity for each pull, so the old beads fade out as new ones appear.
     @State private var pullID = UUID()
 
     /// How far the bead travels along the string before it touches the other.
     private static let travel: CGFloat = 260
+    /// How far the finger moves before the direction is settled.
+    private static let commitDistance: CGFloat = 60
 
     private var isFinished: Bool { count >= AllahuAbhaView.goal }
 
     var body: some View {
         GeometryReader { proxy in
-            let diameter = min(proxy.size.width * 0.38, 170)
+            let diameter = min(proxy.size.width * 0.27, 120)
             ZStack(alignment: .topLeading) {
                 AllahuAbhaInstruction(hint: "Slowly drag your finger anywhere on the screen as you say “Alláh-u-Abhá”. When your bead reaches the next one, let go and begin again. Tap with three fingers for settings.")
                     .padding(.horizontal, 24)
@@ -281,9 +288,12 @@ private struct BeadCounter: View {
                         LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
                         style: StrokeStyle(lineWidth: 6, lineCap: .round)
                     )
+                    .opacity(reveal)
+                    .transition(.opacity)
                     Bead(diameter: diameter)
                         .position(target)
-                        .transition(.scale(scale: 0.6).combined(with: .opacity))
+                        .opacity(reveal)
+                        .transition(.opacity)
                 }
                 Bead(diameter: diameter, number: countedThisPull || start == nil ? count : nil)
                     .position(bead)
@@ -302,6 +312,8 @@ private struct BeadCounter: View {
                     restingBead = nil
                     progress = 0
                     target = nil
+                    committed = false
+                    reveal = 0
                     withAnimation(.spring(duration: 0.3, bounce: 0.25)) { start = value.startLocation }
                     haptics.startPulling()
                 }
@@ -309,15 +321,19 @@ private struct BeadCounter: View {
                 let t = value.translation
                 let distance = hypot(t.width, t.height)
 
-                if target == nil {
+                if !committed {
                     guard distance > 8 else { return }
-                    // The pull's direction is known: the other bead appears ahead, on the screen.
+                    // The next bead fades in ahead of the finger, along with the string, and
+                    // swings round to follow it until the finger has moved far enough to settle
+                    // the direction.
                     let length = diameter + Self.travel
                     let radius = diameter / 2 + 8
                     var point = CGPoint(x: start.x + t.width / distance * length, y: start.y + t.height / distance * length)
                     point.x = min(max(point.x, radius), bounds.width - radius)
                     point.y = min(max(point.y, radius), bounds.height - radius)
-                    withAnimation(.spring(duration: 0.3, bounce: 0.2)) { target = point }
+                    target = point
+                    reveal = min(max((distance - 8) / (Self.commitDistance - 8), 0), 1)
+                    if distance >= Self.commitDistance { committed = true }
                 }
                 guard let target else { return }
                 let dx = target.x - start.x, dy = target.y - start.y
