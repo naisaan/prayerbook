@@ -49,9 +49,11 @@ struct AllahuAbhaView: View {
     }
 }
 
-/// The quotation at the top of the counter.
+/// The quotation at the top of the counter, with how to use it beneath.
 private struct AllahuAbhaInstruction: View {
     @Environment(ReaderSettings.self) private var settings
+    /// How to count, in small gray text under the quotation.
+    var hint: LocalizedStringKey?
 
     private static let instruction = "“It hath been ordained that every believer in God, the Lord of Judgment, shall, each day, having washed his hands and then his face, seat himself and, turning unto God, repeat ‘Alláh-u-Abhá’ ninety-five times.”"
 
@@ -64,6 +66,13 @@ private struct AllahuAbhaInstruction: View {
                 .font(settings.font.font(size: size * 0.9))
                 .foregroundStyle(.secondary)
                 .frame(maxWidth: .infinity, alignment: .trailing)
+            if let hint {
+                Text(hint)
+                    .font(.footnote)
+                    .foregroundStyle(.secondary)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.top, 14)
+            }
         }
         .foregroundStyle(Color(uiColor: Typography.textColor))
         .multilineTextAlignment(.leading)
@@ -145,7 +154,7 @@ private struct ClassicCounter: View {
             let diameter = min(proxy.size.width * 0.7, proxy.size.height * 0.45)
             // The circle sits in the middle of the screen, with the instruction above it.
             ZStack {
-                AllahuAbhaInstruction()
+                AllahuAbhaInstruction(hint: "Tap the circle each time you say “Alláh-u-Abhá”. Tap with three fingers for settings.")
                     .frame(maxHeight: .infinity, alignment: .top)
                 Button(action: tap) {
                     Circle()
@@ -206,7 +215,7 @@ private struct BeadCounter: View {
     @State private var pullID = UUID()
 
     /// How far the bead travels along the string before it touches the other.
-    private static let travel: CGFloat = 130
+    private static let travel: CGFloat = 260
 
     private var isFinished: Bool { count >= AllahuAbhaView.goal }
 
@@ -214,7 +223,7 @@ private struct BeadCounter: View {
         GeometryReader { proxy in
             let diameter = min(proxy.size.width * 0.38, 170)
             ZStack(alignment: .topLeading) {
-                AllahuAbhaInstruction()
+                AllahuAbhaInstruction(hint: "Slowly drag your finger anywhere on the screen as you say “Alláh-u-Abhá”. When your bead reaches the next one, let go and begin again. Tap with three fingers for settings.")
                     .padding(.horizontal, 24)
                     .padding(.top, 16)
                     .frame(width: proxy.size.width)
@@ -270,7 +279,7 @@ private struct BeadCounter: View {
                     }
                     .stroke(
                         LinearGradient(colors: [Bead.light, Bead.deep], startPoint: .top, endPoint: .bottom),
-                        lineWidth: 2
+                        style: StrokeStyle(lineWidth: 6, lineCap: .round)
                     )
                     Bead(diameter: diameter)
                         .position(target)

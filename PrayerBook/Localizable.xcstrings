@@ -5358,6 +5358,64 @@
         }
       }
     },
+    "Slowly drag your finger anywhere on the screen as you say “Alláh-u-Abhá”. When your bead reaches the next one, let go and begin again. Tap with three fingers for settings.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ziehe deinen Finger langsam irgendwo über den Bildschirm, während du „Alláh-u-Abhá“ sagst. Wenn deine Perle die nächste erreicht, lass los und beginne von Neuem. Tippe mit drei Fingern für die Einstellungen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Desliza el dedo despacio por cualquier parte de la pantalla mientras dices «Alláh-u-Abhá». Cuando tu cuenta llegue a la siguiente, suelta y vuelve a empezar. Toca con tres dedos para ver los ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Faites glisser lentement votre doigt n’importe où sur l’écran en disant « Alláh-u-Abhá ». Quand votre perle atteint la suivante, relâchez et recommencez. Touchez avec trois doigts pour les réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Trascina lentamente il dito in qualsiasi punto dello schermo mentre dici «Alláh-u-Abhá». Quando il tuo grano raggiunge il successivo, lascia andare e ricomincia. Tocca con tre dita per le impostazioni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Sleep je vinger langzaam ergens over het scherm terwijl je ‘Alláh-u-Abhá’ zegt. Als je kraal de volgende raakt, laat los en begin opnieuw. Tik met drie vingers voor de instellingen."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Dragðu fingurinn hægt hvar sem er á skjánum á meðan þú segir „Alláh-u-Abhá“. Þegar perlan þín nær þeirri næstu skaltu sleppa og byrja aftur. Pikkaðu með þremur fingrum til að sjá stillingar."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomalu táhněte prstem kdekoli po obrazovce a říkejte „Alláh-u-Abhá“. Když vaše korálek dosáhne dalšího, pusťte a začněte znovu. Klepnutím třemi prsty zobrazíte nastavení."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pomaly ťahajte prstom kdekoľvek po obrazovke a hovorte „Alláh-u-Abhá“. Keď váš korálik dosiahne ďalší, pustite a začnite znova. Ťuknutím troma prstami zobrazíte nastavenia."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "در حالی که «الله‌ابهی» می‌گویید، انگشت خود را آرام روی هر جای صفحه بکشید. وقتی دانهٔ شما به دانهٔ بعدی رسید، رها کنید و دوباره شروع کنید. برای تنظیمات با سه انگشت ضربه بزنید."
+          }
+        }
+      }
+    },
     "Smaller text": {
       "localizations": {
         "de": {
@@ -5644,6 +5702,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "تنظیمات فوق‌سری"
+          }
+        }
+      }
+    },
+    "Tap the circle each time you say “Alláh-u-Abhá”. Tap with three fingers for settings.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tippe jedes Mal auf den Kreis, wenn du „Alláh-u-Abhá“ sagst. Tippe mit drei Fingern für die Einstellungen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Toca el círculo cada vez que digas «Alláh-u-Abhá». Toca con tres dedos para ver los ajustes."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Touchez le cercle chaque fois que vous dites « Alláh-u-Abhá ». Touchez avec trois doigts pour les réglages."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tocca il cerchio ogni volta che dici «Alláh-u-Abhá». Tocca con tre dita per le impostazioni."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tik op de cirkel telkens als je ‘Alláh-u-Abhá’ zegt. Tik met drie vingers voor de instellingen."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Pikkaðu á hringinn í hvert sinn sem þú segir „Alláh-u-Abhá“. Pikkaðu með þremur fingrum til að sjá stillingar."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Klepněte na kruh pokaždé, když řeknete „Alláh-u-Abhá“. Klepnutím třemi prsty zobrazíte nastavení."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ťuknite na kruh zakaždým, keď poviete „Alláh-u-Abhá“. Ťuknutím troma prstami zobrazíte nastavenia."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هر بار که «الله‌ابهی» می‌گویید روی دایره ضربه بزنید. برای تنظیمات با سه انگشت ضربه بزنید."
           }
         }
       }
