@@ -222,7 +222,7 @@ private struct BeadCounter: View {
     /// How far the bead travels along the string before it touches the other.
     private static let travel: CGFloat = 260
     /// How far the finger moves before the direction is settled.
-    private static let commitDistance: CGFloat = 60
+    private static let commitDistance: CGFloat = 110
 
     private var isFinished: Bool { count >= AllahuAbhaView.goal }
 
@@ -263,6 +263,13 @@ private struct BeadCounter: View {
         }
     }
 
+    /// The next bead only fades in toward the end of the pull, from a third of the way to
+    /// four fifths, as if it were coming into view.
+    private var targetOpacity: CGFloat {
+        let t = min(max((progress - 0.33) / (0.8 - 0.33), 0), 1)
+        return reveal * t * t * (3 - 2 * t)
+    }
+
     /// Where the bead in hand is now.
     private func beadInHand(diameter: CGFloat) -> CGPoint? {
         guard let start else { return restingBead }
@@ -292,7 +299,7 @@ private struct BeadCounter: View {
                     .transition(.opacity)
                     Bead(diameter: diameter)
                         .position(target)
-                        .opacity(reveal)
+                        .opacity(targetOpacity)
                         .transition(.opacity)
                 }
                 Bead(diameter: diameter, number: countedThisPull || start == nil ? count : nil)
