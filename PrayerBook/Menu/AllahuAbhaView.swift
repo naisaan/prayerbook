@@ -618,24 +618,31 @@ private final class BeadHaptics {
         ], fallback: .heavy)
     }
 
-    /// The ninety-fifth bead: a big thunk that slowly fades away.
+    /// The ninety-fifth bead: unmistakably the end. Three heavy knocks in quick succession,
+    /// then a deep, full-strength rumble that holds for a moment and slowly fades away.
     func bigThunk() {
-        let events = [
-            CHHapticEvent(eventType: .hapticTransient, parameters: [
+        var events: [CHHapticEvent] = []
+        for (time, sharpness) in [(0.0, 0.35), (0.14, 0.2), (0.3, 0.1)] as [(TimeInterval, Float)] {
+            events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [
                 .init(parameterID: .hapticIntensity, value: 1),
-                .init(parameterID: .hapticSharpness, value: 0.1),
-            ], relativeTime: 0),
-            CHHapticEvent(eventType: .hapticContinuous, parameters: [
-                .init(parameterID: .hapticIntensity, value: 1),
-                .init(parameterID: .hapticSharpness, value: 0.05),
-            ], relativeTime: 0, duration: 1.6),
-        ]
+                .init(parameterID: .hapticSharpness, value: sharpness),
+            ], relativeTime: time))
+        }
+        events.append(CHHapticEvent(eventType: .hapticContinuous, parameters: [
+            .init(parameterID: .hapticIntensity, value: 1),
+            .init(parameterID: .hapticSharpness, value: 0.08),
+        ], relativeTime: 0, duration: 2.6))
         let fade = CHHapticParameterCurve(parameterID: .hapticIntensityControl, controlPoints: [
             .init(relativeTime: 0, value: 1),
-            .init(relativeTime: 0.25, value: 0.6),
-            .init(relativeTime: 1.6, value: 0),
+            .init(relativeTime: 0.9, value: 1),
+            .init(relativeTime: 1.6, value: 0.5),
+            .init(relativeTime: 2.6, value: 0),
         ], relativeTime: 0)
         play(events, curves: [fade], fallback: .heavy)
+        if engine == nil {
+            // Without Core Haptics, at least a strong success buzz.
+            UINotificationFeedbackGenerator().notificationOccurred(.success)
+        }
     }
 
     private func play(_ events: [CHHapticEvent], curves: [CHHapticParameterCurve] = [], fallback: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
