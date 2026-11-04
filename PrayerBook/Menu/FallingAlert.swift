@@ -83,7 +83,7 @@ private struct FallingAlert: View {
                     .scaleEffect(scale)
                     .opacity(stage == .appearing || stage == .confirming ? 0 : 1)
                     // Tumbles counterclockwise as it drops, nearly straight down, like the video.
-                    .rotationEffect(.degrees(stage == .falling ? -120 : 0), anchor: .center)
+                    .rotationEffect(.degrees(stage == .falling ? -270 : 0), anchor: .center)
                     .offset(x: stage == .falling ? -20 : 0, y: stage == .falling ? proxy.size.height + 300 : 0)
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
