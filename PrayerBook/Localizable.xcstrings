@@ -3093,64 +3093,6 @@
         }
       }
     },
-    "I dedicate this app to my parents Bahman and Jalal, to my Friends, and to The Triangle and Torpignattara Bahá’í Communities.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ich widme diese App meinen Eltern Bahman und Jalal, meinen Freunden und den Bahá’í-Gemeinden Triangle und Torpignattara."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dedico esta app a mis padres, Bahman y Jalal, a mis amigos y a las comunidades bahá’ís de Triangle y Torpignattara."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Je dédie cette app à mes parents, Bahman et Jalal, à mes amis et aux communautés bahá’íes de Triangle et de Torpignattara."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Dedico questa app ai miei genitori, Bahman e Jalal, ai miei amici e alle comunità bahá’í di Triangle e Torpignattara."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ik draag deze app op aan mijn ouders Bahman en Jalal, aan mijn vrienden en aan de bahá’í-gemeenschappen van Triangle en Torpignattara."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Ég tileinka foreldrum mínum, Bahman og Jalal, vinum mínum og bahá’í-samfélögunum í Triangle og Torpignattara þetta forrit."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Tuto aplikaci věnuji svým rodičům Bahmanovi a Jalalovi, svým přátelům a bahá’í společenstvím Triangle a Torpignattara."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Túto aplikáciu venujem svojim rodičom Bahmanovi a Jalalovi, svojim priateľom a bahá’í spoločenstvám Triangle a Torpignattara."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "این برنامه را به پدر و مادرم، بهمن و جلال، به دوستانم و به جامعه‌های بهائی ترایانگل و تورپینیاتارا تقدیم می‌کنم."
-          }
-        }
-      }
-    },
     "In this book": {
       "localizations": {
         "de": {
@@ -6402,6 +6344,64 @@
         }
       }
     },
+    "To my parents Bahman and Jalal, my Friends, and Triangle and Torpignattara Bahá’í Communities. Thanks for always being there for me.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Für meine Eltern Bahman und Jalal, meine Freunde und die Bahá’í-Gemeinden Triangle und Torpignattara. Danke, dass ihr immer für mich da seid."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Para mis padres, Bahman y Jalal, mis amigos y las comunidades bahá’ís de Triangle y Torpignattara. Gracias por estar siempre a mi lado."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "À mes parents, Bahman et Jalal, à mes amis et aux communautés bahá’íes de Triangle et de Torpignattara. Merci d’avoir toujours été là pour moi."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Ai miei genitori, Bahman e Jalal, ai miei amici e alle comunità bahá’í di Triangle e Torpignattara. Grazie per esserci sempre stati per me."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Voor mijn ouders Bahman en Jalal, mijn vrienden en de bahá’í-gemeenschappen van Triangle en Torpignattara. Bedankt dat jullie er altijd voor me zijn."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Til foreldra minna, Bahman og Jalal, vina minna og bahá’í-samfélaganna í Triangle og Torpignattara. Takk fyrir að vera alltaf til staðar fyrir mig."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mým rodičům Bahmanovi a Jalalovi, mým přátelům a bahá’í společenstvím Triangle a Torpignattara. Děkuji, že jste tu pro mě vždycky byli."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Mojim rodičom Bahmanovi a Jalalovi, mojim priateľom a bahá’í spoločenstvám Triangle a Torpignattara. Ďakujem, že ste tu pre mňa vždy boli."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تقدیم به پدر و مادرم، بهمن و جلال، به دوستانم و به جامعه‌های بهائی ترایانگل و تورپینیاتارا. سپاسگزارم که همیشه در کنارم بوده‌اید."
+          }
+        }
+      }
+    },
     "Underline": {
       "localizations": {
         "de": {
@@ -6804,6 +6804,64 @@
           "stringUnit": {
             "state": "translated",
             "value": "نشانک‌ها و دعاهای اخیر شما حفظ می‌شوند."
+          }
+        }
+      }
+    },
+    "bahaiprayers.net (for Prayer Translations)": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (für Gebetsübersetzungen)"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (para traducciones de oraciones)"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (pour les traductions des prières)"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (per le traduzioni delle preghiere)"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (voor vertalingen van gebeden)"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (fyrir þýðingar á bænum)"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (pro překlady modliteb)"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (pre preklady modlitieb)"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (برای ترجمه‌های مناجات‌ها)"
           }
         }
       }

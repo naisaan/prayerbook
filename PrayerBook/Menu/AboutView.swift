@@ -33,12 +33,13 @@ struct AboutView: View {
                 }
 
                 Section("Dedications") {
-                    Text("I dedicate this app to my parents Bahman and Jalal, to my Friends, and to The Triangle and Torpignattara Bahá’í Communities.")
+                    Text("To my parents Bahman and Jalal, my Friends, and Triangle and Torpignattara Bahá’í Communities. Thanks for always being there for me.")
                 }
 
                 Section("Sources") {
                     Text("All Bahá’í sacred writings copyright Bahá’í International Community.")
                     Link("Bahá’í Reference Library", destination: URL(string: "https://www.bahai.org/library/authoritative-texts/prayers/")!)
+                    Link("bahaiprayers.net (for Prayer Translations)", destination: URL(string: "https://bahaiprayers.net")!)
                 }
 
                 Section("Privacy Policy") {
