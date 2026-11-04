@@ -9,6 +9,9 @@ import UIKit
 struct FiveStepsView: View {
     @Environment(ReaderSettings.self) private var settings
     @State private var cache = LayoutCache()
+    /// The text size while two fingers are pinching, before it's saved. Nil otherwise.
+    @State private var pinchSize: CGFloat?
+    @State private var pinchStartSize: CGFloat = 0
 
     static let title = "5 Steps for Prayer from Shoghi Effendi"
 
@@ -38,6 +41,10 @@ struct FiveStepsView: View {
     private var typography: Typography {
         var typography = settings.typography
         typography.dropCap = false
+        if let pinchSize {
+            // Half point steps, the same as the book's pinch.
+            typography.size = (pinchSize * 2).rounded() / 2
+        }
         return typography
     }
 
@@ -54,10 +61,27 @@ struct FiveStepsView: View {
                     .padding(.top, 24)
                     .padding(.bottom, 48)
             }
+            // Two fingers pinch the text bigger or smaller, like in the book; one finger scrolls.
+            .simultaneousGesture(pinch)
         }
         // Pure white in light mode, pure black in dark mode, edge to edge, like the book.
         .background(Color(uiColor: Typography.pageColor).ignoresSafeArea())
         .navigationBarTitleDisplayMode(.inline)
+    }
+}
+
+extension FiveStepsView {
+    private var pinch: some Gesture {
+        MagnifyGesture(minimumScaleDelta: 0.02)
+            .onChanged { value in
+                if pinchSize == nil { pinchStartSize = settings.textSize }
+                let range = ReaderSettings.textSizeRange
+                pinchSize = min(max(pinchStartSize * value.magnification, range.lowerBound), range.upperBound)
+            }
+            .onEnded { _ in
+                if let pinchSize { settings.setTextSize(pinchSize) }
+                pinchSize = nil
+            }
     }
 }
 
