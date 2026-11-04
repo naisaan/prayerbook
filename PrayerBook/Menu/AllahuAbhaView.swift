@@ -453,8 +453,29 @@ enum BeadColor: String, CaseIterable {
         case .green: Color(red: 0.20, green: 0.60, blue: 0.40)
         case .purple: Color(red: 0.50, green: 0.36, blue: 0.86)
         case .red: Color(red: 0.84, green: 0.26, blue: 0.31)
-        case .white: Color(red: 0.84, green: 0.86, blue: 0.90)
+        // Black on the white page in light mode, white on the black page in dark mode.
+        case .white: Self.adaptive(dark: UIColor(red: 0.84, green: 0.86, blue: 0.90, alpha: 1), light: UIColor(white: 0.1, alpha: 1))
         }
+    }
+
+    /// The soft cloud in the bead's lower half.
+    var cloud: Color {
+        switch self {
+        case .white: Self.adaptive(dark: UIColor(red: 0.97, green: 0.97, blue: 1, alpha: 1), light: UIColor(white: 0.5, alpha: 1))
+        default: Color(red: 0.92, green: 0.93, blue: 0.99)
+        }
+    }
+
+    /// The brighter wisp along the cloud's top.
+    var wisp: Color {
+        switch self {
+        case .white: Self.adaptive(dark: UIColor(white: 1, alpha: 0.55), light: UIColor(white: 0.75, alpha: 0.5))
+        default: .white.opacity(0.55)
+        }
+    }
+
+    private static func adaptive(dark: UIColor, light: UIColor) -> Color {
+        Color(uiColor: UIColor { $0.userInterfaceStyle == .dark ? dark : light })
     }
 
     /// The lighter end of the string.
@@ -464,13 +485,13 @@ enum BeadColor: String, CaseIterable {
         case .green: Color(red: 0.36, green: 0.76, blue: 0.54)
         case .purple: Color(red: 0.66, green: 0.52, blue: 0.96)
         case .red: Color(red: 0.95, green: 0.45, blue: 0.48)
-        case .white: Color(red: 0.93, green: 0.94, blue: 0.97)
+        case .white: Self.adaptive(dark: UIColor(red: 0.93, green: 0.94, blue: 0.97, alpha: 1), light: UIColor(white: 0.35, alpha: 1))
         }
     }
 
     /// Behind the count, so the white number stands out.
     var shadow: Color {
-        self == .white ? Color(red: 0.35, green: 0.38, blue: 0.46) : deep
+        self == .white ? Self.adaptive(dark: UIColor(red: 0.35, green: 0.38, blue: 0.46, alpha: 1), light: .black) : deep
     }
 
     var name: String {
@@ -479,7 +500,7 @@ enum BeadColor: String, CaseIterable {
         case .green: String(localized: "Green")
         case .purple: String(localized: "Purple")
         case .red: String(localized: "Red")
-        case .white: String(localized: "White")
+        case .white: UITraitCollection.current.userInterfaceStyle == .dark ? String(localized: "White") : String(localized: "Black")
         }
     }
 }
@@ -497,7 +518,7 @@ private struct Bead: View {
             .overlay {
                 // Cloud, soft-edged, filling the lower half.
                 Ellipse()
-                    .fill(Color(red: 0.92, green: 0.93, blue: 0.99))
+                    .fill(color.cloud)
                     .frame(width: diameter * 1.25, height: diameter * 0.7)
                     .offset(y: diameter * 0.36)
                     .blur(radius: diameter * 0.07)
@@ -505,7 +526,7 @@ private struct Bead: View {
             .overlay {
                 // A brighter wisp along the cloud's top.
                 Ellipse()
-                    .fill(.white.opacity(0.55))
+                    .fill(color.wisp)
                     .frame(width: diameter * 0.7, height: diameter * 0.3)
                     .offset(x: -diameter * 0.08, y: diameter * 0.08)
                     .blur(radius: diameter * 0.06)
