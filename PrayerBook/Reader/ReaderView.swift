@@ -322,7 +322,7 @@ struct ReaderView: View {
     private func sheetContent(_ sheet: ReaderSheet) -> some View {
         switch sheet {
         case .contents:
-            ContentsView(currentPrayerID: currentPrayer?.id, progress: progress, onOpen: openPrayer)
+            ContentsView(currentPrayerID: currentPrayer?.id, onOpen: openPrayer)
         case .highlights:
             HighlightsView(
                 onOpen: { highlight in
@@ -338,7 +338,7 @@ struct ReaderView: View {
                 onOpenPrayer: openPrayer
             )
         case .settings:
-            SettingsSheet()
+            SettingsSheet(progress: progress)
         case .languages:
             LanguagesView()
         }

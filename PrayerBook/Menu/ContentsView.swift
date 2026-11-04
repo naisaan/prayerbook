@@ -6,10 +6,8 @@ struct ContentsView: View {
     @Environment(\.dismiss) private var dismiss
 
     let currentPrayerID: Int?
-    let progress: Int
     let onOpen: (Int) -> Void
 
-    @State private var confirmingReset = false
     @State private var expandedBookmarks: Set<String> = []
     @State private var renamingList: BookmarkList?
     @State private var renameText = ""
@@ -19,17 +17,9 @@ struct ContentsView: View {
         NavigationStack {
             List {
                 Section {
-                    ProgressView(value: Double(progress), total: 100) {
-                        HStack {
-                            Text("\(progress)% read")
-                            Spacer()
-                            if progress > 0 {
-                                Button("Start Over") { confirmingReset = true }
-                                    .buttonStyle(.borderless)
-                            }
-                        }
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                    // Shoghi Effendi's five steps, on a page of their own.
+                    NavigationLink(value: ContentsDestination.fiveSteps) {
+                        Text(verbatim: FiveStepsView.title)
                     }
                 } footer: {
                     // Takes you to "Intone, O My servant", which opens the English book.
@@ -130,11 +120,6 @@ struct ContentsView: View {
                 }
             }
             .navigationTitle("Contents")
-            .confirmationDialog("Start reading progress over?", isPresented: $confirmingReset, titleVisibility: .visible) {
-                Button("Start Over", role: .destructive) { library.resetProgress() }
-            } message: {
-                Text("Your bookmarks and recent prayers are kept.")
-            }
             .navigationDestination(for: BookSection.self) { section in
                 SectionPrayersView(section: section, currentPrayerID: currentPrayerID, onOpen: onOpen)
             }
@@ -156,8 +141,11 @@ struct ContentsView: View {
             } message: {
                 Text("The prayers stay in the book; only this list is removed.")
             }
-            .navigationDestination(for: ContentsDestination.self) { _ in
-                AllahuAbhaView()
+            .navigationDestination(for: ContentsDestination.self) { destination in
+                switch destination {
+                case .allahuAbha: AllahuAbhaView()
+                case .fiveSteps: FiveStepsView()
+                }
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -210,6 +198,7 @@ struct ContentsView: View {
 
 private enum ContentsDestination: Hashable {
     case allahuAbha
+    case fiveSteps
 }
 
 /// A bookmark list that opens on tap to show its prayers.

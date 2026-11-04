@@ -3,11 +3,24 @@ import SwiftUI
 /// Themes & Settings: text size, light or dark, the font, the drop cap, the menu style, and
 /// the ways to General Settings (the prayer list and the menu button) and About.
 struct SettingsSheet: View {
+    /// How much of the book has been read, in percent, for Super Secret Settings.
+    let progress: Int
+
     @Environment(ReaderSettings.self) private var settings
+    @Environment(Library.self) private var library
     @Environment(\.dismiss) private var dismiss
     @State private var showsAbout = false
-    /// General Settings, shown in place of the main page.
-    @State private var showsGeneral = false
+    @State private var confirmingReset = false
+
+    /// The pages of the sheet. Each one after the first opens from a row on the one before.
+    private enum Page: Int {
+        case main, general, secret
+    }
+
+    /// The page showing; the others slide in and out in its place.
+    @State private var page = Page.main
+    /// Which way the pages slide, set when moving between them.
+    @State private var goingDeeper = true
     /// The sheet is exactly as tall as what's in it.
     @State private var contentHeight: CGFloat = 520
     /// How tall the main page is, so General Settings can be just as tall.
@@ -16,20 +29,29 @@ struct SettingsSheet: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             header
-            if showsGeneral {
-                generalSettings
-                    .transition(.push(from: .trailing))
-            } else {
+            switch page {
+            case .main:
                 mainSettings
                     .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { mainHeight = $0 }
-                    .transition(.push(from: .leading))
+                    .transition(pageTransition)
+            case .general:
+                generalSettings
+                    .transition(pageTransition)
+            case .secret:
+                secretSettings
+                    .transition(pageTransition)
             }
         }
         .foregroundStyle(.primary)
         .padding(24)
         .onGeometryChange(for: CGFloat.self) { $0.size.height } action: { contentHeight = $0 }
         .presentationDetents([.height(contentHeight)])
-        .animation(.smooth(duration: 0.3), value: showsGeneral)
+        .animation(.smooth(duration: 0.3), value: page)
+        .confirmationDialog("Start reading progress over?", isPresented: $confirmingReset, titleVisibility: .visible) {
+            Button("Start Over", role: .destructive) { library.resetProgress() }
+        } message: {
+            Text("Your bookmarks and recent prayers are kept.")
+        }
         .sheet(isPresented: $showsAbout) {
             AboutView()
         }
@@ -38,13 +60,39 @@ struct SettingsSheet: View {
         .sensoryFeedback(.selection, trigger: settings.textSize)
     }
 
-    /// Close, or back from General Settings, then the title.
+    /// Slides in from the side when going deeper, and back the other way.
+    private var pageTransition: AnyTransition {
+        .asymmetric(
+            insertion: .push(from: goingDeeper ? .trailing : .leading),
+            removal: .push(from: goingDeeper ? .trailing : .leading)
+        )
+    }
+
+    private func go(to newPage: Page) {
+        // The direction is set first, so the page leaving slides the right way too.
+        goingDeeper = newPage.rawValue > page.rawValue
+        Task { @MainActor in page = newPage }
+    }
+
+    private var title: LocalizedStringKey {
+        switch page {
+        case .main: "Themes & Settings"
+        case .general: "General Settings"
+        case .secret: "Super Secret Settings"
+        }
+    }
+
+    /// Close, or back a page, then the title.
     private var header: some View {
         HStack(spacing: 14) {
             Button {
-                if showsGeneral { showsGeneral = false } else { dismiss() }
+                switch page {
+                case .main: dismiss()
+                case .general: go(to: .main)
+                case .secret: go(to: .general)
+                }
             } label: {
-                Image(systemName: showsGeneral ? "chevron.left" : "xmark")
+                Image(systemName: page == .main ? "xmark" : "chevron.left")
                     .font(.system(size: 17, weight: .semibold))
                     .frame(width: 44, height: 44)
                     .contentShape(.circle)
@@ -52,9 +100,9 @@ struct SettingsSheet: View {
             }
             .buttonStyle(PressableButtonStyle())
             .menuSurface(.circle)
-            .accessibilityLabel(showsGeneral ? "Back" : "Close")
+            .accessibilityLabel(page == .main ? "Close" : "Back")
 
-            Text(showsGeneral ? "General Settings" : "Themes & Settings")
+            Text(title)
                 .font(.title3.weight(.semibold))
                 .contentTransition(.opacity)
         }
@@ -83,7 +131,7 @@ struct SettingsSheet: View {
             .frame(height: 52)
             .menuSurface(.capsule, interactive: false)
             toggleRow("Liquid Glass", systemImage: "drop", isOn: $settings.liquidGlassMenus)
-            linkRow("General", systemImage: "gearshape") { showsGeneral = true }
+            linkRow("General", systemImage: "gearshape") { go(to: .general) }
             linkRow("About", systemImage: "info.circle") { showsAbout = true }
         }
     }
@@ -97,6 +145,31 @@ struct SettingsSheet: View {
                 toggleRow("Prayer List", systemImage: "checklist", isOn: $settings.showsPrayerList)
                 toggleRow("Always Show Menu", systemImage: "line.3.horizontal.circle", isOn: $settings.alwaysShowsMenu)
                 toggleRow("Natural Alignment", systemImage: "text.alignleft", isOn: $settings.naturalAlignment)
+                linkRow("Super Secret Settings", systemImage: "lock") { go(to: .secret) }
+            }
+        }
+        .scrollBounceBehavior(.basedOnSize)
+        .scrollClipDisabled()
+        .frame(height: mainHeight, alignment: .top)
+    }
+
+    /// Reading progress, moved here from Contents, with a way to start over.
+    private var secretSettings: some View {
+        ScrollView {
+            VStack(alignment: .leading, spacing: 20) {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text("\(progress)% read")
+                        Spacer()
+                        if progress > 0 {
+                            Button("Start Over") { confirmingReset = true }
+                                .buttonStyle(.borderless)
+                        }
+                    }
+                    ProgressView(value: Double(progress), total: 100)
+                }
+                .padding(20)
+                .menuSurface(.rect(cornerRadius: 26), interactive: false)
             }
         }
         .scrollBounceBehavior(.basedOnSize)
