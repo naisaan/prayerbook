@@ -25,17 +25,6 @@ enum TutorialStep: Int, CaseIterable {
         }
     }
 
-    var systemImage: String {
-        switch self {
-        case .welcome: "book.closed"
-        case .menu: "list.bullet"
-        case .bookmarks: "bookmark"
-        case .highlights: "highlighter"
-        case .prayerList: "checklist"
-        case .done: "heart"
-        }
-    }
-
     /// The steps about the menu sit at the top, out of the way of the open menu.
     var sitsAtTop: Bool { self == .menu || self == .bookmarks }
 
@@ -50,12 +39,6 @@ struct TutorialCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 10) {
-            Image(systemName: step.systemImage)
-                .font(.title2)
-                .foregroundStyle(.tint)
-                .symbolRenderingMode(.hierarchical)
-                .accessibilityHidden(true)
-
             if let title = step.title {
                 Text(title)
                     .font(.headline)
@@ -66,7 +49,7 @@ struct TutorialCard: View {
 
             HStack(spacing: 10) {
                 Text("\(step.rawValue + 1) of \(TutorialStep.allCases.count)")
-                    .font(.footnote)
+                    .font(.subheadline)
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
