@@ -137,7 +137,6 @@ struct ReaderView: View {
                         .id(tutorialStep)
                         .transition(.blurReplace)
                 }
-                }
 
                 if showsSplash {
                     // Flattened into one layer first, so the background and the star fade together.
