@@ -460,7 +460,9 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
         guard let prayer = book.pages[index].prayerPage?.prayer else { return }
         dismissPalette(animated: false)
         let subject = NoteEditorView.Subject.prayer(title: prayer.title, note: Highlights.shared.prayerNote(for: prayer.id))
-        let editor = UIHostingController(rootView: NoteEditorView(subject: subject, font: book.typography.font) { text, color in
+        // A note already written opens to read, without the keyboard; a new one opens ready to type.
+        let hasNote = Highlights.shared.prayerNote(for: prayer.id) != nil
+        let editor = UIHostingController(rootView: NoteEditorView(subject: subject, font: book.typography.font, startsTyping: !hasNote) { text, color in
             Highlights.shared.setPrayerNote(text, color: color, for: prayer.id)
         })
         present(editor, animated: true)
@@ -610,7 +612,8 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     private func openNote(for id: UUID) {
         guard let highlight = Highlights.shared.highlight(withID: id) else { return }
         dismissPalette(animated: false)
-        let editor = UIHostingController(rootView: NoteEditorView(subject: .highlight(highlight), font: book.typography.font) { text, _ in
+        // A note already written opens to read, without the keyboard; a new one opens ready to type.
+        let editor = UIHostingController(rootView: NoteEditorView(subject: .highlight(highlight), font: book.typography.font, startsTyping: !highlight.hasNote) { text, _ in
             Highlights.shared.setNote(text, for: id)
         })
         present(editor, animated: true)
