@@ -137,19 +137,43 @@ final class Highlights {
         all.first { $0.id == id }
     }
 
-    /// Highlights a passage in the last color picked. Where it covers part of an older
-    /// highlight, the new one takes that part over and the rest of the older one stays.
+    /// Highlights a passage. Selecting over an existing highlight adds to it: the two become one
+    /// highlight in that highlight's color, keeping its note, so it can't be highlighted twice.
+    /// Otherwise the passage is highlighted in the last color picked (joining any highlight in
+    /// that color it runs right up against), and where
+    /// it covers part of a highlight in another color, it takes that part over and the rest stays.
     /// `text` gives the prayer's text for a range, to save with the highlight.
     @discardableResult
     func add(prayerID: Int, range: NSRange, text: (NSRange) -> String) -> Highlight {
+        func touches(_ old: Highlight) -> Bool {
+            old.prayerID == prayerID
+                && old.location <= NSMaxRange(range)
+                && range.location <= NSMaxRange(old.range)
+        }
+        // The highlight being added to, if any: the earliest one the selection overlaps.
+        let base = all.filter { touches($0) && NSIntersectionRange($0.range, range).length > 0 }
+            .min { $0.location < $1.location }
+        let style = base?.style ?? .highlight(lastHighlightColor)
+
+        // Every highlight in that same style that the selection overlaps or touches joins it.
+        let joining = all.filter { touches($0) && $0.style == style }
+        var start = range.location
+        var end = NSMaxRange(range)
+        for old in joining {
+            start = min(start, old.location)
+            end = max(end, NSMaxRange(old.range))
+        }
+        let merged = NSRange(location: start, length: end - start)
+        let joiningIDs = Set(joining.map(\.id))
+
         var kept: [Highlight] = []
-        for old in all {
-            guard old.prayerID == prayerID, NSIntersectionRange(old.range, range).length > 0 else {
+        for old in all where !joiningIDs.contains(old.id) {
+            guard old.prayerID == prayerID, NSIntersectionRange(old.range, merged).length > 0 else {
                 kept.append(old)
                 continue
             }
-            let before = NSRange(location: old.location, length: max(range.location - old.location, 0))
-            let after = NSRange(location: NSMaxRange(range), length: max(NSMaxRange(old.range) - NSMaxRange(range), 0))
+            let before = NSRange(location: old.location, length: max(merged.location - old.location, 0))
+            let after = NSRange(location: NSMaxRange(merged), length: max(NSMaxRange(old.range) - NSMaxRange(merged), 0))
             // The older highlight's note stays with the first piece left of it.
             var note = old.note
             for part in [before, after] where part.length > 0 {
@@ -160,14 +184,19 @@ final class Highlights {
                 note = nil
             }
         }
+
+        // Added to an existing highlight, it keeps that one's identity, date and notes.
+        let first = joining.min { $0.created < $1.created }
+        let notes = joining.compactMap { $0.hasNote ? $0.note : nil }
         let highlight = Highlight(
-            id: UUID(),
+            id: first?.id ?? UUID(),
             prayerID: prayerID,
-            location: range.location,
-            length: range.length,
-            style: .highlight(lastHighlightColor),
-            text: text(range),
-            created: .now
+            location: merged.location,
+            length: merged.length,
+            style: style,
+            text: text(merged),
+            created: first?.created ?? .now,
+            note: notes.isEmpty ? nil : notes.joined(separator: "\n\n")
         )
         all = [highlight] + kept
         save()
