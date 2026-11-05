@@ -44,13 +44,16 @@ enum TutorialStep: Int, CaseIterable {
     /// picture, so the card stays small and out of the way.
     var hasPicture: Bool { placement == .center }
 
+    /// The first step moves on when the menu button is tapped, the prayer list's when the list
+    /// is opened, and then when it's thrown back, so those have no Next button.
+    var hasNextButton: Bool { ![.welcome, .prayerList, .prayerListOpen].contains(self) }
+
     /// Whether this step needs the menu open.
     var usesMenu: Bool { placement == .top }
 
-    /// The step after this one. Next on the prayer list's step skips the "throw it back" step,
-    /// which only comes after opening the list.
+    /// The step after this one.
     var next: TutorialStep? {
-        self == .prayerList ? .done : TutorialStep(rawValue: rawValue + 1)
+        TutorialStep(rawValue: rawValue + 1)
     }
 
     /// Which progress dot is lit. Opening the prayer list is part of its step.
@@ -95,8 +98,8 @@ struct TutorialCard: View {
 
                 HStack {
                     Spacer(minLength: 0)
-                    // On the first step the spotlit menu button itself is the way on.
-                    if step != .welcome {
+                    // On these steps the reader's own tap or throw is the way on.
+                    if step.hasNextButton {
                         Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.capsule)

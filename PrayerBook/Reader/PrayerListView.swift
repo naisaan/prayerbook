@@ -13,6 +13,8 @@ struct PrayerListNote: View {
     /// Hidden while the reader menu is open.
     let isHidden: Bool
     let safeAreaTop: CGFloat
+    /// Off during the tutorial's "throw it back" step, so the list can be thrown but not typed in.
+    var allowsTyping = true
 
     @State private var drag: CGSize = .zero
     @State private var tilt: Angle = .zero
@@ -171,7 +173,7 @@ struct PrayerListNote: View {
             .animation(.smooth(duration: 0.25), value: isTyping)
             .opacity(isOpen ? 1 : 0)
             // While it's a card, a tap opens it instead of starting to type.
-            .allowsHitTesting(isOpen)
+            .allowsHitTesting(isOpen && allowsTyping)
             .frame(width: side, height: side)
             // Blue like the highlighter, card and note alike, with dark text in light and dark mode.
             .background(Color(uiColor: HighlightColor.blue.swatch))

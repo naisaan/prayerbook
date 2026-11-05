@@ -28,6 +28,8 @@ struct ReaderView: View {
     /// prayer list wait hidden, and fade in with the tutorial on the first page after the cover.
     @AppStorage("hasSeenTutorial") private var hasSeenTutorial = false
     @State private var tutorialStep: TutorialStep?
+    /// The tutorial's last card tipping over and falling off the screen, like a canceled alert.
+    @State private var tutorialFalling = false
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -113,7 +115,12 @@ struct ReaderView: View {
                     Group {
                         controls
                         if settings.showsPrayerList {
-                            PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
+                            PrayerListNote(
+                                isOpen: $showsPrayerList,
+                                isHidden: menuOpen,
+                                safeAreaTop: metrics.safeArea.top,
+                                allowsTyping: tutorialStep != .prayerListOpen
+                            )
                                 .transition(.opacity)
                         }
                     }
@@ -133,6 +140,10 @@ struct ReaderView: View {
                         .padding(.top, tutorialStep.placement == .top ? 8 : 0)
                         // At the bottom, above the menu button.
                         .padding(.bottom, tutorialStep.placement == .bottom ? 72 : 0)
+                        // Done: it tumbles off the bottom, exactly like Cancel on the name alerts.
+                        .rotationEffect(.degrees(tutorialFalling ? -270 : 0))
+                        .offset(x: tutorialFalling ? -20 : 0, y: tutorialFalling ? metrics.size.height + 300 : 0)
+                        .allowsHitTesting(!tutorialFalling)
                         // Each step blurs into the next, the way the system swaps content.
                         .id(tutorialStep)
                         .transition(.blurReplace)
@@ -330,7 +341,14 @@ struct ReaderView: View {
     private func advanceTutorial() {
         guard let step = tutorialStep else { return }
         guard let next = step.next else {
-            finishTutorial()
+            withAnimation(.easeIn(duration: 0.55)) {
+                tutorialFalling = true
+            } completion: {
+                // Already off the screen, so it goes without another animation.
+                hasSeenTutorial = true
+                tutorialStep = nil
+                tutorialFalling = false
+            }
             return
         }
         // The menu's steps are done: close it to show the page again.
