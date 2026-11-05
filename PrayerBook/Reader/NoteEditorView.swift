@@ -15,15 +15,28 @@ struct NoteEditorView: View {
     let font: ReaderFont
     /// Called with the note's text, and for a prayer note its color.
     let onSave: (String, HighlightColor) -> Void
+    /// Off when opened from Highlights & Notes to read what was written: no keyboard until
+    /// the reader taps the note.
+    var startsTyping = true
+    /// Shows a button that closes this and turns to the note's place in the book.
+    var onGoToPrayer: (() -> Void)?
 
     @Environment(\.dismiss) private var dismiss
     @State private var text: String
     @State private var color: HighlightColor
     @FocusState private var isTyping: Bool
 
-    init(subject: Subject, font: ReaderFont, onSave: @escaping (String, HighlightColor) -> Void) {
+    init(
+        subject: Subject,
+        font: ReaderFont,
+        startsTyping: Bool = true,
+        onGoToPrayer: (() -> Void)? = nil,
+        onSave: @escaping (String, HighlightColor) -> Void
+    ) {
         self.subject = subject
         self.font = font
+        self.startsTyping = startsTyping
+        self.onGoToPrayer = onGoToPrayer
         self.onSave = onSave
         switch subject {
         case .highlight(let highlight):
@@ -44,6 +57,20 @@ struct NoteEditorView: View {
                 }
                 .font(.title3)
                 Spacer()
+                if let onGoToPrayer {
+                    Button {
+                        onSave(text, color)
+                        onGoToPrayer()
+                    } label: {
+                        Image(systemName: "book")
+                            .font(.system(size: 18, weight: .semibold))
+                            .frame(width: 32, height: 32)
+                    }
+                    .buttonStyle(.glass)
+                    .buttonBorderShape(.circle)
+                    .controlSize(.large)
+                    .accessibilityLabel("Go to Prayer")
+                }
                 Button {
                     onSave(text, color)
                     dismiss()
@@ -91,7 +118,7 @@ struct NoteEditorView: View {
         }
         .padding(.horizontal, 24)
         .padding(.top, 28)
-        .onAppear { isTyping = true }
+        .onAppear { if startsTyping { isTyping = true } }
         .sensoryFeedback(.selection, trigger: color)
     }
 

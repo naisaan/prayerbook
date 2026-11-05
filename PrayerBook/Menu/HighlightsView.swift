@@ -11,7 +11,10 @@ struct HighlightsView: View {
     @Environment(Library.self) private var library
     @Environment(\.dismiss) private var dismiss
     @Environment(\.colorScheme) private var colorScheme
+    @Environment(ReaderSettings.self) private var settings
     @State private var tab: Tab = .highlights
+    /// The note open to read, popped up over the list.
+    @State private var openNote: NoteItem?
 
     let onOpen: (Highlight) -> Void
     /// Opens a prayer at its first page, for a note on a whole prayer.
@@ -89,7 +92,7 @@ struct HighlightsView: View {
                     ForEach(items) { item in
                         switch item {
                         case .highlight(let highlight):
-                            Button { onOpen(highlight) } label: {
+                            Button { openNote = item } label: {
                                 HighlightRow(highlight: highlight, prayer: library.prayersByID[highlight.prayerID], showsNote: true)
                             }
                             .tint(.primary)
@@ -102,7 +105,7 @@ struct HighlightsView: View {
                                 }
                             }
                         case .prayer(let note):
-                            Button { onOpenPrayer(note.prayerID) } label: {
+                            Button { openNote = item } label: {
                                 PrayerNoteRow(note: note, prayer: library.prayersByID[note.prayerID])
                             }
                             .tint(.primary)
@@ -146,6 +149,41 @@ struct HighlightsView: View {
                 ToolbarItem(placement: .topBarTrailing) {
                     CloseButton { dismiss() }
                 }
+            }
+            .sheet(item: $openNote) { item in
+                noteSheet(item)
+            }
+        }
+    }
+
+    /// The note popped up to read, without the keyboard. Tapping the text edits it, the check
+    /// saves, and the book button turns to its place in the prayer.
+    @ViewBuilder
+    private func noteSheet(_ item: NoteItem) -> some View {
+        switch item {
+        case .highlight(let highlight):
+            NoteEditorView(
+                subject: .highlight(highlight),
+                font: settings.font,
+                startsTyping: false,
+                onGoToPrayer: {
+                    openNote = nil
+                    onOpen(highlight)
+                }
+            ) { text, _ in
+                Highlights.shared.setNote(text, for: highlight.id)
+            }
+        case .prayer(let note):
+            NoteEditorView(
+                subject: .prayer(title: library.prayersByID[note.prayerID]?.title ?? "", note: note),
+                font: settings.font,
+                startsTyping: false,
+                onGoToPrayer: {
+                    openNote = nil
+                    onOpenPrayer(note.prayerID)
+                }
+            ) { text, color in
+                Highlights.shared.setPrayerNote(text, color: color, for: note.prayerID)
             }
         }
     }
