@@ -1,4 +1,5 @@
 import SwiftUI
+import UIKit
 
 /// The steps of the tutorial shown the first time someone opens the book.
 enum TutorialStep: Int, CaseIterable {
@@ -38,14 +39,20 @@ struct TutorialCard: View {
     let onSkip: () -> Void
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
-            if let title = step.title {
-                Text(title)
-                    .font(.headline)
+        VStack(alignment: .leading, spacing: 16) {
+            screenshot
+
+            VStack(alignment: .leading, spacing: 8) {
+                if let title = step.title {
+                    Text(title)
+                        .font(.title2.bold())
+                }
+                Text(step.message)
+                    .font(.body)
+                    .foregroundStyle(step.title == nil ? .primary : .secondary)
+                    .fixedSize(horizontal: false, vertical: true)
             }
-            Text(step.message)
-                .font(.body)
-                .fixedSize(horizontal: false, vertical: true)
+            .padding(.horizontal, 4)
 
             HStack(spacing: 10) {
                 Text("\(step.rawValue + 1) of \(TutorialStep.allCases.count)")
@@ -53,10 +60,6 @@ struct TutorialCard: View {
                     .monospacedDigit()
                     .foregroundStyle(.secondary)
                 Spacer(minLength: 0)
-                if step != .done {
-                    Button("Skip", action: onSkip)
-                        .buttonStyle(.bordered)
-                }
                 if step == .welcome {
                     // The menu button itself is the way on: tapping it opens the next step.
                     Image(systemName: "arrow.down.right")
@@ -67,14 +70,52 @@ struct TutorialCard: View {
                 } else {
                     Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
                         .buttonStyle(.borderedProminent)
+                        .buttonBorderShape(.capsule)
                 }
             }
-            .buttonBorderShape(.capsule)
-            .padding(.top, 6)
+            .padding(.horizontal, 4)
         }
-        .padding(20)
-        .frame(maxWidth: 380, alignment: .leading)
-        .menuSurface(RoundedRectangle(cornerRadius: 28, style: .continuous), interactive: false)
+        .padding(16)
+        .padding(.top, 4)
+        .frame(maxWidth: 400, alignment: .leading)
+        .background(Color(uiColor: .secondarySystemGroupedBackground), in: .rect(cornerRadius: 32))
+        .overlay(alignment: .topTrailing) {
+            // Apple's round close button, like on its sheets. Closing ends the tutorial.
+            Button(action: onSkip) {
+                Image(systemName: "xmark")
+                    .font(.system(size: 13, weight: .bold))
+                    .frame(width: 30, height: 30)
+            }
+            .buttonStyle(.glass)
+            .buttonBorderShape(.circle)
+            .padding(24)
+            .accessibilityLabel("Close")
+        }
+        // Floats above the page.
+        .shadow(color: .black.opacity(0.3), radius: 30, y: 12)
         .padding(.horizontal, 20)
+    }
+
+    /// The step's screenshot, from the asset catalog as "Tutorial1" to "Tutorial6". Until one is
+    /// added there, a placeholder of the same size shows where it will go.
+    @ViewBuilder
+    private var screenshot: some View {
+        let name = "Tutorial\(step.rawValue + 1)"
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .fill(Color(uiColor: .tertiarySystemFill))
+            .aspectRatio(16 / 10, contentMode: .fit)
+            .overlay {
+                if UIImage(named: name) != nil {
+                    Image(name)
+                        .resizable()
+                        .scaledToFill()
+                } else {
+                    Image(systemName: "photo")
+                        .font(.largeTitle)
+                        .foregroundStyle(.tertiary)
+                }
+            }
+            .clipShape(.rect(cornerRadius: 20, style: .continuous))
+            .accessibilityHidden(true)
     }
 }
