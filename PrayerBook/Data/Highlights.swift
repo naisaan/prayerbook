@@ -139,6 +139,7 @@ final class Highlights {
 
     /// Highlights a passage. Selecting over an existing highlight adds to it: the two become one
     /// highlight in that highlight's color, keeping its note, so it can't be highlighted twice.
+    /// Highlights in different colors are never joined: it stops where another color begins.
     /// Otherwise the passage is highlighted in the last color picked (joining any highlight in
     /// that color it runs right up against), and where
     /// it covers part of a highlight in another color, it takes that part over and the rest stays.
@@ -155,10 +156,30 @@ final class Highlights {
             .min { $0.location < $1.location }
         let style = base?.style ?? .highlight(lastHighlightColor)
 
-        // Every highlight in that same style that the selection overlaps or touches joins it.
-        let joining = all.filter { touches($0) && $0.style == style }
+        // Highlights in other colors are never joined or painted over: the new highlight stops
+        // where one begins, on either side of the highlight it starts from.
+        let anchor = base?.location ?? range.location
         var start = range.location
         var end = NSMaxRange(range)
+        for other in all where other.prayerID == prayerID && other.style != style
+            && NSIntersectionRange(other.range, NSRange(location: start, length: end - start)).length > 0 {
+            if other.location >= anchor {
+                end = min(end, other.location)
+            } else {
+                start = max(start, NSMaxRange(other.range))
+            }
+        }
+        if let base {
+            start = min(start, base.location)
+            end = max(end, NSMaxRange(base.range))
+        }
+        let clipped = NSRange(location: start, length: max(end - start, 0))
+
+        // Every highlight in that same style that the selection overlaps or touches joins it.
+        let joining = all.filter {
+            $0.prayerID == prayerID && $0.style == style
+                && $0.location <= NSMaxRange(clipped) && clipped.location <= NSMaxRange($0.range)
+        }
         for old in joining {
             start = min(start, old.location)
             end = max(end, NSMaxRange(old.range))
