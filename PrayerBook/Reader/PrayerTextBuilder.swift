@@ -25,10 +25,22 @@ struct PrayerTextBuilder {
     }
 
     /// Links shown at the end of a prayer: the Tablet of Ahmad after the Long Obligatory Prayer.
+    /// (In English, the quote below takes its place.)
     static let shortcuts: [Int: (title: String, prayerID: Int)] = [
-        1233817157: ("Tablet of Ahmad", 1233817420),
         1800000003: ("Tavola di Aḥmad", 1800000219),
         1700000079: ("Ahmad-imut Allakkat", 1700000003),
+    ]
+
+    /// A quote shown at the end of a prayer, with words in it that open another prayer: after
+    /// the English Long Obligatory Prayer, Shoghi Effendi's words on the obligatory prayers, whose
+    /// "Tablet of Ahmad" opens the Tablet of Ahmad.
+    static let closingQuotes: [Int: (text: String, link: String, prayerID: Int, source: String)] = [
+        1233817157: (
+            "These daily obligatory prayers, together with a few other specific ones, such as the Healing Prayer, the Tablet of Ahmad, have been invested by Bahá’u’lláh with a special potency and significance, and should therefore be accepted as such and be recited by the believers with unquestioning faith and confidence, that through them they may enter into a much closer communion with God, and identify themselves more fully with His laws and precepts.",
+            "Tablet of Ahmad",
+            1233817420,
+            "—From a letter written on behalf of Shoghi Effendi"
+        ),
     ]
 
     struct Result {
@@ -122,6 +134,40 @@ struct PrayerTextBuilder {
                 .underlineColor: Typography.secondaryColor,
                 .paragraphStyle: linkStyle,
                 .prayerLink: shortcut.prayerID,
+            ]))
+        }
+
+        if let quote = Self.closingQuotes[prayer.id] {
+            // Set apart a little from the prayer, slightly smaller, with the linked words
+            // underlined like the link they replace.
+            let quoteStyle = paragraphStyle(for: .noIndent).mutableCopy() as! NSMutableParagraphStyle
+            quoteStyle.paragraphSpacingBefore = size * 0.8
+            quoteStyle.paragraphSpacing = size * 0.3
+            quoteStyle.minimumLineHeight = (typography.lineHeight * 0.9).rounded()
+            quoteStyle.maximumLineHeight = (typography.lineHeight * 0.9).rounded()
+            let passage = NSMutableAttributedString(string: quote.text + "\n", attributes: [
+                .font: typography.font.uiFont(size: size * 0.9),
+                .foregroundColor: Typography.textColor,
+                .paragraphStyle: quoteStyle,
+            ])
+            let linkRange = (quote.text as NSString).range(of: quote.link)
+            if linkRange.location != NSNotFound {
+                passage.addAttributes([
+                    .underlineStyle: NSUnderlineStyle.single.rawValue,
+                    .underlineColor: Typography.secondaryColor,
+                    .prayerLink: quote.prayerID,
+                ], range: linkRange)
+            }
+            text.append(passage)
+
+            let sourceStyle = NSMutableParagraphStyle()
+            sourceStyle.alignment = isRightToLeft ? .left : .right
+            sourceStyle.paragraphSpacing = size * 0.6
+            sourceStyle.baseWritingDirection = writingDirection
+            text.append(NSAttributedString(string: quote.source + "\n", attributes: [
+                .font: typography.font.uiFont(size: size * 0.75),
+                .foregroundColor: Typography.secondaryColor,
+                .paragraphStyle: sourceStyle,
             ]))
         }
 
