@@ -82,7 +82,7 @@ struct TutorialCard: View {
                         .symbolEffect(.bounce, options: .repeating)
                         .accessibilityHidden(true)
                 } else {
-                    Button(step == .done ? "Done" : "Next", action: onNext)
+                    Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
                         .buttonStyle(.borderedProminent)
                 }
             }
