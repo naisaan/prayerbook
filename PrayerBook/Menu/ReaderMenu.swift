@@ -76,24 +76,26 @@ struct ReaderMenu: View {
     let currentPrayerID: Int?
     let onToggleList: (UUID) -> Void
     let onAddList: () -> Void
+    /// During the tutorial, tapping Contents, Search and the rest does nothing.
+    var optionsDisabled = false
 
     var body: some View {
         GlassEffectContainer(spacing: 8) {
             VStack(alignment: .trailing, spacing: 8) {
                 MenuRow(title: "Contents", systemImage: "list.bullet", progress: Double(progress) / 100) {
-                    onSelect(.contents)
+                    select(.contents)
                 }
                 MenuRow(title: "Highlights & Notes", systemImage: "highlighter", detail: highlightCount > 0 ? "\(highlightCount)" : nil) {
-                    onSelect(.highlights)
+                    select(.highlights)
                 }
                 MenuRow(title: "Search Book", systemImage: "magnifyingglass") {
-                    onSelect(.search)
+                    select(.search)
                 }
                 MenuRow(title: "Languages", systemImage: "globe") {
-                    onSelect(.languages)
+                    select(.languages)
                 }
                 MenuRow(title: "Themes & Settings", systemImage: "textformat.size") {
-                    onSelect(.settings)
+                    select(.settings)
                 }
 
                 HStack(spacing: 8) {
@@ -106,6 +108,7 @@ struct ReaderMenu: View {
                         .buttonStyle(PressableButtonStyle())
                         .menuSurface(.circle)
                         .accessibilityLabel("New bookmark list")
+                        .tutorialTarget(.newList)
                     }
 
                     if let onToggleBookmark, let currentPrayerID {
@@ -120,6 +123,7 @@ struct ReaderMenu: View {
                             ) { onToggleList(list.id) }
                         }
                         BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: String(localized: "Bookmarks"), action: onToggleBookmark)
+                            .tutorialTarget(.bookmark)
                     }
 
                     if let shareText {
@@ -129,10 +133,18 @@ struct ReaderMenu: View {
                         .buttonStyle(PressableButtonStyle())
                         .menuSurface(.circle)
                         .accessibilityLabel("Share prayer")
+                        .allowsHitTesting(!optionsDisabled)
                     }
                 }
             }
         }
+    }
+}
+
+extension ReaderMenu {
+    private func select(_ sheet: ReaderSheet) {
+        guard !optionsDisabled else { return }
+        onSelect(sheet)
     }
 }
 
