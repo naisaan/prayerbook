@@ -11,6 +11,7 @@ struct SettingsSheet: View {
     @Environment(\.dismiss) private var dismiss
     @State private var showsAbout = false
     @State private var confirmingReset = false
+    @AppStorage("hasSeenTutorial") private var hasSeenTutorial = true
 
     /// The pages of the sheet. Each one after the first opens from a row on the one before.
     private enum Page: Int {
@@ -170,6 +171,21 @@ struct SettingsSheet: View {
                 }
                 .padding(20)
                 .menuSurface(.rect(cornerRadius: 26), interactive: false)
+
+                // Plays the first-time tutorial again as soon as this sheet closes.
+                Button {
+                    hasSeenTutorial = false
+                    dismiss()
+                } label: {
+                    Label("Show Tutorial Again", systemImage: "questionmark.circle")
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.horizontal, 20)
+                        .frame(height: 52)
+                        .contentShape(.capsule)
+                }
+                .buttonStyle(PressableButtonStyle())
+                .foregroundStyle(.primary)
+                .menuSurface(.capsule)
             }
         }
         .scrollBounceBehavior(.basedOnSize)

@@ -24,6 +24,10 @@ struct ReaderView: View {
     @State private var showsPrayerList = false
     /// The reader has turned past the cover, or started pulling it, at least once.
     @AppStorage("hasTurnedCover") private var hasTurnedCover = false
+    /// The tutorial has been finished or skipped once. Until then, the menu button and the
+    /// prayer list wait hidden, and fade in with the tutorial on the first page after the cover.
+    @AppStorage("hasSeenTutorial") private var hasSeenTutorial = false
+    @State private var tutorialStep: TutorialStep?
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -106,11 +110,28 @@ struct ReaderView: View {
                             .allowsHitTesting(false)
                     }
                 } else if book != nil {
-                    controls
-                    if settings.showsPrayerList {
-                        PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
-                            .transition(.opacity)
+                    Group {
+                        controls
+                        if settings.showsPrayerList {
+                            PrayerListNote(isOpen: $showsPrayerList, isHidden: menuOpen, safeAreaTop: metrics.safeArea.top)
+                                .transition(.opacity)
+                        }
                     }
+                    .opacity(controlsWaitForTutorial ? 0 : 1)
+                    .allowsHitTesting(!controlsWaitForTutorial)
+                }
+
+                if let tutorialStep, !isOnCover {
+                    TutorialCard(
+                        step: tutorialStep,
+                        onNext: advanceTutorial,
+                        onSkip: finishTutorial
+                    )
+                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: tutorialStep.sitsAtTop ? .top : .center)
+                    .padding(.top, tutorialStep.sitsAtTop ? 8 : 0)
+                    // Each step blurs into the next, the way the system swaps content.
+                    .id(tutorialStep)
+                    .transition(.blurReplace)
                 }
 
                 if showsSplash {
@@ -120,6 +141,22 @@ struct ReaderView: View {
                         .opacity(splashOpacity)
                         .allowsHitTesting(splashOpacity > 0)
                         .zIndex(1)
+                }
+            }
+            .task(id: shouldStartTutorial) {
+                guard shouldStartTutorial, tutorialStep == nil else { return }
+                // Let the page finish turning first.
+                try? await Task.sleep(for: .milliseconds(700))
+                guard !Task.isCancelled, shouldStartTutorial, tutorialStep == nil else { return }
+                withAnimation(.easeInOut(duration: 0.8)) {
+                    showsControls = true
+                    tutorialStep = .welcome
+                }
+            }
+            .onChange(of: menuOpen) { _, isOpen in
+                // Tapping the menu button is how the first step moves on.
+                if isOpen && tutorialStep == .welcome {
+                    withAnimation(.smooth(duration: 0.35)) { tutorialStep = .menu }
                 }
             }
             .task(id: BookKey(metrics: metrics, typography: settings.typography, languages: library.enabledLanguageCodes)) {
@@ -261,7 +298,37 @@ struct ReaderView: View {
     /// The menu button shows with the other controls, or all the time if the reader chose
     /// Always Show Menu in General Settings.
     private var menuButtonShows: Bool {
-        showsControls || settings.alwaysShowsMenu
+        showsControls || settings.alwaysShowsMenu || tutorialStep == .welcome
+    }
+
+    // MARK: Tutorial
+
+    /// On the first page after the cover, the first time, with nothing else in the way.
+    private var shouldStartTutorial: Bool {
+        !hasSeenTutorial && book != nil && !isOnCover && sheet == nil && !showsSplash
+    }
+
+    /// Before the tutorial starts, the menu button and prayer list stay hidden, so they can
+    /// fade in with it.
+    private var controlsWaitForTutorial: Bool {
+        !hasSeenTutorial && tutorialStep == nil
+    }
+
+    private func advanceTutorial() {
+        guard let step = tutorialStep else { return }
+        guard let next = step.next else {
+            finishTutorial()
+            return
+        }
+        // The menu's steps are done: close it to show the page again.
+        if !next.sitsAtTop && menuOpen { setMenu(open: false) }
+        withAnimation(.smooth(duration: 0.35)) { tutorialStep = next }
+    }
+
+    private func finishTutorial() {
+        if menuOpen { setMenu(open: false) }
+        hasSeenTutorial = true
+        withAnimation(.easeOut(duration: 0.3)) { tutorialStep = nil }
     }
 
     /// Nil on a section title page, where there's no prayer to bookmark.
