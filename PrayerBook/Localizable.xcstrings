@@ -3267,60 +3267,60 @@
         }
       }
     },
-    "I hope you enjoy this app!": {
+    "If you want to make the text bigger or smaller, just pinch and zoom.\nI hope you enjoy this app!": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ich hoffe, dir gefällt diese App!"
+            "value": "Wenn du den Text größer oder kleiner machen möchtest, zieh ihn einfach mit zwei Fingern auf oder zusammen.\nIch hoffe, dir gefällt diese App!"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "¡Espero que disfrutes de esta app!"
+            "value": "Si quieres agrandar o reducir el texto, solo tienes que pellizcar la pantalla.\n¡Espero que disfrutes de esta app!"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "J’espère que vous apprécierez cette app !"
+            "value": "Pour agrandir ou réduire le texte, il suffit de pincer l’écran.\nJ’espère que vous apprécierez cette app !"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Spero che questa app ti piaccia!"
+            "value": "Se vuoi ingrandire o rimpicciolire il testo, ti basta pizzicare lo schermo.\nSpero che questa app ti piaccia!"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ik hoop dat je van deze app geniet!"
+            "value": "Wil je de tekst groter of kleiner maken? Knijp dan gewoon met twee vingers.\nIk hoop dat je van deze app geniet!"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Ég vona að þú njótir þessa forrits!"
+            "value": "Ef þú vilt stækka eða minnka textann skaltu einfaldlega klípa með tveimur fingrum.\nÉg vona að þú njótir þessa forrits!"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Doufám, že se vám tato aplikace bude líbit!"
+            "value": "Chcete-li text zvětšit nebo zmenšit, stačí roztáhnout nebo sevřít prsty.\nDoufám, že se vám tato aplikace bude líbit!"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Dúfam, že sa vám táto aplikácia bude páčiť!"
+            "value": "Ak chcete text zväčšiť alebo zmenšiť, stačí roztiahnuť alebo stiahnuť prsty.\nDúfam, že sa vám táto aplikácia bude páčiť!"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "امیدوارم از این برنامه لذت ببرید!"
+            "value": "اگر می‌خواهید متن را بزرگ‌تر یا کوچک‌تر کنید، کافی است با دو انگشت صفحه را باز یا جمع کنید.\nامیدوارم از این برنامه لذت ببرید!"
           }
         }
       }

@@ -21,7 +21,7 @@ enum TutorialStep: Int, CaseIterable {
         case .prayerList:
             "At the top right corner there is Prayer List. You can write things you want to remember and create checklists to quickly reference at any time."
         case .done:
-            "I hope you enjoy this app!"
+            "If you want to make the text bigger or smaller, just pinch and zoom.\nI hope you enjoy this app!"
         }
     }
 
