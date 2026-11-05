@@ -121,17 +121,22 @@ struct ReaderView: View {
                     .allowsHitTesting(!controlsWaitForTutorial)
                 }
 
+                if let spot = tutorialSpotlight(in: metrics), !isOnCover {
+                    TutorialSpotlight(center: spot.center, radius: spot.radius)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
+                }
+
                 if let tutorialStep, !isOnCover {
-                    TutorialCard(
-                        step: tutorialStep,
-                        onNext: advanceTutorial,
-                        onSkip: finishTutorial
-                    )
-                    .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: tutorialStep.sitsAtTop ? .top : .center)
-                    .padding(.top, tutorialStep.sitsAtTop ? 8 : 0)
-                    // Each step blurs into the next, the way the system swaps content.
-                    .id(tutorialStep)
-                    .transition(.blurReplace)
+                    TutorialCard(step: tutorialStep, onNext: advanceTutorial)
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: cardAlignment(for: tutorialStep))
+                        .padding(.top, tutorialStep.placement == .top ? 8 : 0)
+                        // At the bottom, above the menu button.
+                        .padding(.bottom, tutorialStep.placement == .bottom ? 72 : 0)
+                        // Each step blurs into the next, the way the system swaps content.
+                        .id(tutorialStep)
+                        .transition(.blurReplace)
+                }
                 }
 
                 if showsSplash {
@@ -155,7 +160,10 @@ struct ReaderView: View {
             }
             .onChange(of: showsPrayerList) { _, isOpen in
                 // Opening the prayer list moves its step on, like tapping Next.
+                // Opening it shows how to put it back; putting it back moves on to the end.
                 if isOpen && tutorialStep == .prayerList {
+                    withAnimation(.smooth(duration: 0.35)) { tutorialStep = .prayerListOpen }
+                } else if !isOpen && tutorialStep == .prayerListOpen {
                     withAnimation(.smooth(duration: 0.35)) { tutorialStep = .done }
                 }
             }
@@ -327,8 +335,33 @@ struct ReaderView: View {
             return
         }
         // The menu's steps are done: close it to show the page again.
-        if !next.sitsAtTop && menuOpen { setMenu(open: false) }
+        if !next.usesMenu && menuOpen { setMenu(open: false) }
         withAnimation(.smooth(duration: 0.35)) { tutorialStep = next }
+    }
+
+    private func cardAlignment(for step: TutorialStep) -> Alignment {
+        switch step.placement {
+        case .top: .top
+        case .center: .center
+        case .bottom: .bottom
+        }
+    }
+
+    /// The circle the tutorial lights up, in full-screen points: the menu button on the first
+    /// step, and the prayer list's card in the top corner on its step.
+    private func tutorialSpotlight(in metrics: PageMetrics) -> (center: CGPoint, radius: CGFloat)? {
+        let size = metrics.size
+        let safe = metrics.safeArea
+        switch tutorialStep {
+        case .welcome:
+            // The 52-point button, 20 points in from the side and 4 up from the bottom.
+            return (CGPoint(x: size.width - safe.right - 20 - 26, y: size.height - safe.bottom - 4 - 26), 40)
+        case .prayerList where settings.showsPrayerList:
+            // The part of the tilted card that peeks in from the top right corner.
+            return (CGPoint(x: size.width - 18, y: safe.top + 20), 46)
+        default:
+            return nil
+        }
     }
 
     private func finishTutorial() {

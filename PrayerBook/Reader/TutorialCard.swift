@@ -3,7 +3,7 @@ import UIKit
 
 /// The steps of the tutorial shown the first time someone opens the book.
 enum TutorialStep: Int, CaseIterable {
-    case welcome, menu, bookmarks, highlights, prayerList, done
+    case welcome, menu, bookmarks, highlights, prayerList, prayerListOpen, done
 
     var title: LocalizedStringKey? {
         self == .welcome ? "Welcome to Bahá’í Prayer Book." : nil
@@ -21,26 +21,47 @@ enum TutorialStep: Int, CaseIterable {
             "To Highlight and create Notes select text and then press Highlight or Add Note"
         case .prayerList:
             "At the top right corner there is Prayer List. You can write things you want to remember and create checklists to quickly reference at any time."
+        case .prayerListOpen:
+            "Feel free to throw this back when you’re done"
         case .done:
-            "If you want to make the text bigger or smaller, just pinch and zoom.\nI hope you enjoy this app!"
+            "Feel free to pinch to make the text bigger or smaller and swipe to turn the page.\nI hope you enjoy this app!"
         }
     }
 
-    /// The steps about the menu sit at the top, out of the way of the open menu.
-    var sitsAtTop: Bool { self == .menu || self == .bookmarks }
+    enum Placement { case top, center, bottom }
+
+    /// The menu's steps sit at the top, out of the open menu's way. The prayer list's sit at
+    /// the bottom, so the card in the corner (and then the open list) can be tapped.
+    var placement: Placement {
+        switch self {
+        case .menu, .bookmarks: .top
+        case .prayerList, .prayerListOpen: .bottom
+        case .welcome, .highlights, .done: .center
+        }
+    }
 
     /// The steps that point at something on screen (the open menu, the prayer list) have no
     /// picture, so the card stays small and out of the way.
-    var hasPicture: Bool { !sitsAtTop && self != .prayerList }
+    var hasPicture: Bool { placement == .center }
 
-    var next: TutorialStep? { TutorialStep(rawValue: rawValue + 1) }
+    /// Whether this step needs the menu open.
+    var usesMenu: Bool { placement == .top }
+
+    /// The step after this one. Next on the prayer list's step skips the "throw it back" step,
+    /// which only comes after opening the list.
+    var next: TutorialStep? {
+        self == .prayerList ? .done : TutorialStep(rawValue: rawValue + 1)
+    }
+
+    /// Which progress dot is lit. Opening the prayer list is part of its step.
+    var dot: Int { self == .done ? 5 : min(rawValue, 4) }
+    static let dotCount = 6
 }
 
 /// One step of the tutorial, on the same surface as the menu's buttons.
 struct TutorialCard: View {
     let step: TutorialStep
     let onNext: () -> Void
-    let onSkip: () -> Void
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -59,31 +80,23 @@ struct TutorialCard: View {
                     .fixedSize(horizontal: false, vertical: true)
             }
             .padding(.horizontal, 4)
-            // Without a picture the text starts at the top, so it keeps clear of the close button.
-            .padding(.trailing, step.hasPicture ? 0 : 36)
 
             ZStack {
                 // One dot per step, like a page control, centered; the current one is solid.
                 HStack(spacing: 8) {
-                    ForEach(TutorialStep.allCases, id: \.self) { dot in
+                    ForEach(0..<TutorialStep.dotCount, id: \.self) { dot in
                         Circle()
-                            .fill(Color.primary.opacity(dot == step ? 1 : 0.25))
+                            .fill(Color.primary.opacity(dot == step.dot ? 1 : 0.25))
                             .frame(width: 7, height: 7)
                     }
                 }
                 .accessibilityElement()
-                .accessibilityLabel(Text("\(step.rawValue + 1) of \(TutorialStep.allCases.count)"))
+                .accessibilityLabel(Text("\(step.dot + 1) of \(TutorialStep.dotCount)"))
 
                 HStack {
                     Spacer(minLength: 0)
-                    if step == .welcome {
-                        // The menu button itself is the way on: tapping it opens the next step.
-                        Image(systemName: "arrow.down.right")
-                            .font(.title3.weight(.semibold))
-                            .foregroundStyle(.tint)
-                            .symbolEffect(.bounce, options: .repeating)
-                            .accessibilityHidden(true)
-                    } else {
+                    // On the first step the spotlit menu button itself is the way on.
+                    if step != .welcome {
                         Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
                             .buttonStyle(.borderedProminent)
                             .buttonBorderShape(.capsule)
@@ -96,18 +109,6 @@ struct TutorialCard: View {
         .padding(.top, 4)
         .frame(maxWidth: 360, alignment: .leading)
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: .rect(cornerRadius: 32))
-        .overlay(alignment: .topTrailing) {
-            // Apple's round close button, like on its sheets. Closing ends the tutorial.
-            Button(action: onSkip) {
-                Image(systemName: "xmark")
-                    .font(.system(size: 13, weight: .bold))
-                    .frame(width: 30, height: 30)
-            }
-            .buttonStyle(.glass)
-            .buttonBorderShape(.circle)
-            .padding(24)
-            .accessibilityLabel("Close")
-        }
         // Floats above the page.
         .shadow(color: .black.opacity(0.3), radius: 30, y: 12)
         .padding(.horizontal, 20)
@@ -117,7 +118,7 @@ struct TutorialCard: View {
     /// added there, a placeholder of the same size shows where it will go.
     @ViewBuilder
     private var screenshot: some View {
-        let name = "Tutorial\(step.rawValue + 1)"
+        let name = "Tutorial\(step.dot + 1)"
         RoundedRectangle(cornerRadius: 20, style: .continuous)
             .fill(Color(uiColor: .tertiarySystemFill))
             .aspectRatio(1, contentMode: .fit)
@@ -133,6 +134,31 @@ struct TutorialCard: View {
                 }
             }
             .clipShape(.rect(cornerRadius: 20, style: .continuous))
+            .accessibilityHidden(true)
+    }
+}
+
+/// Dims the screen except for a soft circle around what the tutorial is pointing at. Touches
+/// pass straight through, so the spotlit button works as usual.
+struct TutorialSpotlight: View {
+    let center: CGPoint
+    let radius: CGFloat
+
+    var body: some View {
+        Color.black
+            .opacity(0.5)
+            .mask {
+                Rectangle()
+                    .overlay {
+                        Circle()
+                            .frame(width: radius * 2, height: radius * 2)
+                            .blur(radius: 3)
+                            .position(center)
+                            .blendMode(.destinationOut)
+                    }
+                    .compositingGroup()
+            }
+            .allowsHitTesting(false)
             .accessibilityHidden(true)
     }
 }
