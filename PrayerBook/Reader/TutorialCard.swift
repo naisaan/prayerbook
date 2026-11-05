@@ -54,30 +54,39 @@ struct TutorialCard: View {
             }
             .padding(.horizontal, 4)
 
-            HStack(spacing: 10) {
-                Text("\(step.rawValue + 1) of \(TutorialStep.allCases.count)")
-                    .font(.subheadline)
-                    .monospacedDigit()
-                    .foregroundStyle(.secondary)
-                Spacer(minLength: 0)
-                if step == .welcome {
-                    // The menu button itself is the way on: tapping it opens the next step.
-                    Image(systemName: "arrow.down.right")
-                        .font(.title3.weight(.semibold))
-                        .foregroundStyle(.tint)
-                        .symbolEffect(.bounce, options: .repeating)
-                        .accessibilityHidden(true)
-                } else {
-                    Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
-                        .buttonStyle(.borderedProminent)
-                        .buttonBorderShape(.capsule)
+            ZStack {
+                // One dot per step, like a page control, centered; the current one is solid.
+                HStack(spacing: 8) {
+                    ForEach(TutorialStep.allCases, id: \.self) { dot in
+                        Circle()
+                            .fill(Color.primary.opacity(dot == step ? 1 : 0.25))
+                            .frame(width: 7, height: 7)
+                    }
+                }
+                .accessibilityElement()
+                .accessibilityLabel(Text("\(step.rawValue + 1) of \(TutorialStep.allCases.count)"))
+
+                HStack {
+                    Spacer(minLength: 0)
+                    if step == .welcome {
+                        // The menu button itself is the way on: tapping it opens the next step.
+                        Image(systemName: "arrow.down.right")
+                            .font(.title3.weight(.semibold))
+                            .foregroundStyle(.tint)
+                            .symbolEffect(.bounce, options: .repeating)
+                            .accessibilityHidden(true)
+                    } else {
+                        Button(step == .done ? LocalizedStringKey("Done") : LocalizedStringKey("Next"), action: onNext)
+                            .buttonStyle(.borderedProminent)
+                            .buttonBorderShape(.capsule)
+                    }
                 }
             }
             .padding(.horizontal, 4)
         }
         .padding(16)
         .padding(.top, 4)
-        .frame(maxWidth: 400, alignment: .leading)
+        .frame(maxWidth: 360, alignment: .leading)
         .background(Color(uiColor: .secondarySystemGroupedBackground), in: .rect(cornerRadius: 32))
         .overlay(alignment: .topTrailing) {
             // Apple's round close button, like on its sheets. Closing ends the tutorial.
@@ -103,7 +112,7 @@ struct TutorialCard: View {
         let name = "Tutorial\(step.rawValue + 1)"
         RoundedRectangle(cornerRadius: 20, style: .continuous)
             .fill(Color(uiColor: .tertiarySystemFill))
-            .aspectRatio(16 / 10, contentMode: .fit)
+            .aspectRatio(1, contentMode: .fit)
             .overlay {
                 if UIImage(named: name) != nil {
                     Image(name)
