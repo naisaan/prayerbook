@@ -29,6 +29,10 @@ enum TutorialStep: Int, CaseIterable {
     /// The steps about the menu sit at the top, out of the way of the open menu.
     var sitsAtTop: Bool { self == .menu || self == .bookmarks }
 
+    /// The steps that point at something on screen (the open menu, the prayer list) have no
+    /// picture, so the card stays small and out of the way.
+    var hasPicture: Bool { !sitsAtTop && self != .prayerList }
+
     var next: TutorialStep? { TutorialStep(rawValue: rawValue + 1) }
 }
 
@@ -40,8 +44,7 @@ struct TutorialCard: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            // The steps shown with the menu open have no picture, so they stay out of its way.
-            if !step.sitsAtTop {
+            if step.hasPicture {
                 screenshot
             }
 
@@ -57,7 +60,7 @@ struct TutorialCard: View {
             }
             .padding(.horizontal, 4)
             // Without a picture the text starts at the top, so it keeps clear of the close button.
-            .padding(.trailing, step.sitsAtTop ? 36 : 0)
+            .padding(.trailing, step.hasPicture ? 0 : 36)
 
             ZStack {
                 // One dot per step, like a page control, centered; the current one is solid.

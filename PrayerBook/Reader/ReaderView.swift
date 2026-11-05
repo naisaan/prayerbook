@@ -153,6 +153,12 @@ struct ReaderView: View {
                     tutorialStep = .welcome
                 }
             }
+            .onChange(of: showsPrayerList) { _, isOpen in
+                // Opening the prayer list moves its step on, like tapping Next.
+                if isOpen && tutorialStep == .prayerList {
+                    withAnimation(.smooth(duration: 0.35)) { tutorialStep = .done }
+                }
+            }
             .onChange(of: menuOpen) { _, isOpen in
                 // Tapping the menu button is how the first step moves on.
                 if isOpen && tutorialStep == .welcome {
