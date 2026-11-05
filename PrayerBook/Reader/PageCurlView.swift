@@ -571,7 +571,7 @@ final class PageViewController: UIViewController, UIGestureRecognizerDelegate, U
     /// remove it. With a note, Remove asks whether to remove just the note or both.
     private func menu(forHighlight id: UUID) -> UIMenu? {
         guard let highlight = Highlights.shared.highlight(withID: id) else { return nil }
-        let colors = UIAction(title: String(localized: "Highlight"), image: UIImage(systemName: "highlighter")) { [weak self] _ in
+        let colors = UIAction(title: String(localized: "Style"), image: UIImage(systemName: "paintpalette")) { [weak self] _ in
             self?.showPalette(for: id)
         }
         let note = UIAction(
