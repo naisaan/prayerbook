@@ -322,10 +322,20 @@ struct ReaderView: View {
             }
             .animation(.spring(duration: 0.3, bounce: 0), value: currentBookmarkColor)
             .animation(.spring(duration: 0.3, bounce: 0), value: menuButtonShows)
+            // A safe area around the button: a tap that just misses it does nothing, instead of
+            // turning the page. The padding is undone after, so the button stays where it is.
+            .padding(menuSafeMargin)
+            .contentShape(Rectangle())
+            .onTapGesture {}
+            .allowsHitTesting(!menuOpen && (menuButtonShows || currentBookmarkColor != nil))
+            .padding(-menuSafeMargin)
         }
         .padding(.trailing, 20)
         .padding(.bottom, 4)
     }
+
+    /// How far around the menu button a missed tap is ignored.
+    private let menuSafeMargin: CGFloat = 22
 
     /// The menu button shows with the other controls, or all the time if the reader chose
     /// Always Show Menu in General Settings.
