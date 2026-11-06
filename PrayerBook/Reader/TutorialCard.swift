@@ -144,16 +144,13 @@ struct TutorialCard: View {
 /// Dims the screen except for a soft circle around what the tutorial is pointing at. Touches
 /// pass straight through, so the spotlit button works as usual.
 ///
-/// Dark mode looks the same as light mode: the veil lightens the black page to the same gray a
-/// dimmed white page has, and `TutorialSpotlightBacking` puts a white page-colored circle under
-/// the spotlit button, so it sits in a bright circle just as it does on a white page.
+/// In dark mode the screen dims the same way, and `TutorialSpotlightBacking` puts a white circle
+/// under the spotlit button, so it sits in a bright circle just as it does on a white page.
 struct TutorialSpotlight: View {
     let center: CGPoint
     let radius: CGFloat
-    @Environment(\.colorScheme) private var colorScheme
-
     var body: some View {
-        (colorScheme == .dark ? Color.white : Color.black)
+        Color.black
             .opacity(0.5)
             .mask {
                 Rectangle()

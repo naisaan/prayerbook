@@ -303,8 +303,6 @@ struct ReaderView: View {
                 MenuButton {
                     setMenu(open: true)
                 }
-                // While spotlit in the tutorial, it looks just as it does in light mode.
-                .environment(\.colorScheme, tutorialStep == .welcome ? .light : colorScheme)
                 .opacity(menuButtonShows && !menuOpen ? 1 : 0)
                 .allowsHitTesting(menuButtonShows && !menuOpen)
                 .overlay(alignment: .topTrailing) {
