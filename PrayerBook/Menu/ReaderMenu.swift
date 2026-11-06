@@ -106,6 +106,7 @@ struct ReaderMenu: View {
                         .buttonStyle(PressableButtonStyle())
                         .menuSurface(.circle)
                         .accessibilityLabel("New bookmark list")
+                        .tutorialTarget(.newList)
                     }
 
                     if let onToggleBookmark, let currentPrayerID {
@@ -120,6 +121,7 @@ struct ReaderMenu: View {
                             ) { onToggleList(list.id) }
                         }
                         BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: String(localized: "Bookmarks"), action: onToggleBookmark)
+                            .tutorialTarget(.bookmark)
                     }
 
                     if let shareText {

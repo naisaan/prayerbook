@@ -31,6 +31,8 @@ struct ReaderView: View {
     @State private var tutorialStep: TutorialStep?
     /// The tutorial's last card tipping over and falling off the screen, like a canceled alert.
     @State private var tutorialFalling = false
+    /// Where the menu's bookmark and + buttons are, for the tutorial's spotlight.
+    @State private var tutorialTargets: [TutorialTarget: CGRect] = [:]
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -95,8 +97,8 @@ struct ReaderView: View {
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
                 }
 
-                if colorScheme == .dark, let spot = tutorialSpotlight(in: metrics), !isOnCover {
-                    TutorialSpotlightBacking(center: spot.center, radius: spot.radius)
+                if colorScheme == .dark, let holes = tutorialSpotlight(in: metrics), !isOnCover {
+                    TutorialSpotlightBacking(holes: holes)
                         .ignoresSafeArea()
                         .transition(.opacity)
                 }
@@ -106,7 +108,8 @@ struct ReaderView: View {
                     Color.clear
                         .contentShape(Rectangle())
                         .ignoresSafeArea()
-                        .onTapGesture { setMenu(open: false) }
+                        // During the tutorial the menu stays open until the tutorial closes it.
+                        .onTapGesture { if tutorialStep == nil { setMenu(open: false) } }
                 }
 
                 if isOnCover {
@@ -135,8 +138,8 @@ struct ReaderView: View {
                     .allowsHitTesting(!controlsWaitForTutorial)
                 }
 
-                if let spot = tutorialSpotlight(in: metrics), !isOnCover {
-                    TutorialSpotlight(center: spot.center, radius: spot.radius)
+                if let holes = tutorialSpotlight(in: metrics), !isOnCover {
+                    TutorialSpotlight(holes: holes)
                         .ignoresSafeArea()
                         .transition(.opacity)
                 }
@@ -183,6 +186,9 @@ struct ReaderView: View {
                 } else if !isOpen && tutorialStep == .prayerListOpen {
                     withAnimation(.smooth(duration: 0.35)) { tutorialStep = .done }
                 }
+            }
+            .onPreferenceChange(TutorialTargetKey.self) { targets in
+                tutorialTargets = targets
             }
             .onChange(of: menuOpen) { _, isOpen in
                 // Tapping the menu button is how the first step moves on.
@@ -292,6 +298,14 @@ struct ReaderView: View {
                         namingList = true
                     }
                 )
+                // During the tutorial the menu is only to look at: taps on it do nothing.
+                .overlay {
+                    if tutorialStep != nil {
+                        Color.clear
+                            .contentShape(Rectangle())
+                            .onTapGesture {}
+                    }
+                }
                 .transition(menuTransition)
             }
 
@@ -383,16 +397,20 @@ struct ReaderView: View {
 
     /// The circle the tutorial lights up, in full-screen points: the menu button on the first
     /// step, and the prayer list's card in the top corner on its step.
-    private func tutorialSpotlight(in metrics: PageMetrics) -> (center: CGPoint, radius: CGFloat)? {
+    private func tutorialSpotlight(in metrics: PageMetrics) -> [SpotlightHole]? {
         let size = metrics.size
         let safe = metrics.safeArea
         switch tutorialStep {
         case .welcome:
             // The 52-point button, 20 points in from the side and 4 up from the bottom.
-            return (CGPoint(x: size.width - safe.right - 20 - 26, y: size.height - safe.bottom - 4 - 26), 40)
+            return [SpotlightHole(center: CGPoint(x: size.width - safe.right - 20 - 26, y: size.height - safe.bottom - 4 - 26), radius: 40)]
+        case .bookmarks:
+            // The menu's bookmark and + buttons, where they're drawn.
+            let holes = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }.map(SpotlightHole.init(around:))
+            return holes.isEmpty ? nil : holes
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.
-            return (CGPoint(x: size.width - 18, y: safe.top + 20), 46)
+            return [SpotlightHole(center: CGPoint(x: size.width - 18, y: safe.top + 20), radius: 46)]
         default:
             return nil
         }
@@ -578,7 +596,14 @@ struct ReaderView: View {
 /// so it looks like one splash screen rather than two. Like the launch screen, which iOS
 /// draws before the app starts, it follows the phone's light or dark mode, not the app's.
 private struct SplashView: View {
-    private let colorScheme: ColorScheme = {
+    @Environment(ReaderSettings.self) private var settings
+
+    /// Light or Dark if the reader picked one in Themes & Settings, otherwise the phone's.
+    private var colorScheme: ColorScheme {
+        settings.appearance.colorScheme ?? phoneColorScheme
+    }
+
+    private let phoneColorScheme: ColorScheme = {
         // The phone's own setting, from the screen. Before the window has a scene, the current
         // traits stand in, rather than falling back to light.
         let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first

@@ -146,20 +146,63 @@ struct TutorialCard: View {
 ///
 /// In dark mode the screen dims the same way, and `TutorialSpotlightBacking` puts a white circle
 /// under the spotlit button, so it sits in a bright circle just as it does on a white page.
-struct TutorialSpotlight: View {
+/// A round spot the tutorial lights up, in full-screen points.
+struct SpotlightHole: Equatable {
     let center: CGPoint
     let radius: CGFloat
+
+    /// A circle around a button, with a little room to spare.
+    init(around frame: CGRect) {
+        center = CGPoint(x: frame.midX, y: frame.midY)
+        radius = max(frame.width, frame.height) / 2 + 14
+    }
+
+    init(center: CGPoint, radius: CGFloat) {
+        self.center = center
+        self.radius = radius
+    }
+}
+
+/// Things in the menu the tutorial can light up, measured where they're drawn.
+nonisolated enum TutorialTarget: Hashable, Sendable {
+    case bookmark, newList
+}
+
+struct TutorialTargetKey: PreferenceKey {
+    nonisolated static let defaultValue: [TutorialTarget: CGRect] = [:]
+    nonisolated static func reduce(value: inout [TutorialTarget: CGRect], nextValue: () -> [TutorialTarget: CGRect]) {
+        value.merge(nextValue()) { $1 }
+    }
+}
+
+extension View {
+    /// Reports where this view is on screen, so the tutorial can spotlight it.
+    func tutorialTarget(_ target: TutorialTarget) -> some View {
+        background {
+            GeometryReader { proxy in
+                Color.clear.preference(key: TutorialTargetKey.self, value: [target: proxy.frame(in: .global)])
+            }
+        }
+    }
+}
+
+struct TutorialSpotlight: View {
+    let holes: [SpotlightHole]
+
     var body: some View {
         Color.black
             .opacity(0.5)
             .mask {
                 Rectangle()
                     .overlay {
-                        Circle()
-                            .frame(width: radius * 2, height: radius * 2)
-                            .blur(radius: 3)
-                            .position(center)
-                            .blendMode(.destinationOut)
+                        ForEach(holes.indices, id: \.self) { index in
+                            let hole = holes[index]
+                            Circle()
+                                .frame(width: hole.radius * 2, height: hole.radius * 2)
+                                .blur(radius: 3)
+                                .position(hole.center)
+                                .blendMode(.destinationOut)
+                        }
                     }
                     .compositingGroup()
             }
@@ -168,20 +211,24 @@ struct TutorialSpotlight: View {
     }
 }
 
-/// In dark mode, the bright circle the spotlit button sits in, drawn under the button and the
+/// In dark mode, the bright circle each spotlit button sits in, drawn under the buttons and the
 /// prayer list card (and over the page), the same white as a light mode page.
 struct TutorialSpotlightBacking: View {
-    let center: CGPoint
-    let radius: CGFloat
+    let holes: [SpotlightHole]
 
     var body: some View {
-        Circle()
-            .fill(Color.white)
-            .frame(width: radius * 2, height: radius * 2)
-            .blur(radius: 3)
-            .position(center)
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .allowsHitTesting(false)
-            .accessibilityHidden(true)
+        ZStack {
+            ForEach(holes.indices, id: \.self) { index in
+                let hole = holes[index]
+                Circle()
+                    .fill(Color.white)
+                    .frame(width: hole.radius * 2, height: hole.radius * 2)
+                    .blur(radius: 3)
+                    .position(hole.center)
+            }
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+        .allowsHitTesting(false)
+        .accessibilityHidden(true)
     }
 }
