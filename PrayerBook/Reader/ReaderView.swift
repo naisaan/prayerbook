@@ -572,8 +572,11 @@ struct ReaderView: View {
 /// draws before the app starts, it follows the phone's light or dark mode, not the app's.
 private struct SplashView: View {
     private let colorScheme: ColorScheme = {
+        // The phone's own setting: before the window exists there's no scene yet, so ask the
+        // screen directly rather than falling back to light.
         let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
-        return screen?.traitCollection.userInterfaceStyle == .dark ? .dark : .light
+            ?? UIScreen.main
+        return screen.traitCollection.userInterfaceStyle == .dark ? .dark : .light
     }()
 
     var body: some View {
