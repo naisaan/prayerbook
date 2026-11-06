@@ -21,7 +21,15 @@ struct Prayer: Identifiable, Hashable {
 
     /// The prayer as plain text, ready to share.
     var shareText: String {
-        let body = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        var body = searchText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if body.isEmpty {
+            // A prayer added in the app (like "Intone, O My servant") has no plain text saved,
+            // so take it from its markup: paragraphs on their own lines, tags left out.
+            body = html
+                .replacingOccurrences(of: "</p>", with: "\n\n")
+                .replacingOccurrences(of: "<[^>]+>", with: "", options: .regularExpression)
+                .trimmingCharacters(in: .whitespacesAndNewlines)
+        }
         return "\(body)\n\n— \(author)"
     }
 }
