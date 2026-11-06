@@ -150,6 +150,9 @@ struct TutorialCard: View {
 struct SpotlightHole: Equatable {
     let center: CGPoint
     let radius: CGFloat
+    /// How much smaller the bright circle under it is in dark mode: snug around a button, but
+    /// the full size around the prayer list's card.
+    var backingInset: CGFloat = 10
 
     /// A circle around a button, with a little room to spare.
     init(around frame: CGRect) {
@@ -157,9 +160,10 @@ struct SpotlightHole: Equatable {
         radius = max(frame.width, frame.height) / 2 + 14
     }
 
-    init(center: CGPoint, radius: CGFloat) {
+    init(center: CGPoint, radius: CGFloat, backingInset: CGFloat = 10) {
         self.center = center
         self.radius = radius
+        self.backingInset = backingInset
     }
 }
 
@@ -224,7 +228,7 @@ struct TutorialSpotlightBacking: View {
                 // little softer than pure white.
                 Circle()
                     .fill(Color.white.opacity(0.8))
-                    .frame(width: (hole.radius - 10) * 2, height: (hole.radius - 10) * 2)
+                    .frame(width: (hole.radius - hole.backingInset) * 2, height: (hole.radius - hole.backingInset) * 2)
                     .blur(radius: 2)
                     .position(hole.center)
             }

@@ -410,7 +410,7 @@ struct ReaderView: View {
             return holes.isEmpty ? nil : holes
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.
-            return [SpotlightHole(center: CGPoint(x: size.width - 18, y: safe.top + 20), radius: 46)]
+            return [SpotlightHole(center: CGPoint(x: size.width - 18, y: safe.top + 20), radius: 46, backingInset: 0)]
         default:
             return nil
         }
