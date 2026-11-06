@@ -153,7 +153,8 @@ private struct FallingAlert: View {
         // The keyboard goes down, Cancel blushes red, and the alert tips over and falls away.
         fieldFocused = false
         withAnimation(.easeOut(duration: 0.12)) { cancelPressed = true }
-        withAnimation(.easeIn(duration: 0.55).delay(0.08)) {
+        // The keyboard goes down first; after a brief pause, the alert falls.
+        withAnimation(.easeIn(duration: 0.55).delay(0.45)) {
             stage = .falling
         } completion: {
             onFinish()

@@ -170,15 +170,18 @@ extension View {
 struct TutorialSpotlight: View {
     /// What to light up, in full-screen points. Each hole is round at the ends.
     let holes: [CGRect]
-    @Environment(\.colorScheme) private var colorScheme
 
     /// A little room around each thing lit up.
     private static let margin: CGFloat = 8
 
     var body: some View {
         ZStack {
-            Color.black
-                .opacity(colorScheme == .dark ? 0.6 : 0.45)
+            // The same dark, frosted veil in light and dark mode: blurred and dimmed, so what's
+            // outside the spotlight fades back the same way on a white page or a black one.
+            Rectangle()
+                .fill(.thinMaterial)
+                .overlay(Color.black.opacity(0.35))
+                .environment(\.colorScheme, .dark)
                 .mask {
                     Rectangle()
                         .overlay {
