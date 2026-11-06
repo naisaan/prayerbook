@@ -220,10 +220,12 @@ struct TutorialSpotlightBacking: View {
         ZStack {
             ForEach(holes.indices, id: \.self) { index in
                 let hole = holes[index]
+                // Snug around the button, so circles side by side don't run together, and a
+                // little softer than pure white.
                 Circle()
-                    .fill(Color.white)
-                    .frame(width: hole.radius * 2, height: hole.radius * 2)
-                    .blur(radius: 3)
+                    .fill(Color.white.opacity(0.8))
+                    .frame(width: (hole.radius - 10) * 2, height: (hole.radius - 10) * 2)
+                    .blur(radius: 2)
                     .position(hole.center)
             }
         }
