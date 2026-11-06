@@ -143,12 +143,17 @@ struct TutorialCard: View {
 
 /// Dims the screen except for a soft circle around what the tutorial is pointing at. Touches
 /// pass straight through, so the spotlit button works as usual.
+///
+/// Dark mode looks the same as light mode: the veil lightens the black page to the same gray a
+/// dimmed white page has, and `TutorialSpotlightBacking` puts a white page-colored circle under
+/// the spotlit button, so it sits in a bright circle just as it does on a white page.
 struct TutorialSpotlight: View {
     let center: CGPoint
     let radius: CGFloat
+    @Environment(\.colorScheme) private var colorScheme
 
     var body: some View {
-        Color.black
+        (colorScheme == .dark ? Color.white : Color.black)
             .opacity(0.5)
             .mask {
                 Rectangle()
@@ -161,6 +166,24 @@ struct TutorialSpotlight: View {
                     }
                     .compositingGroup()
             }
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
+    }
+}
+
+/// In dark mode, the bright circle the spotlit button sits in, drawn under the button and the
+/// prayer list card (and over the page), the same white as a light mode page.
+struct TutorialSpotlightBacking: View {
+    let center: CGPoint
+    let radius: CGFloat
+
+    var body: some View {
+        Circle()
+            .fill(Color.white)
+            .frame(width: radius * 2, height: radius * 2)
+            .blur(radius: 3)
+            .position(center)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
             .allowsHitTesting(false)
             .accessibilityHidden(true)
     }

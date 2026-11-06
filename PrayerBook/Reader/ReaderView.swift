@@ -10,6 +10,7 @@ struct ReaderView: View {
     @Environment(Library.self) private var library
     @Environment(ReaderSettings.self) private var settings
     @Environment(\.accessibilityReduceMotion) private var reduceMotion
+    @Environment(\.colorScheme) private var colorScheme
 
     @State private var book: Book?
     @State private var currentPage = 0
@@ -92,6 +93,12 @@ struct ReaderView: View {
                 } else {
                     ProgressView()
                         .frame(maxWidth: .infinity, maxHeight: .infinity)
+                }
+
+                if colorScheme == .dark, let spot = tutorialSpotlight(in: metrics), !isOnCover {
+                    TutorialSpotlightBacking(center: spot.center, radius: spot.radius)
+                        .ignoresSafeArea()
+                        .transition(.opacity)
                 }
 
                 if menuOpen {
@@ -296,6 +303,8 @@ struct ReaderView: View {
                 MenuButton {
                     setMenu(open: true)
                 }
+                // While spotlit in the tutorial, it looks just as it does in light mode.
+                .environment(\.colorScheme, tutorialStep == .welcome ? .light : colorScheme)
                 .opacity(menuButtonShows && !menuOpen ? 1 : 0)
                 .allowsHitTesting(menuButtonShows && !menuOpen)
                 .overlay(alignment: .topTrailing) {
