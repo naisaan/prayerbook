@@ -30,8 +30,6 @@ struct ReaderView: View {
     @State private var tutorialStep: TutorialStep?
     /// The tutorial's last card tipping over and falling off the screen, like a canceled alert.
     @State private var tutorialFalling = false
-    /// Where the menu button and the menu's bookmark buttons are, for the tutorial's spotlight.
-    @State private var tutorialTargets: [TutorialTarget: CGRect] = [:]
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -130,8 +128,8 @@ struct ReaderView: View {
                     .allowsHitTesting(!controlsWaitForTutorial)
                 }
 
-                if let holes = tutorialSpotlight(in: metrics), !isOnCover {
-                    TutorialSpotlight(holes: holes)
+                if let spot = tutorialSpotlight(in: metrics), !isOnCover {
+                    TutorialSpotlight(center: spot.center, radius: spot.radius)
                         .ignoresSafeArea()
                         .transition(.opacity)
                 }
@@ -178,9 +176,6 @@ struct ReaderView: View {
                 } else if !isOpen && tutorialStep == .prayerListOpen {
                     withAnimation(.smooth(duration: 0.35)) { tutorialStep = .done }
                 }
-            }
-            .onPreferenceChange(TutorialTargetKey.self) { targets in
-                tutorialTargets = targets
             }
             .onChange(of: menuOpen) { _, isOpen in
                 // Tapping the menu button is how the first step moves on.
@@ -288,9 +283,7 @@ struct ReaderView: View {
                     onAddList: {
                         newListName = ""
                         namingList = true
-                    },
-                    // During the tutorial the menu is only to look at: its pages don't open.
-                    optionsDisabled: tutorialStep != nil
+                    }
                 )
                 .transition(menuTransition)
             }
@@ -303,7 +296,6 @@ struct ReaderView: View {
                 MenuButton {
                     setMenu(open: true)
                 }
-                .tutorialTarget(.menuButton)
                 .opacity(menuButtonShows && !menuOpen ? 1 : 0)
                 .allowsHitTesting(menuButtonShows && !menuOpen)
                 .overlay(alignment: .topTrailing) {
@@ -382,22 +374,18 @@ struct ReaderView: View {
         }
     }
 
-    /// What the tutorial lights up, in full-screen points: the menu button on the first step,
-    /// the bookmark and + buttons on the bookmarks step, and the prayer list's card on its step.
-    private func tutorialSpotlight(in metrics: PageMetrics) -> [CGRect]? {
+    /// The circle the tutorial lights up, in full-screen points: the menu button on the first
+    /// step, and the prayer list's card in the top corner on its step.
+    private func tutorialSpotlight(in metrics: PageMetrics) -> (center: CGPoint, radius: CGFloat)? {
         let size = metrics.size
         let safe = metrics.safeArea
         switch tutorialStep {
         case .welcome:
-            // Measured, or else where the 52-point button sits: 20 in from the side, 4 up.
-            let fallback = CGRect(x: size.width - safe.right - 72, y: size.height - safe.bottom - 56, width: 52, height: 52)
-            return [tutorialTargets[.menuButton] ?? fallback]
-        case .bookmarks:
-            let holes = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }
-            return holes.isEmpty ? nil : holes
+            // The 52-point button, 20 points in from the side and 4 up from the bottom.
+            return (CGPoint(x: size.width - safe.right - 20 - 26, y: size.height - safe.bottom - 4 - 26), 40)
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.
-            return [CGRect(x: size.width - 56, y: safe.top - 18, width: 76, height: 76)]
+            return (CGPoint(x: size.width - 18, y: safe.top + 20), 46)
         default:
             return nil
         }

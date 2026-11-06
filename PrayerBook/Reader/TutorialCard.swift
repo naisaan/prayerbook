@@ -141,76 +141,27 @@ struct TutorialCard: View {
     }
 }
 
-/// Things on screen the tutorial can light up, measured where they're drawn.
-nonisolated enum TutorialTarget: Hashable, Sendable {
-    case menuButton, bookmark, newList
-}
-
-struct TutorialTargetKey: PreferenceKey {
-    nonisolated static let defaultValue: [TutorialTarget: CGRect] = [:]
-    nonisolated static func reduce(value: inout [TutorialTarget: CGRect], nextValue: () -> [TutorialTarget: CGRect]) {
-        value.merge(nextValue()) { $1 }
-    }
-}
-
-extension View {
-    /// Reports where this view is on screen, so the tutorial can spotlight it.
-    func tutorialTarget(_ target: TutorialTarget) -> some View {
-        background {
-            GeometryReader { proxy in
-                Color.clear.preference(key: TutorialTargetKey.self, value: [target: proxy.frame(in: .global)])
-            }
-        }
-    }
-}
-
-/// Dims the screen except for soft round holes around what the tutorial is pointing at, each
-/// with a gently pulsing ring so it shows in dark mode too, where dimming a black page does
-/// little. Touches pass straight through, so the spotlit buttons work as usual.
+/// Dims the screen except for a soft circle around what the tutorial is pointing at. Touches
+/// pass straight through, so the spotlit button works as usual.
 struct TutorialSpotlight: View {
-    /// What to light up, in full-screen points. Each hole is round at the ends.
-    let holes: [CGRect]
-
-    /// A little room around each thing lit up.
-    private static let margin: CGFloat = 8
+    let center: CGPoint
+    let radius: CGFloat
 
     var body: some View {
-        ZStack {
-            // The same dark, frosted veil in light and dark mode: blurred and dimmed, so what's
-            // outside the spotlight fades back the same way on a white page or a black one.
-            Rectangle()
-                .fill(.thinMaterial)
-                .overlay(Color.black.opacity(0.35))
-                .environment(\.colorScheme, .dark)
-                .mask {
-                    Rectangle()
-                        .overlay {
-                            ForEach(holes.indices, id: \.self) { index in
-                                hole(holes[index])
-                                    .blur(radius: 3)
-                                    .blendMode(.destinationOut)
-                            }
-                        }
-                        .compositingGroup()
-                }
-
-            ForEach(holes.indices, id: \.self) { index in
-                hole(holes[index])
-                    .stroke(Color.white.opacity(0.85), lineWidth: 2.5)
-                    .phaseAnimator([false, true]) { ring, pulsing in
-                        ring.opacity(pulsing ? 0.25 : 1)
-                    } animation: { _ in
-                        .easeInOut(duration: 0.9)
+        Color.black
+            .opacity(0.5)
+            .mask {
+                Rectangle()
+                    .overlay {
+                        Circle()
+                            .frame(width: radius * 2, height: radius * 2)
+                            .blur(radius: 3)
+                            .position(center)
+                            .blendMode(.destinationOut)
                     }
+                    .compositingGroup()
             }
-        }
-        .allowsHitTesting(false)
-        .accessibilityHidden(true)
-    }
-
-    private func hole(_ rect: CGRect) -> some Shape {
-        let padded = rect.insetBy(dx: -Self.margin, dy: -Self.margin)
-        return RoundedRectangle(cornerRadius: min(padded.width, padded.height) / 2)
-            .path(in: padded)
+            .allowsHitTesting(false)
+            .accessibilityHidden(true)
     }
 }
