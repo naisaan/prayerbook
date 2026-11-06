@@ -596,14 +596,7 @@ struct ReaderView: View {
 /// so it looks like one splash screen rather than two. Like the launch screen, which iOS
 /// draws before the app starts, it follows the phone's light or dark mode, not the app's.
 private struct SplashView: View {
-    @Environment(ReaderSettings.self) private var settings
-
-    /// Light or Dark if the reader picked one in Themes & Settings, otherwise the phone's.
-    private var colorScheme: ColorScheme {
-        settings.appearance.colorScheme ?? phoneColorScheme
-    }
-
-    private let phoneColorScheme: ColorScheme = {
+    private let colorScheme: ColorScheme = {
         // The phone's own setting, from the screen. Before the window has a scene, the current
         // traits stand in, rather than falling back to light.
         let screen = UIApplication.shared.connectedScenes.compactMap { ($0 as? UIWindowScene)?.screen }.first
