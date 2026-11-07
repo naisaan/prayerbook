@@ -13,19 +13,19 @@ enum TutorialStep: Int, CaseIterable {
     var message: LocalizedStringKey {
         switch self {
         case .welcome:
-            "Just like a physical Prayer Book you can turn the page to go to the next prayer.\n\nPlease tap the Menu button at the bottom to get started."
+            "This app was inspired by a physical Prayer Book and can do many of the same things like bookmark, take notes, and more.\n\nPlease tap the Menu button at the bottom to get started."
         case .menu:
-            "Here you can see the Contents of your Prayer Book, Search for Prayers, choose other languages, and settings."
+            "Here you can see the Contents of your Prayer Book, search for prayers, choose other languages, and open Settings."
         case .bookmarks:
-            "To Bookmark a Prayer Press the Bookmark button. To create a Bookmark List, press the plus and name your new bookmarks list."
+            "To bookmark a prayer, press the Bookmark button. To create a bookmark list, press the plus and name your new list."
         case .highlights:
-            "To Highlight and create Notes select text and then press Highlight or Add Note"
+            "To highlight and create notes, select text and then press Highlight or Add Note."
         case .prayerList:
-            "At the top right corner there is Prayer List. You can write things you want to remember and create checklists to quickly reference at any time."
+            "In the top right corner is the Prayer List. You can write things you want to remember and create checklists to quickly reference at any time."
         case .prayerListOpen:
-            "Feel free to throw this back when you’re done"
+            "Feel free to throw this back when you’re done."
         case .done:
-            "Feel free to pinch to make the text bigger or smaller and swipe to turn the page.\nI hope you enjoy this app!"
+            "Feel free to pinch to make the text bigger or smaller, and swipe to turn the page.\nI hope you enjoy this app!"
         }
     }
 
@@ -168,37 +168,21 @@ struct TutorialCard: View {
 /// A spot the tutorial lights up, in full-screen points, round at the ends: a circle around a
 /// round button, a capsule around one of the menu's rows.
 struct SpotlightHole: Equatable {
-    /// The part left undimmed.
+    /// The part left undimmed. In dark mode, a bright shape of the same size is drawn under it,
+    /// so it looks just like light mode's white page showing through.
     let rect: CGRect
-    /// In dark mode, the bright shape drawn under the button: snug, so neighbors don't run together.
-    let backing: CGRect
     /// The corners' roundness; nil makes the short ends fully round.
     var cornerRadius: CGFloat? = nil
 
     /// Around a button, with a little room to spare.
-    init(around frame: CGRect, margin: CGFloat = 14, backingMargin: CGFloat = 4, cornerRadius: CGFloat? = nil) {
+    init(around frame: CGRect, margin: CGFloat = 14, cornerRadius: CGFloat? = nil) {
         rect = frame.insetBy(dx: -margin, dy: -margin)
-        backing = frame.insetBy(dx: -backingMargin, dy: -backingMargin)
         self.cornerRadius = cornerRadius
     }
 
-    /// Just the bright shape under a button, for a spot whose undimmed part is drawn by another hole.
-    init(backingAround frame: CGRect, margin: CGFloat = 2) {
-        rect = .null
-        backing = frame.insetBy(dx: -margin, dy: -margin)
-    }
-
-    /// Just the undimmed part, with no bright shape: dark mode lights its buttons one by one instead.
-    init(onlyAround frame: CGRect, margin: CGFloat, cornerRadius: CGFloat) {
-        rect = frame.insetBy(dx: -margin, dy: -margin)
-        backing = .null
-        self.cornerRadius = cornerRadius
-    }
-
-    /// A circle, with its bright backing the same size.
+    /// A circle.
     init(center: CGPoint, radius: CGFloat) {
         rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
-        backing = rect
     }
 }
 
@@ -246,11 +230,9 @@ struct TutorialSpotlight: View {
                 Rectangle()
                     .overlay {
                         ForEach(holes.indices, id: \.self) { index in
-                            if !holes[index].rect.isNull {
-                                roundedShape(holes[index].rect, cornerRadius: holes[index].cornerRadius)
-                                    .blur(radius: 3)
-                                    .blendMode(.destinationOut)
-                            }
+                            roundedShape(holes[index].rect, cornerRadius: holes[index].cornerRadius)
+                                .blur(radius: 3)
+                                .blendMode(.destinationOut)
                         }
                     }
                     .compositingGroup()
@@ -268,11 +250,10 @@ struct TutorialSpotlightBacking: View {
     var body: some View {
         ZStack {
             ForEach(holes.indices, id: \.self) { index in
-                if !holes[index].backing.isNull {
-                    roundedShape(holes[index].backing, cornerRadius: holes[index].cornerRadius)
-                        .foregroundStyle(Color.white.opacity(0.8))
-                        .blur(radius: 2)
-                }
+                // The same shape and soft edge as the hole, so dark mode matches light mode.
+                roundedShape(holes[index].rect, cornerRadius: holes[index].cornerRadius)
+                    .foregroundStyle(Color.white.opacity(0.8))
+                    .blur(radius: 3)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

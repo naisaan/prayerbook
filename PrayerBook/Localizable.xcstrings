@@ -770,64 +770,6 @@
         }
       }
     },
-    "At the top right corner there is Prayer List. You can write things you want to remember and create checklists to quickly reference at any time.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Oben rechts findest du die Gebetsliste. Dort kannst du aufschreiben, woran du denken möchtest, und Checklisten anlegen, die du jederzeit schnell aufrufen kannst."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En la esquina superior derecha está la Lista de oración. Puedes escribir lo que quieras recordar y crear listas de tareas para consultarlas rápidamente en cualquier momento."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "En haut à droite se trouve la Liste de prière. Vous pouvez y noter ce que vous voulez retenir et créer des listes de contrôle à consulter rapidement à tout moment."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "In alto a destra c’è la Lista di preghiera. Puoi scrivere ciò che vuoi ricordare e creare elenchi di controllo da consultare rapidamente in qualsiasi momento."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rechtsboven staat de Gebedslijst. Je kunt opschrijven wat je wilt onthouden en checklists maken die je altijd snel kunt raadplegen."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Efst í hægra horninu er Bænalistinn. Þar geturðu skrifað það sem þú vilt muna og búið til gátlista sem þú getur skoðað hvenær sem er."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "V pravém horním rohu je Modlitební seznam. Můžete si do něj zapsat, co si chcete pamatovat, a vytvářet kontrolní seznamy, které máte kdykoli po ruce."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "V pravom hornom rohu je Modlitebný zoznam. Môžete si doň zapísať, čo si chcete pamätať, a vytvárať kontrolné zoznamy, ktoré máte kedykoľvek poruke."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "در گوشهٔ بالا سمت راست، فهرست دعا قرار دارد. می‌توانید چیزهایی را که می‌خواهید به یاد بسپارید بنویسید و فهرست‌های کار بسازید تا هر زمان به‌سرعت به آن‌ها رجوع کنید."
-          }
-        }
-      }
-    },
     "Automatic": {
       "localizations": {
         "de": {
@@ -2803,7 +2745,7 @@
         }
       }
     },
-    "Feel free to pinch to make the text bigger or smaller and swipe to turn the page.\nI hope you enjoy this app!": {
+    "Feel free to pinch to make the text bigger or smaller, and swipe to turn the page.\nI hope you enjoy this app!": {
       "localizations": {
         "de": {
           "stringUnit": {
@@ -2861,60 +2803,60 @@
         }
       }
     },
-    "Feel free to throw this back when you’re done": {
+    "Feel free to throw this back when you’re done.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wirf sie einfach zurück, wenn du fertig bist"
+            "value": "Wirf sie einfach zurück, wenn du fertig bist."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Cuando termines, puedes lanzarla de vuelta"
+            "value": "Cuando termines, puedes lanzarla de vuelta."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quand vous avez fini, renvoyez-la d’un geste"
+            "value": "Quand vous avez fini, renvoyez-la d’un geste."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Quando hai finito, puoi rilanciarla al suo posto"
+            "value": "Quando hai finito, puoi rilanciarla al suo posto."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Gooi hem gerust terug als je klaar bent"
+            "value": "Gooi hem gerust terug als je klaar bent."
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Kastaðu honum bara aftur þegar þú ert búin(n)"
+            "value": "Kastaðu honum bara aftur þegar þú ert búin(n)."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Až budete hotovi, klidně ho odhoďte zpět"
+            "value": "Až budete hotovi, klidně ho odhoďte zpět."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Keď skončíte, pokojne ho odhoďte späť"
+            "value": "Keď skončíte, pokojne ho odhoďte späť."
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "هر وقت کارتان تمام شد، آن را به جایش برگردانید"
+            "value": "هر وقت کارتان تمام شد، آن را به جایش برگردانید."
           }
         }
       }
@@ -3209,7 +3151,7 @@
         }
       }
     },
-    "Here you can see the Contents of your Prayer Book, Search for Prayers, choose other languages, and settings.": {
+    "Here you can see the Contents of your Prayer Book, search for prayers, choose other languages, and open Settings.": {
       "localizations": {
         "de": {
           "stringUnit": {
@@ -3441,6 +3383,64 @@
         }
       }
     },
+    "In the top right corner is the Prayer List. You can write things you want to remember and create checklists to quickly reference at any time.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Oben rechts findest du die Gebetsliste. Dort kannst du aufschreiben, woran du denken möchtest, und Checklisten anlegen, die du jederzeit schnell aufrufen kannst."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En la esquina superior derecha está la Lista de oración. Puedes escribir lo que quieras recordar y crear listas de tareas para consultarlas rápidamente en cualquier momento."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "En haut à droite se trouve la Liste de prière. Vous pouvez y noter ce que vous voulez retenir et créer des listes de contrôle à consulter rapidement à tout moment."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "In alto a destra c’è la Lista di preghiera. Puoi scrivere ciò che vuoi ricordare e creare elenchi di controllo da consultare rapidamente in qualsiasi momento."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Rechtsboven staat de Gebedslijst. Je kunt opschrijven wat je wilt onthouden en checklists maken die je altijd snel kunt raadplegen."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Efst í hægra horninu er Bænalistinn. Þar geturðu skrifað það sem þú vilt muna og búið til gátlista sem þú getur skoðað hvenær sem er."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V pravém horním rohu je Modlitební seznam. Můžete si do něj zapsat, co si chcete pamatovat, a vytvářet kontrolní seznamy, které máte kdykoli po ruce."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "V pravom hornom rohu je Modlitebný zoznam. Môžete si doň zapísať, čo si chcete pamätať, a vytvárať kontrolné zoznamy, ktoré máte kedykoľvek poruke."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "در گوشهٔ بالا سمت راست، فهرست دعا قرار دارد. می‌توانید چیزهایی را که می‌خواهید به یاد بسپارید بنویسید و فهرست‌های کار بسازید تا هر زمان به‌سرعت به آن‌ها رجوع کنید."
+          }
+        }
+      }
+    },
     "In this book": {
       "localizations": {
         "de": {
@@ -3495,64 +3495,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "در این کتاب"
-          }
-        }
-      }
-    },
-    "Just like a physical Prayer Book you can turn the page to go to the next prayer.\n\nPlease tap the Menu button at the bottom to get started.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Wie in einem gedruckten Gebetbuch kannst du umblättern, um zum nächsten Gebet zu gelangen.\n\nTippe unten auf die Menütaste, um zu beginnen."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Igual que en un libro de oraciones impreso, puedes pasar la página para ir a la siguiente oración.\n\nToca el botón de menú de abajo para empezar."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Comme dans un livre de prières imprimé, vous pouvez tourner la page pour passer à la prière suivante.\n\nTouchez le bouton de menu en bas pour commencer."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Proprio come in un libro di preghiere stampato, puoi girare pagina per passare alla preghiera successiva.\n\nTocca il pulsante del menu in basso per iniziare."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Net als in een gedrukt gebedenboek kun je de pagina omslaan om naar het volgende gebed te gaan.\n\nTik onderaan op de menuknop om te beginnen."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rétt eins og í prentaðri bænabók geturðu flett til að fara í næstu bæn.\n\nÝttu á valmyndarhnappinn neðst til að byrja."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Stejně jako v tištěné modlitební knize můžete otočit stránku a přejít na další modlitbu.\n\nZačněte klepnutím na tlačítko nabídky dole."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Rovnako ako v tlačenej modlitebnej knihe môžete otočiť stránku a prejsť na ďalšiu modlitbu.\n\nZačnite ťuknutím na tlačidlo ponuky dole."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "درست مانند یک کتاب مناجات چاپی، می‌توانید صفحه را ورق بزنید تا به مناجات بعدی بروید.\n\nبرای شروع، دکمهٔ منو را در پایین بزنید."
           }
         }
       }
@@ -6924,6 +6866,64 @@
         }
       }
     },
+    "This app was inspired by a physical Prayer Book and can do many of the same things like bookmark, take notes, and more.\n\nPlease tap the Menu button at the bottom to get started.": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Diese App wurde von einem gedruckten Gebetbuch inspiriert und kann vieles davon ebenfalls, zum Beispiel Lesezeichen setzen, Notizen machen und mehr.\n\nTippe unten auf die Menütaste, um zu beginnen."
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Esta app se inspiró en un libro de oraciones impreso y puede hacer muchas de las mismas cosas, como añadir marcadores, tomar notas y más.\n\nToca el botón de menú de abajo para empezar."
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Cette app s’inspire d’un livre de prières imprimé et permet de faire bien des choses semblables, comme ajouter des signets, prendre des notes, et plus encore.\n\nTouchez le bouton de menu en bas pour commencer."
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Questa app si ispira a un libro di preghiere stampato e permette di fare molte delle stesse cose, come aggiungere segnalibri, prendere appunti e altro ancora.\n\nTocca il pulsante del menu in basso per iniziare."
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Deze app is geïnspireerd op een gedrukt gebedenboek en kan veel van hetzelfde, zoals bladwijzers maken, notities schrijven en meer.\n\nTik onderaan op de menuknop om te beginnen."
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Þetta app er innblásið af prentaðri bænabók og getur gert margt af því sama, eins og að setja bókamerki, skrifa glósur og fleira.\n\nÝttu á valmyndarhnappinn neðst til að byrja."
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Tato aplikace vznikla podle tištěné modlitební knihy a umí mnoho stejných věcí, například záložky, poznámky a další.\n\nZačněte klepnutím na tlačítko nabídky dole."
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Táto aplikácia vznikla podľa tlačenej modlitebnej knihy a dokáže mnoho rovnakých vecí, napríklad záložky, poznámky a ďalšie.\n\nZačnite ťuknutím na tlačidlo ponuky dole."
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "این برنامه از یک کتاب مناجات چاپی الهام گرفته و می‌تواند بسیاری از همان کارها را انجام دهد، مانند نشانک‌گذاری، یادداشت‌نویسی و موارد دیگر.\n\nبرای شروع، دکمهٔ منو را در پایین بزنید."
+          }
+        }
+      }
+    },
     "This app was vibe-coded and made with Love by [Naisaan Nadimi](https://naisaannadimi.net)": {
       "localizations": {
         "de": {
@@ -6982,7 +6982,7 @@
         }
       }
     },
-    "To Bookmark a Prayer Press the Bookmark button. To create a Bookmark List, press the plus and name your new bookmarks list.": {
+    "To bookmark a prayer, press the Bookmark button. To create a bookmark list, press the plus and name your new list.": {
       "localizations": {
         "de": {
           "stringUnit": {
@@ -7040,7 +7040,7 @@
         }
       }
     },
-    "To Highlight and create Notes select text and then press Highlight or Add Note": {
+    "To highlight and create notes, select text and then press Highlight or Add Note.": {
       "localizations": {
         "de": {
           "stringUnit": {

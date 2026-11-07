@@ -405,7 +405,7 @@ struct ReaderView: View {
             // Both prayer list cards keep their top edge on the same line, low on the screen,
             // so the card doesn't move when the list opens.
             let safeHeight = safeBottom - metrics.safeArea.top
-            return (.top, max(safeHeight - 300, safeHeight / 2), 0)
+            return (.top, max(safeHeight - 240, safeHeight / 2), 0)
         }
     }
 
@@ -420,13 +420,9 @@ struct ReaderView: View {
             let button = CGRect(x: size.width - safe.right - 20 - 52, y: size.height - safe.bottom - 4 - 52, width: 52, height: 52)
             return [SpotlightHole(around: button)]
         case .menu:
-            // One rounded rectangle around the whole menu. In dark mode each button still gets
-            // its own bright shape underneath.
+            // One rounded rectangle around the whole menu.
             guard let menu = tutorialTargets[.menu] else { return nil }
-            let backings: [SpotlightHole] = tutorialTargets.compactMap { target, frame in
-                target == .menu ? nil : SpotlightHole(backingAround: frame)
-            }
-            return [SpotlightHole(onlyAround: menu, margin: 12, cornerRadius: 36)] + backings
+            return [SpotlightHole(around: menu, margin: 12, cornerRadius: 36)]
         case .bookmarks:
             // The menu's bookmark and + buttons, where they're drawn.
             let frames: [CGRect] = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }
