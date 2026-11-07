@@ -405,7 +405,7 @@ struct ReaderView: View {
             // Both prayer list cards keep their top edge on the same line, low on the screen,
             // so the card doesn't move when the list opens.
             let safeHeight = safeBottom - metrics.safeArea.top
-            return (.top, max(safeHeight - 240, safeHeight / 2), 0)
+            return (.top, max(safeHeight - 215, safeHeight / 2), 0)
         }
     }
 
@@ -426,7 +426,7 @@ struct ReaderView: View {
         case .bookmarks:
             // The menu's bookmark and + buttons, where they're drawn.
             let frames: [CGRect] = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }
-            let holes: [SpotlightHole] = frames.map { frame in SpotlightHole(around: frame) }
+            let holes: [SpotlightHole] = frames.map { frame in SpotlightHole(around: frame, backingMargin: 4) }
             return holes.isEmpty ? nil : holes
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.

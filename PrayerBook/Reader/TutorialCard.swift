@@ -25,7 +25,7 @@ enum TutorialStep: Int, CaseIterable {
         case .prayerListOpen:
             "Feel free to throw this back when you’re done."
         case .done:
-            "Feel free to pinch to make the text bigger or smaller, and swipe to turn the page.\nI hope you enjoy this app!"
+            "Feel free to pinch to make the text bigger.\n\nI hope you enjoy this app!"
         }
     }
 
@@ -171,18 +171,24 @@ struct SpotlightHole: Equatable {
     /// The part left undimmed. In dark mode, a bright shape of the same size is drawn under it,
     /// so it looks just like light mode's white page showing through.
     let rect: CGRect
+    /// In dark mode, the bright shape drawn under the button. The same as `rect`, except on the
+    /// bookmark steps, where it hugs the buttons so the two don't run together.
+    let backing: CGRect
     /// The corners' roundness; nil makes the short ends fully round.
     var cornerRadius: CGFloat? = nil
 
     /// Around a button, with a little room to spare.
-    init(around frame: CGRect, margin: CGFloat = 14, cornerRadius: CGFloat? = nil) {
+    init(around frame: CGRect, margin: CGFloat = 14, backingMargin: CGFloat? = nil, cornerRadius: CGFloat? = nil) {
         rect = frame.insetBy(dx: -margin, dy: -margin)
+        let backingMargin = backingMargin ?? margin
+        backing = frame.insetBy(dx: -backingMargin, dy: -backingMargin)
         self.cornerRadius = cornerRadius
     }
 
     /// A circle.
     init(center: CGPoint, radius: CGFloat) {
         rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        backing = rect
     }
 }
 
@@ -250,10 +256,10 @@ struct TutorialSpotlightBacking: View {
     var body: some View {
         ZStack {
             ForEach(holes.indices, id: \.self) { index in
-                // The same shape and soft edge as the hole, so dark mode matches light mode.
-                roundedShape(holes[index].rect, cornerRadius: holes[index].cornerRadius)
+                // Usually the same shape and soft edge as the hole, so dark mode matches light mode.
+                roundedShape(holes[index].backing, cornerRadius: holes[index].cornerRadius)
                     .foregroundStyle(Color.white.opacity(0.8))
-                    .blur(radius: 3)
+                    .blur(radius: holes[index].backing == holes[index].rect ? 3 : 2)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
