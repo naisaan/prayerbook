@@ -14,6 +14,7 @@ struct AllahuAbhaView: View {
     @Environment(ReaderSettings.self) private var settings
     @AppStorage("allahuAbhaClassicView") private var classicView = false
     @AppStorage("prayerBeadColor") private var beadColor = BeadColor.blue
+    @AppStorage("prayerBeadFeel") private var beadFeel = BeadFeel.classic
     @State private var count = 0
     @State private var showsSettings = false
 
@@ -28,7 +29,7 @@ struct AllahuAbhaView: View {
             if classicView {
                 ClassicCounter(count: $count, goal: goal)
             } else {
-                BeadCounter(count: $count, goal: goal, color: beadColor)
+                BeadCounter(count: $count, goal: goal, color: beadColor, feel: beadFeel)
             }
         }
         .contentShape(Rectangle())
@@ -50,8 +51,8 @@ struct AllahuAbhaView: View {
         // A new goal starts the count again.
         .onChange(of: goal) { count = 0 }
         .sheet(isPresented: $showsSettings) {
-            CounterSettings(classicView: $classicView, beadColor: $beadColor, goal: $goal)
-                .presentationDetents([.height(classicView ? 240 : 360)])
+            CounterSettings(classicView: $classicView, beadColor: $beadColor, beadFeel: $beadFeel, goal: $goal)
+                .presentationDetents([.height(classicView ? 240 : 440)])
         }
     }
 }
@@ -88,8 +89,11 @@ private struct AllahuAbhaInstruction: View {
 private struct CounterSettings: View {
     @Binding var classicView: Bool
     @Binding var beadColor: BeadColor
+    @Binding var beadFeel: BeadFeel
     @Binding var goal: Int
     @Environment(\.dismiss) private var dismiss
+    /// Plays each feel as it's picked, so they can be compared.
+    @State private var preview = BeadHaptics()
 
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
@@ -133,6 +137,26 @@ private struct CounterSettings: View {
             .menuSurface(.capsule, interactive: false)
 
             if !classicView {
+                // How the beads feel to pull and drop, picked from Apple's pop-up menu.
+                HStack {
+                    Label("Feel", systemImage: "hand.draw")
+                    Spacer()
+                    Picker(selection: $beadFeel) {
+                        ForEach(BeadFeel.allCases) { option in
+                            Text(option.name).tag(option)
+                        }
+                    } label: {
+                        Text("Feel")
+                    }
+                    .pickerStyle(.menu)
+                    .tint(.primary)
+                }
+                .padding(.leading, 20)
+                .padding(.trailing, 8)
+                .frame(height: 52)
+                .menuSurface(.capsule, interactive: false)
+                .transition(.opacity)
+
                 VStack(alignment: .leading, spacing: 12) {
                     Text("Choose the main color of your prayer bead")
                         .font(.subheadline)
@@ -174,6 +198,12 @@ private struct CounterSettings: View {
         .sensoryFeedback(.selection, trigger: classicView)
         .sensoryFeedback(.selection, trigger: beadColor)
         .sensoryFeedback(.selection, trigger: goal)
+        .onAppear { preview.prepare() }
+        .onChange(of: beadFeel) { _, feel in
+            // A taste of the new feel: a bead dropping into place.
+            preview.feel = feel
+            preview.thunk()
+        }
     }
 }
 
@@ -271,6 +301,7 @@ private struct BeadCounter: View {
     @Binding var count: Int
     let goal: Int
     let color: BeadColor
+    let feel: BeadFeel
     @State private var haptics = BeadHaptics()
 
     /// Where the finger came down, which is where the bead in hand starts.
@@ -319,7 +350,11 @@ private struct BeadCounter: View {
             .contentShape(Rectangle())
             .gesture(pull(diameter: diameter, bounds: proxy.size))
         }
-        .onAppear { haptics.prepare() }
+        .onAppear {
+            haptics.feel = feel
+            haptics.prepare()
+        }
+        .onChange(of: feel) { _, feel in haptics.feel = feel }
         .onDisappear { haptics.stopPulling() }
         .onChange(of: count) { _, new in
             // Start Over clears the beads.
@@ -430,10 +465,11 @@ private struct BeadCounter: View {
                 // Only the part of the drag along the string moves the bead.
                 let along = (t.width * dx + t.height * dy) / length
                 let amount = min(max(along / room, 0), 1)
-                progress = amount
+                // With some feels the bead holds back behind the finger, as if pulled against.
+                progress = feel.progress(for: amount)
                 if !committed && distance >= Self.commitDistance {
                     committed = true
-                    commitProgress = amount
+                    commitProgress = progress
                 }
                 haptics.pull(amount)
                 if amount >= 1 { landBead() }
@@ -583,116 +619,6 @@ private struct Bead: View {
                 }
             }
             .animation(.snappy(duration: 0.25), value: number)
-    }
-}
-
-/// The feel of the beads, with Core Haptics: a light touch when a bead is taken, a pull that
-/// grows as it's drawn along, a thunk when it drops into place, and a big thunk that fades
-/// away at ninety-five.
-@MainActor
-private final class BeadHaptics {
-    private var engine: CHHapticEngine?
-    private var pullPlayer: CHHapticAdvancedPatternPlayer?
-
-    func prepare() {
-        guard engine == nil, CHHapticEngine.capabilitiesForHardware().supportsHaptics else { return }
-        engine = try? CHHapticEngine()
-        engine?.isAutoShutdownEnabled = true
-        engine?.resetHandler = { [weak self] in
-            Task { @MainActor in self?.pullPlayer = nil }
-        }
-    }
-
-    /// The bead is in hand: a small tap, then the pulling begins, very faint.
-    func startPulling() {
-        play([
-            CHHapticEvent(eventType: .hapticTransient, parameters: [
-                .init(parameterID: .hapticIntensity, value: 0.35),
-                .init(parameterID: .hapticSharpness, value: 0.4),
-            ], relativeTime: 0),
-        ])
-        guard let engine else { return }
-        do {
-            try engine.start()
-            let pattern = try CHHapticPattern(events: [
-                CHHapticEvent(eventType: .hapticContinuous, parameters: [
-                    .init(parameterID: .hapticIntensity, value: 1),
-                    .init(parameterID: .hapticSharpness, value: 0.15),
-                ], relativeTime: 0, duration: 30),
-            ], parameters: [])
-            let player = try engine.makeAdvancedPlayer(with: pattern)
-            try player.sendParameters([.init(parameterID: .hapticIntensityControl, value: 0.18, relativeTime: 0)], atTime: CHHapticTimeImmediate)
-            try player.start(atTime: CHHapticTimeImmediate)
-            pullPlayer = player
-        } catch {
-            pullPlayer = nil
-        }
-    }
-
-    /// The pull grows stronger the further the bead is drawn.
-    func pull(_ amount: CGFloat) {
-        let intensity = Float(0.18 + 0.4 * amount)
-        try? pullPlayer?.sendParameters([.init(parameterID: .hapticIntensityControl, value: intensity, relativeTime: 0)], atTime: CHHapticTimeImmediate)
-    }
-
-    func stopPulling() {
-        try? pullPlayer?.stop(atTime: CHHapticTimeImmediate)
-        pullPlayer = nil
-    }
-
-    /// The bead drops into place: a deep, soft knock.
-    func thunk() {
-        play([
-            CHHapticEvent(eventType: .hapticTransient, parameters: [
-                .init(parameterID: .hapticIntensity, value: 1),
-                .init(parameterID: .hapticSharpness, value: 0.25),
-            ], relativeTime: 0),
-            CHHapticEvent(eventType: .hapticContinuous, parameters: [
-                .init(parameterID: .hapticIntensity, value: 0.5),
-                .init(parameterID: .hapticSharpness, value: 0.05),
-            ], relativeTime: 0, duration: 0.08),
-        ], fallback: .heavy)
-    }
-
-    /// The ninety-fifth bead: unmistakably the end. Three heavy knocks in quick succession,
-    /// then a deep, full-strength rumble that holds for a moment and slowly fades away.
-    func bigThunk() {
-        var events: [CHHapticEvent] = []
-        for (time, sharpness) in [(0.0, 0.35), (0.14, 0.2), (0.3, 0.1)] as [(TimeInterval, Float)] {
-            events.append(CHHapticEvent(eventType: .hapticTransient, parameters: [
-                .init(parameterID: .hapticIntensity, value: 1),
-                .init(parameterID: .hapticSharpness, value: sharpness),
-            ], relativeTime: time))
-        }
-        events.append(CHHapticEvent(eventType: .hapticContinuous, parameters: [
-            .init(parameterID: .hapticIntensity, value: 1),
-            .init(parameterID: .hapticSharpness, value: 0.08),
-        ], relativeTime: 0, duration: 2.6))
-        let fade = CHHapticParameterCurve(parameterID: .hapticIntensityControl, controlPoints: [
-            .init(relativeTime: 0, value: 1),
-            .init(relativeTime: 0.9, value: 1),
-            .init(relativeTime: 1.6, value: 0.5),
-            .init(relativeTime: 2.6, value: 0),
-        ], relativeTime: 0)
-        play(events, curves: [fade], fallback: .heavy)
-        if engine == nil {
-            // Without Core Haptics, at least a strong success buzz.
-            UINotificationFeedbackGenerator().notificationOccurred(.success)
-        }
-    }
-
-    private func play(_ events: [CHHapticEvent], curves: [CHHapticParameterCurve] = [], fallback: UIImpactFeedbackGenerator.FeedbackStyle = .light) {
-        guard let engine else {
-            UIImpactFeedbackGenerator(style: fallback).impactOccurred()
-            return
-        }
-        do {
-            try engine.start()
-            let pattern = try CHHapticPattern(events: events, parameterCurves: curves)
-            try engine.makePlayer(with: pattern).start(atTime: CHHapticTimeImmediate)
-        } catch {
-            UIImpactFeedbackGenerator(style: fallback).impactOccurred()
-        }
     }
 }
 
