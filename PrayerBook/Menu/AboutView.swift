@@ -33,7 +33,7 @@ struct AboutView: View {
                 }
 
                 Section("Dedications") {
-                    Text("To my parents Bahman and Jalal, my Friends, and Triangle and Torpignattara Bahá’í Communities. Thanks for always being there for me.")
+                    Text("To my family, Jalal, Bahman, and Leyla; my friends; and the Triangle and Torpignattara Bahá’í Communities. Thanks for always being there for me.")
                 }
 
                 Section("Sources") {
