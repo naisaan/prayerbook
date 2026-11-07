@@ -83,18 +83,23 @@ struct ReaderMenu: View {
                 MenuRow(title: "Contents", systemImage: "list.bullet", progress: Double(progress) / 100) {
                     onSelect(.contents)
                 }
+                .tutorialTarget(.menuItem("contents"))
                 MenuRow(title: "Highlights & Notes", systemImage: "highlighter", detail: highlightCount > 0 ? "\(highlightCount)" : nil) {
                     onSelect(.highlights)
                 }
+                .tutorialTarget(.menuItem("highlights"))
                 MenuRow(title: "Search Book", systemImage: "magnifyingglass") {
                     onSelect(.search)
                 }
+                .tutorialTarget(.menuItem("search"))
                 MenuRow(title: "Languages", systemImage: "globe") {
                     onSelect(.languages)
                 }
+                .tutorialTarget(.menuItem("languages"))
                 MenuRow(title: "Themes & Settings", systemImage: "textformat.size") {
                     onSelect(.settings)
                 }
+                .tutorialTarget(.menuItem("settings"))
 
                 HStack(spacing: 8) {
                     // The + makes a new bookmark list. It stays on the outside, and each new
@@ -119,6 +124,7 @@ struct ReaderMenu: View {
                                 showsColor: true,
                                 name: list.name
                             ) { onToggleList(list.id) }
+                            .tutorialTarget(.menuItem(list.id.uuidString))
                         }
                         BookmarkToggle(color: .red, isOn: isBookmarked, showsColor: showsColors, name: String(localized: "Bookmarks"), action: onToggleBookmark)
                             .tutorialTarget(.bookmark)
@@ -131,9 +137,11 @@ struct ReaderMenu: View {
                         .buttonStyle(PressableButtonStyle())
                         .menuSurface(.circle)
                         .accessibilityLabel("Share prayer")
+                        .tutorialTarget(.menuItem("share"))
                     }
                 }
             }
+            .tutorialTarget(.menu)
         }
     }
 }

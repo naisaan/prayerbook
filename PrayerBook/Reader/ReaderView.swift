@@ -33,6 +33,8 @@ struct ReaderView: View {
     @State private var tutorialFalling = false
     /// Where the menu's bookmark and + buttons are, for the tutorial's spotlight.
     @State private var tutorialTargets: [TutorialTarget: CGRect] = [:]
+    /// Where the prayer list step's card starts on screen, so the next card can start there too.
+    @State private var prayerListCardTop: CGFloat?
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -145,11 +147,14 @@ struct ReaderView: View {
                 }
 
                 if let tutorialStep, !isOnCover {
+                    let place = cardPlacement(for: tutorialStep, in: metrics)
                     TutorialCard(step: tutorialStep, onNext: advanceTutorial)
-                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: cardAlignment(for: tutorialStep))
-                        .padding(.top, tutorialStep.placement == .top ? 8 : 0)
-                        // At the bottom, above the menu button.
-                        .padding(.bottom, tutorialStep.placement == .bottom ? 72 : 0)
+                        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { top in
+                            if tutorialStep == .prayerList { prayerListCardTop = top }
+                        }
+                        .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: place.alignment)
+                        .padding(.top, place.top)
+                        .padding(.bottom, place.bottom)
                         // Done: it tumbles off the bottom, exactly like Cancel on the name alerts.
                         .rotationEffect(.degrees(tutorialFalling ? -270 : 0))
                         .offset(x: tutorialFalling ? -20 : 0, y: tutorialFalling ? metrics.size.height + 300 : 0)
@@ -387,11 +392,27 @@ struct ReaderView: View {
         withAnimation(.smooth(duration: 0.35)) { tutorialStep = next }
     }
 
-    private func cardAlignment(for step: TutorialStep) -> Alignment {
+    /// Where the card goes: its alignment, and its distance from the top or bottom of the
+    /// screen's safe area.
+    private func cardPlacement(for step: TutorialStep, in metrics: PageMetrics) -> (alignment: Alignment, top: CGFloat, bottom: CGFloat) {
+        let safeBottom = metrics.size.height - metrics.safeArea.bottom
         switch step.placement {
-        case .top: .top
-        case .center: .center
-        case .bottom: .bottom
+        case .top:
+            // Just above the open menu's first row, with a little room.
+            if let menu = tutorialTargets[.menu] {
+                return (.bottom, 0, max(safeBottom - menu.minY + 16, 0))
+            }
+            return (.top, 8, 0)
+        case .center:
+            return (.center, 0, 0)
+        case .bottom:
+            // The "throw it back" card starts on the same line as the card before it, and
+            // being shorter, ends higher.
+            if step == .prayerListOpen, let top = prayerListCardTop {
+                return (.top, max(top - metrics.safeArea.top, 0), 0)
+            }
+            // Above the menu button.
+            return (.bottom, 0, 72)
         }
     }
 
@@ -403,14 +424,21 @@ struct ReaderView: View {
         switch tutorialStep {
         case .welcome:
             // The 52-point button, 20 points in from the side and 4 up from the bottom.
-            return [SpotlightHole(center: CGPoint(x: size.width - safe.right - 20 - 26, y: size.height - safe.bottom - 4 - 26), radius: 40)]
+            let button = CGRect(x: size.width - safe.right - 20 - 52, y: size.height - safe.bottom - 4 - 52, width: 52, height: 52)
+            return [SpotlightHole(around: button)]
+        case .menu:
+            // Everything in the menu: its rows and its round buttons.
+            let holes = tutorialTargets.compactMap { target, frame -> SpotlightHole? in
+                target == .menu ? nil : SpotlightHole(around: frame, margin: 6, backingMargin: 2)
+            }
+            return holes.isEmpty ? nil : holes
         case .bookmarks:
             // The menu's bookmark and + buttons, where they're drawn.
             let holes = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }.map(SpotlightHole.init(around:))
             return holes.isEmpty ? nil : holes
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.
-            return [SpotlightHole(center: CGPoint(x: size.width - 18, y: safe.top + 20), radius: 46, backingInset: 0)]
+            return [SpotlightHole(center: CGPoint(x: size.width - 18, y: safe.top + 20), radius: 46)]
         default:
             return nil
         }

@@ -6,13 +6,13 @@ enum TutorialStep: Int, CaseIterable {
     case welcome, menu, bookmarks, highlights, prayerList, prayerListOpen, done
 
     var title: LocalizedStringKey? {
-        self == .welcome ? "Welcome to Bahá’í Prayer Book." : nil
+        self == .welcome ? "Alláh’u’Abhá and Welcome!" : nil
     }
 
     var message: LocalizedStringKey {
         switch self {
         case .welcome:
-            "Just like a physical Prayer Book you can bookmark pages, highlight and make notes, and more. To start tap on the menu button on the bottom right corner."
+            "Just like a physical Prayer Book you can turn the page to go to the next prayer.\n\nPlease tap the Menu button at the bottom to get started."
         case .menu:
             "Here you can see the Contents of your Prayer Book, Search for Prayers, choose other languages, and settings."
         case .bookmarks:
@@ -146,30 +146,41 @@ struct TutorialCard: View {
 ///
 /// In dark mode the screen dims the same way, and `TutorialSpotlightBacking` puts a white circle
 /// under the spotlit button, so it sits in a bright circle just as it does on a white page.
-/// A round spot the tutorial lights up, in full-screen points.
+/// A spot the tutorial lights up, in full-screen points, round at the ends: a circle around a
+/// round button, a capsule around one of the menu's rows.
 struct SpotlightHole: Equatable {
-    let center: CGPoint
-    let radius: CGFloat
-    /// How much smaller the bright circle under it is in dark mode: snug around a button, but
-    /// the full size around the prayer list's card.
-    var backingInset: CGFloat = 10
+    /// The part left undimmed.
+    let rect: CGRect
+    /// In dark mode, the bright shape drawn under the button: snug, so neighbors don't run together.
+    let backing: CGRect
 
-    /// A circle around a button, with a little room to spare.
-    init(around frame: CGRect) {
-        center = CGPoint(x: frame.midX, y: frame.midY)
-        radius = max(frame.width, frame.height) / 2 + 14
+    /// Around a button, with a little room to spare.
+    init(around frame: CGRect, margin: CGFloat = 14, backingMargin: CGFloat = 4) {
+        rect = frame.insetBy(dx: -margin, dy: -margin)
+        backing = frame.insetBy(dx: -backingMargin, dy: -backingMargin)
     }
 
-    init(center: CGPoint, radius: CGFloat, backingInset: CGFloat = 10) {
-        self.center = center
-        self.radius = radius
-        self.backingInset = backingInset
+    /// A circle, with its bright backing the same size.
+    init(center: CGPoint, radius: CGFloat) {
+        rect = CGRect(x: center.x - radius, y: center.y - radius, width: radius * 2, height: radius * 2)
+        backing = rect
     }
+}
+
+/// A rounded shape filling `rect`, round at its short ends.
+private func roundedShape(_ rect: CGRect) -> some View {
+    RoundedRectangle(cornerRadius: min(rect.width, rect.height) / 2, style: .continuous)
+        .frame(width: rect.width, height: rect.height)
+        .position(x: rect.midX, y: rect.midY)
 }
 
 /// Things in the menu the tutorial can light up, measured where they're drawn.
 nonisolated enum TutorialTarget: Hashable, Sendable {
+    /// The whole menu, to place the cards just above it.
+    case menu
     case bookmark, newList
+    /// Any other button in the menu: its rows, the other bookmark lists, Share.
+    case menuItem(String)
 }
 
 struct TutorialTargetKey: PreferenceKey {
@@ -200,11 +211,8 @@ struct TutorialSpotlight: View {
                 Rectangle()
                     .overlay {
                         ForEach(holes.indices, id: \.self) { index in
-                            let hole = holes[index]
-                            Circle()
-                                .frame(width: hole.radius * 2, height: hole.radius * 2)
+                            roundedShape(holes[index].rect)
                                 .blur(radius: 3)
-                                .position(hole.center)
                                 .blendMode(.destinationOut)
                         }
                     }
@@ -215,22 +223,17 @@ struct TutorialSpotlight: View {
     }
 }
 
-/// In dark mode, the bright circle each spotlit button sits in, drawn under the buttons and the
-/// prayer list card (and over the page), the same white as a light mode page.
+/// In dark mode, the bright shape each spotlit button sits in, drawn under the buttons and the
+/// prayer list card (and over the page), a soft white like a light mode page.
 struct TutorialSpotlightBacking: View {
     let holes: [SpotlightHole]
 
     var body: some View {
         ZStack {
             ForEach(holes.indices, id: \.self) { index in
-                let hole = holes[index]
-                // Snug around the button, so circles side by side don't run together, and a
-                // little softer than pure white.
-                Circle()
-                    .fill(Color.white.opacity(0.8))
-                    .frame(width: (hole.radius - hole.backingInset) * 2, height: (hole.radius - hole.backingInset) * 2)
+                roundedShape(holes[index].backing)
+                    .foregroundStyle(Color.white.opacity(0.8))
                     .blur(radius: 2)
-                    .position(hole.center)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

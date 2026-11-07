@@ -654,6 +654,64 @@
         }
       }
     },
+    "Alláh’u’Abhá and Welcome!": {
+      "localizations": {
+        "de": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá und willkommen!"
+          }
+        },
+        "es": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "¡Alláh’u’Abhá y bienvenido!"
+          }
+        },
+        "fr": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá et bienvenue !"
+          }
+        },
+        "it": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá e benvenuto!"
+          }
+        },
+        "nl": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá en welkom!"
+          }
+        },
+        "is": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá og velkomin!"
+          }
+        },
+        "cs": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá a vítejte!"
+          }
+        },
+        "sk": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "Alláh’u’Abhá a vitajte!"
+          }
+        },
+        "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الله‌ابهی و خوش آمدید!"
+          }
+        }
+      }
+    },
     "Always Show Menu": {
       "localizations": {
         "de": {
@@ -3441,60 +3499,60 @@
         }
       }
     },
-    "Just like a physical Prayer Book you can bookmark pages, highlight and make notes, and more. To start tap on the menu button on the bottom right corner.": {
+    "Just like a physical Prayer Book you can turn the page to go to the next prayer.\n\nPlease tap the Menu button at the bottom to get started.": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Wie in einem gedruckten Gebetbuch kannst du Seiten mit Lesezeichen versehen, markieren, Notizen machen und mehr. Tippe zuerst auf die Menütaste unten rechts."
+            "value": "Wie in einem gedruckten Gebetbuch kannst du umblättern, um zum nächsten Gebet zu gelangen.\n\nTippe unten auf die Menütaste, um zu beginnen."
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Igual que en un libro de oraciones impreso, puedes marcar páginas, resaltar, tomar notas y mucho más. Para empezar, toca el botón de menú en la esquina inferior derecha."
+            "value": "Igual que en un libro de oraciones impreso, puedes pasar la página para ir a la siguiente oración.\n\nToca el botón de menú de abajo para empezar."
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Comme dans un livre de prières imprimé, vous pouvez ajouter des signets, surligner, prendre des notes et bien plus. Pour commencer, touchez le bouton de menu en bas à droite."
+            "value": "Comme dans un livre de prières imprimé, vous pouvez tourner la page pour passer à la prière suivante.\n\nTouchez le bouton de menu en bas pour commencer."
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Proprio come in un libro di preghiere stampato, puoi aggiungere segnalibri, evidenziare, prendere note e altro ancora. Per iniziare, tocca il pulsante del menu in basso a destra."
+            "value": "Proprio come in un libro di preghiere stampato, puoi girare pagina per passare alla preghiera successiva.\n\nTocca il pulsante del menu in basso per iniziare."
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Net als in een gedrukt gebedenboek kun je pagina’s een bladwijzer geven, markeren, notities maken en meer. Tik om te beginnen op de menuknop rechtsonder."
+            "value": "Net als in een gedrukt gebedenboek kun je de pagina omslaan om naar het volgende gebed te gaan.\n\nTik onderaan op de menuknop om te beginnen."
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rétt eins og í prentaðri bænabók geturðu sett bókamerki, auðkennt texta, skrifað minnispunkta og fleira. Byrjaðu á því að ýta á valmyndarhnappinn neðst í hægra horninu."
+            "value": "Rétt eins og í prentaðri bænabók geturðu flett til að fara í næstu bæn.\n\nÝttu á valmyndarhnappinn neðst til að byrja."
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Stejně jako v tištěné modlitební knize si můžete stránky označit záložkou, zvýraznit text, psát poznámky a další. Začněte klepnutím na tlačítko nabídky v pravém dolním rohu."
+            "value": "Stejně jako v tištěné modlitební knize můžete otočit stránku a přejít na další modlitbu.\n\nZačněte klepnutím na tlačítko nabídky dole."
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Rovnako ako v tlačenej modlitebnej knihe si môžete stránky označiť záložkou, zvýrazniť text, písať poznámky a ďalšie. Začnite ťuknutím na tlačidlo ponuky v pravom dolnom rohu."
+            "value": "Rovnako ako v tlačenej modlitebnej knihe môžete otočiť stránku a prejsť na ďalšiu modlitbu.\n\nZačnite ťuknutím na tlačidlo ponuky dole."
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "درست مانند یک کتاب مناجات چاپی، می‌توانید صفحه‌ها را نشانک‌گذاری کنید، متن را برجسته کنید، یادداشت بنویسید و کارهای دیگر. برای شروع، دکمهٔ منو را در گوشهٔ پایین سمت راست بزنید."
+            "value": "درست مانند یک کتاب مناجات چاپی، می‌توانید صفحه را ورق بزنید تا به مناجات بعدی بروید.\n\nبرای شروع، دکمهٔ منو را در پایین بزنید."
           }
         }
       }
@@ -7210,64 +7268,6 @@
           "stringUnit": {
             "state": "translated",
             "value": "نسخهٔ %@"
-          }
-        }
-      }
-    },
-    "Welcome to Bahá’í Prayer Book.": {
-      "localizations": {
-        "de": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Willkommen im Bahá’í-Gebetbuch."
-          }
-        },
-        "es": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bienvenido al Libro de oraciones bahá’í."
-          }
-        },
-        "fr": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Bienvenue dans le Livre de prières bahá’í."
-          }
-        },
-        "it": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Benvenuto nel Libro di preghiere bahá’í."
-          }
-        },
-        "nl": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Welkom bij het Bahá’í-gebedenboek."
-          }
-        },
-        "is": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Velkomin í Bahá’í-bænabókina."
-          }
-        },
-        "cs": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vítejte v Bahá’í modlitební knize."
-          }
-        },
-        "sk": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "Vitajte v Bahá’í modlitebnej knihe."
-          }
-        },
-        "fa": {
-          "stringUnit": {
-            "state": "translated",
-            "value": "به کتاب مناجات بهائی خوش آمدید."
           }
         }
       }
