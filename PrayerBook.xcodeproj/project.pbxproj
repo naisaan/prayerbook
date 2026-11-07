@@ -101,6 +101,23 @@
 				it,
 				nl,
 				sk,
+				"zh-Hans",
+				ja,
+				ko,
+				ru,
+				tr,
+				"pt-BR",
+				vi,
+				id,
+				hi,
+				mr,
+				ur,
+				gu,
+				ta,
+				te,
+				kn,
+				ml,
+				or,
 			);
 			mainGroup = A10000000000000000000004;
 			minimizedProjectReferenceProxies = 1;
