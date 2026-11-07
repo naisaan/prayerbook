@@ -29,6 +29,7 @@ struct PrayerTextBuilder {
     static let shortcuts: [Int: (title: String, prayerID: Int)] = [
         1800000003: ("Tavola di Aḥmad", 1800000219),
         1700000079: ("Ahmad-imut Allakkat", 1700000003),
+        2000010090: ("لوح احمد", 2000010119),
     ]
 
     /// A quote shown at the end of a prayer, with words in it that open another prayer: after

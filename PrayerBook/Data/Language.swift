@@ -25,6 +25,7 @@ struct Language: Identifiable, Hashable {
         Language(code: "nl", name: "Nederlands", englishName: "Dutch", isRightToLeft: false),
         Language(code: "sk", name: "Slovenčina", englishName: "Slovak", isRightToLeft: false),
         Language(code: "fj", name: "Vakaviti", englishName: "Fijian", isRightToLeft: false),
+        Language(code: "ar", name: "العربية", englishName: "Arabic", isRightToLeft: true),
         Language(code: "fa", name: "فارسی", englishName: "Persian", isRightToLeft: true),
     ]
 

@@ -542,10 +542,12 @@ struct ReaderView: View {
 
     // MARK: Book
 
-    /// The book turns like a Persian book (pages in reverse order) only when Persian is the only
-    /// language turned on. With any other language on too, it opens the Western way.
+    /// The book turns like an Arabic or Persian book (pages in reverse order) only when every
+    /// language turned on is written right to left. With any other language on too, it opens
+    /// the Western way.
     private var bookIsRightToLeft: Bool {
-        library.enabledLanguageCodes == ["fa"]
+        let languages = library.enabledLanguageCodes.compactMap(Language.with(code:))
+        return !languages.isEmpty && languages.allSatisfy(\.isRightToLeft)
     }
 
     private var isOnCover: Bool {

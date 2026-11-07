@@ -62,6 +62,12 @@
             "state": "translated",
             "value": "%1$lld از %2$lld"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld من %lld"
+          }
         }
       }
     },
@@ -120,6 +126,12 @@
             "state": "translated",
             "value": "%lld کلمه"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "%lld كلمة"
+          }
         }
       }
     },
@@ -177,6 +189,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "%lld٪ خوانده شده"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تمت قراءة %lld%%"
           }
         }
       }
@@ -242,6 +260,12 @@
             "state": "translated",
             "value": "درباره"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حول"
+          }
         }
       }
     },
@@ -299,6 +323,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "افزودن"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة"
           }
         }
       }
@@ -358,6 +388,12 @@
             "state": "translated",
             "value": "افزودن یادداشت"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة ملاحظة"
+          }
         }
       }
     },
@@ -415,6 +451,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "یادداشتی بنویسید…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أضف ملاحظة…"
           }
         }
       }
@@ -474,6 +516,12 @@
             "state": "translated",
             "value": "افزودن به «%@»"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إضافة إلى %@"
+          }
         }
       }
     },
@@ -531,6 +579,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "حق نشر همهٔ آثار مقدس بهائی متعلق به جامعهٔ بین‌المللی بهائی است."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "جميع الآثار البهائية المقدسة محفوظة الحقوق للجامعة البهائية العالمية."
           }
         }
       }
@@ -593,6 +647,12 @@
             "state": "translated",
             "value": "الله‌ابهی (۹۵ مرتبه)"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الله أبهى (٩٥ مرة)"
+          }
         }
       }
     },
@@ -650,6 +710,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "شمارندهٔ الله‌ابهی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عدّاد الله أبهى"
           }
         }
       }
@@ -709,6 +775,12 @@
             "state": "translated",
             "value": "الله‌ابهی و خوش آمدید!"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الله أبهى، وأهلًا بك!"
+          }
         }
       }
     },
@@ -766,6 +838,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "همیشه نمایش منو"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إظهار القائمة دائمًا"
           }
         }
       }
@@ -825,6 +903,12 @@
             "state": "translated",
             "value": "خودکار"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تلقائي"
+          }
         }
       }
     },
@@ -882,6 +966,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "بازگشت"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رجوع"
           }
         }
       }
@@ -944,6 +1034,12 @@
             "state": "translated",
             "value": "آیین بهائی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الدين البهائي"
+          }
         }
       }
     },
@@ -1001,6 +1097,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "کتاب مناجات بهائی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كتاب الأدعية البهائية"
           }
         }
       }
@@ -1060,6 +1162,12 @@
             "state": "translated",
             "value": "کتابخانهٔ مرجع بهائی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المكتبة المرجعية البهائية"
+          }
         }
       }
     },
@@ -1117,6 +1225,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "سیاه"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أسود"
           }
         }
       }
@@ -1176,6 +1290,12 @@
             "state": "translated",
             "value": "آبی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أزرق"
+          }
         }
       }
     },
@@ -1233,6 +1353,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "نشانک‌دار"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عليه إشارة مرجعية"
           }
         }
       }
@@ -1292,6 +1418,12 @@
             "state": "translated",
             "value": "نشانک‌ها"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإشارات المرجعية"
+          }
         }
       }
     },
@@ -1349,6 +1481,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "فهرست نقطه‌دار"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة نقطية"
           }
         }
       }
@@ -1408,6 +1546,12 @@
             "state": "translated",
             "value": "لغو"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلغاء"
+          }
         }
       }
     },
@@ -1465,6 +1609,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "تیک خورده"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "محدد"
           }
         }
       }
@@ -1524,6 +1674,12 @@
             "state": "translated",
             "value": "چک‌لیست"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة مهام"
+          }
         }
       }
     },
@@ -1581,6 +1737,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "رنگ اصلی دانهٔ تسبیح خود را انتخاب کنید"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اختر اللون الرئيسي لحبّة مسبحتك"
           }
         }
       }
@@ -1640,6 +1802,12 @@
             "state": "translated",
             "value": "کلاسیک"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "كلاسيكي"
+          }
         }
       }
     },
@@ -1697,6 +1865,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "نمای کلاسیک"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "العرض الكلاسيكي"
           }
         }
       }
@@ -1756,6 +1930,12 @@
             "state": "translated",
             "value": "پاک کردن"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مسح"
+          }
         }
       }
     },
@@ -1813,6 +1993,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ساعت‌کوکی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "آلية الساعة"
           }
         }
       }
@@ -1872,6 +2058,12 @@
             "state": "translated",
             "value": "بستن"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إغلاق"
+          }
         }
       }
     },
@@ -1929,6 +2121,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "فهرست"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المحتويات"
           }
         }
       }
@@ -1988,6 +2186,12 @@
             "state": "translated",
             "value": "فهرست · %lld٪"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المحتويات · %lld%%"
+          }
         }
       }
     },
@@ -2045,6 +2249,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "کپی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نسخ"
           }
         }
       }
@@ -2104,6 +2314,12 @@
             "state": "translated",
             "value": "شمارش تا"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "العدّ حتى"
+          }
         }
       }
     },
@@ -2161,6 +2377,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "یکی دیگر بشمار"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عدّ مرة أخرى"
           }
         }
       }
@@ -2220,6 +2442,12 @@
             "state": "translated",
             "value": "سپاسگزاری"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شكر وتقدير"
+          }
         }
       }
     },
@@ -2277,6 +2505,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "نمازهای روزانه"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأدعية اليومية"
           }
         }
       }
@@ -2336,6 +2570,12 @@
             "state": "translated",
             "value": "تیره"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "داكن"
+          }
         }
       }
     },
@@ -2393,6 +2633,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "فهرست خط‌تیره‌دار"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة بشرطات"
           }
         }
       }
@@ -2452,6 +2698,12 @@
             "state": "translated",
             "value": "تقدیم"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إهداء"
+          }
         }
       }
     },
@@ -2506,6 +2758,12 @@
           }
         },
         "fa": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حذف"
+          }
+        },
+        "ar": {
           "stringUnit": {
             "state": "translated",
             "value": "حذف"
@@ -2568,6 +2826,12 @@
             "state": "translated",
             "value": "حذف فهرست"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حذف القائمة"
+          }
         }
       }
     },
@@ -2625,6 +2889,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "«%@» حذف شود؟"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل تريد حذف «%@»؟"
           }
         }
       }
@@ -2684,6 +2954,12 @@
             "state": "translated",
             "value": "تمام"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تم"
+          }
         }
       }
     },
@@ -2741,6 +3017,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برای شمردن یکی بیشتر دو بار بزنید"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط مرتين لعدّ مرة أخرى"
           }
         }
       }
@@ -2800,6 +3082,12 @@
             "state": "translated",
             "value": "حرف بزرگ آغازین"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الحرف الاستهلالي"
+          }
         }
       }
     },
@@ -2857,6 +3145,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ویرایش یادداشت"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تعديل الملاحظة"
           }
         }
       }
@@ -2916,6 +3210,12 @@
             "state": "translated",
             "value": "حس"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإحساس"
+          }
         }
       }
     },
@@ -2973,6 +3273,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "با دو انگشت متن را بزرگ‌تر یا کوچک‌تر کنید.\n\nامیدوارم از این برنامه لذت ببرید!"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "باعد إصبعيك أو قرّبهما لتكبير النص أو تصغيره.\n\nأتمنى أن يعجبك هذا التطبيق!"
           }
         }
       }
@@ -3032,6 +3338,12 @@
             "state": "translated",
             "value": "هر وقت کارتان تمام شد، آن را به جایش برگردانید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عندما تنتهي، أعِدها إلى مكانها بحركة سريعة."
+          }
         }
       }
     },
@@ -3089,6 +3401,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "افراد، صفات روحانی و هر چیز دیگری را که می‌خواهید به یاد داشته باشید برایش دعا کنید، اینجا بنویسید…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اكتب هنا الأشخاص والصفات الروحانية وأي شيء آخر تريد أن تتذكر الدعاء من أجله…"
           }
         }
       }
@@ -3148,6 +3466,12 @@
             "state": "translated",
             "value": "عمومی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عام"
+          }
         }
       }
     },
@@ -3205,6 +3529,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "تنظیمات عمومی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإعدادات العامة"
           }
         }
       }
@@ -3264,6 +3594,12 @@
             "state": "translated",
             "value": "شیشه"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "زجاج"
+          }
         }
       }
     },
@@ -3321,6 +3657,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "رفتن به مناجات"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الانتقال إلى الدعاء"
           }
         }
       }
@@ -3380,6 +3722,12 @@
             "state": "translated",
             "value": "سبز"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أخضر"
+          }
         }
       }
     },
@@ -3437,6 +3785,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "ضربان قلب"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نبض القلب"
           }
         }
       }
@@ -3496,6 +3850,12 @@
             "state": "translated",
             "value": "اینجا می‌توانید فهرست کتاب مناجات خود را ببینید، مناجات‌ها را جست‌وجو کنید، زبان‌های دیگر را برگزینید و به تنظیمات بروید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هنا يمكنك رؤية محتويات كتاب أدعيتك، والبحث عن الأدعية، واختيار لغات أخرى، وفتح الإعدادات."
+          }
         }
       }
     },
@@ -3553,6 +3913,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برجسته‌سازی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تمييز"
           }
         }
       }
@@ -3612,6 +3978,12 @@
             "state": "translated",
             "value": "برجسته‌ها"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التمييزات"
+          }
         }
       }
     },
@@ -3669,6 +4041,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برجسته‌ها و یادداشت‌ها"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التمييزات والملاحظات"
           }
         }
       }
@@ -3728,6 +4106,12 @@
             "state": "translated",
             "value": "در گوشهٔ بالا سمت راست، فهرست دعا قرار دارد. می‌توانید چیزهایی را که می‌خواهید به یاد بسپارید بنویسید و فهرست‌های کار بسازید تا هر زمان به‌سرعت به آن‌ها رجوع کنید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في الزاوية العلوية اليمنى توجد قائمة الدعاء. يمكنك أن تكتب فيها ما تريد تذكّره وتنشئ قوائم مهام ترجع إليها بسرعة في أي وقت."
+          }
         }
       }
     },
@@ -3785,6 +4169,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "در این کتاب"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "في هذا الكتاب"
           }
         }
       }
@@ -3844,6 +4234,12 @@
             "state": "translated",
             "value": "زبان‌ها"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اللغات"
+          }
         }
       }
     },
@@ -3902,6 +4298,12 @@
             "state": "translated",
             "value": "متن بزرگ‌تر"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نص أكبر"
+          }
         }
       }
     },
@@ -3959,6 +4361,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "روشن"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "فاتح"
           }
         }
       }
@@ -4021,6 +4429,12 @@
             "state": "translated",
             "value": "آهن‌ربا"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مغناطيس"
+          }
         }
       }
     },
@@ -4078,6 +4492,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "منو"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "القائمة"
           }
         }
       }
@@ -4137,6 +4557,12 @@
             "state": "translated",
             "value": "نام"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الاسم"
+          }
         }
       }
     },
@@ -4194,6 +4620,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "تراز طبیعی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المحاذاة الطبيعية"
           }
         }
       }
@@ -4253,6 +4685,12 @@
             "state": "translated",
             "value": "فهرست نشانک تازه"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة إشارات مرجعية جديدة"
+          }
         }
       }
     },
@@ -4310,6 +4748,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "فهرست نشانک تازه"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة إشارات مرجعية جديدة"
           }
         }
       }
@@ -4369,6 +4813,12 @@
             "state": "translated",
             "value": "بعدی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "التالي"
+          }
         }
       }
     },
@@ -4426,6 +4876,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برجسته‌ای نیست"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد تمييزات"
           }
         }
       }
@@ -4485,6 +4941,12 @@
             "state": "translated",
             "value": "یادداشتی نیست"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا توجد ملاحظات"
+          }
         }
       }
     },
@@ -4542,6 +5004,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "بدون تیک"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "غير محدد"
           }
         }
       }
@@ -4601,6 +5069,12 @@
             "state": "translated",
             "value": "یادداشت"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ملاحظة"
+          }
         }
       }
     },
@@ -4658,6 +5132,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "یادداشت‌ها"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الملاحظات"
           }
         }
       }
@@ -4717,6 +5197,12 @@
             "state": "translated",
             "value": "باشه"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حسنًا"
+          }
         }
       }
     },
@@ -4774,6 +5260,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "نمازهای واجب"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الصلوات المفروضة"
           }
         }
       }
@@ -4833,6 +5325,12 @@
             "state": "translated",
             "value": "وب‌سایت رسمی بهائی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الموقع البهائي الرسمي"
+          }
         }
       }
     },
@@ -4890,6 +5388,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "صورتی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "وردي"
           }
         }
       }
@@ -4949,6 +5453,12 @@
             "state": "translated",
             "value": "فهرست دعا"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قائمة الدعاء"
+          }
         }
       }
     },
@@ -5006,6 +5516,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "مناجات‌ها"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأدعية"
           }
         }
       }
@@ -5065,6 +5581,12 @@
             "state": "translated",
             "value": "روی کلمات یک دعا انگشت خود را نگه دارید، سپس «افزودن یادداشت» را بزنید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط مطولًا على كلمات الدعاء، ثم اضغط على «إضافة ملاحظة»."
+          }
         }
       }
     },
@@ -5122,6 +5644,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "روی کلمات یک دعا انگشت خود را نگه دارید، سپس «برجسته‌سازی» را بزنید."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط مطولًا على كلمات الدعاء، ثم اضغط على «تمييز»."
           }
         }
       }
@@ -5181,6 +5709,12 @@
             "state": "translated",
             "value": "سیاست حریم خصوصی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "سياسة الخصوصية"
+          }
         }
       }
     },
@@ -5238,6 +5772,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "بنفش"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بنفسجي"
           }
         }
       }
@@ -5297,6 +5837,12 @@
             "state": "translated",
             "value": "قطرهٔ باران"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "قطرة مطر"
+          }
         }
       }
     },
@@ -5354,6 +5900,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "خوانده شده"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مقروء"
           }
         }
       }
@@ -5413,6 +5965,12 @@
             "state": "translated",
             "value": "خواندن متن کامل سیاست حریم خصوصی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اقرأ سياسة الخصوصية كاملة"
+          }
         }
       }
     },
@@ -5470,6 +6028,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "دعاهای اخیر"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الأدعية الأخيرة"
           }
         }
       }
@@ -5529,6 +6093,12 @@
             "state": "translated",
             "value": "جست‌وجوهای اخیر"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عمليات البحث الأخيرة"
+          }
         }
       }
     },
@@ -5586,6 +6156,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "قرمز"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أحمر"
           }
         }
       }
@@ -5645,6 +6221,12 @@
             "state": "translated",
             "value": "حذف"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة"
+          }
         }
       }
     },
@@ -5702,6 +6284,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "حذف برجسته‌سازی"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة التمييز"
           }
         }
       }
@@ -5761,6 +6349,12 @@
             "state": "translated",
             "value": "حذف برجسته‌سازی و یادداشت"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة التمييز والملاحظة"
+          }
         }
       }
     },
@@ -5818,6 +6412,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "حذف یادداشت"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة الملاحظة"
           }
         }
       }
@@ -5877,6 +6477,12 @@
             "state": "translated",
             "value": "حذف از «%@»"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة من %@"
+          }
         }
       }
     },
@@ -5934,6 +6540,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "حذف…"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إزالة…"
           }
         }
       }
@@ -5993,6 +6605,12 @@
             "state": "translated",
             "value": "تغییر نام"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة تسمية"
+          }
         }
       }
     },
@@ -6050,6 +6668,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "تغییر نام فهرست"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعادة تسمية القائمة"
           }
         }
       }
@@ -6109,6 +6733,12 @@
             "state": "translated",
             "value": "کش"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "شريط مطاطي"
+          }
         }
       }
     },
@@ -6166,6 +6796,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "شن"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "رمل"
           }
         }
       }
@@ -6225,6 +6861,12 @@
             "state": "translated",
             "value": "ذخیره"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حفظ"
+          }
         }
       }
     },
@@ -6282,6 +6924,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "جست‌وجو در کتاب"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البحث في الكتاب"
           }
         }
       }
@@ -6341,6 +6989,12 @@
             "state": "translated",
             "value": "هم‌رسانی دعا"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "مشاركة الدعاء"
+          }
         }
       }
     },
@@ -6398,6 +7052,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "نمایش"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إظهار"
           }
         }
       }
@@ -6457,6 +7117,12 @@
             "state": "translated",
             "value": "نمایش دوبارهٔ راهنما"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "عرض الشرح مرة أخرى"
+          }
         }
       }
     },
@@ -6514,6 +7180,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "رد شدن"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تخطٍّ"
           }
         }
       }
@@ -6573,6 +7245,12 @@
             "state": "translated",
             "value": "در حالی که «الله‌ابهی» می‌گویید، انگشت خود را آرام روی هر جای صفحه بکشید. وقتی دانهٔ شما به دانهٔ بعدی رسید، رها کنید و دوباره شروع کنید. برای تنظیمات با سه انگشت ضربه بزنید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسحب إصبعك ببطء في أي مكان على الشاشة وأنت تقول «الله أبهى». عندما تصل حبّتك إلى الحبّة التالية، ارفع إصبعك وابدأ من جديد. اضغط بثلاثة أصابع لفتح الإعدادات."
+          }
         }
       }
     },
@@ -6630,6 +7308,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برای شروع، انگشت خود را از هر جا آرام بکشید.\nبرای تنظیمات با ۳ انگشت ضربه بزنید"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اسحب إصبعك ببطء من أي مكان للبدء.\nاضغط بثلاثة أصابع لفتح الإعدادات"
           }
         }
       }
@@ -6689,6 +7373,12 @@
             "state": "translated",
             "value": "متن کوچک‌تر"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "نص أصغر"
+          }
         }
       }
     },
@@ -6746,6 +7436,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "منابع"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "المصادر"
           }
         }
       }
@@ -6805,6 +7501,12 @@
             "state": "translated",
             "value": "شروع دوباره"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "البدء من جديد"
+          }
         }
       }
     },
@@ -6862,6 +7564,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "پیشرفت خواندن از نو شروع شود؟"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هل تريد بدء تقدّم القراءة من جديد؟"
           }
         }
       }
@@ -6921,6 +7629,12 @@
             "state": "translated",
             "value": "سنگ"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حجر"
+          }
         }
       }
     },
@@ -6978,6 +7692,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "سبک"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "النمط"
           }
         }
       }
@@ -7037,6 +7757,12 @@
             "state": "translated",
             "value": "تنظیمات فوق‌سری"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إعدادات سرية للغاية"
+          }
         }
       }
     },
@@ -7094,6 +7820,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "هر بار که «الله‌ابهی» می‌گویید روی دایره ضربه بزنید. برای تنظیمات با سه انگشت ضربه بزنید."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "اضغط على الدائرة في كل مرة تقول فيها «الله أبهى». اضغط بثلاثة أصابع لفتح الإعدادات."
           }
         }
       }
@@ -7153,6 +7885,12 @@
             "state": "translated",
             "value": "هنگام خواندن، در منو روی نشانک این فهرست بزنید تا دعایی اضافه شود."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أثناء القراءة، اضغط على زر الإشارة المرجعية لهذه القائمة في القائمة لإضافة دعاء."
+          }
         }
       }
     },
@@ -7210,6 +7948,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "کتاب دعاها را به همهٔ زبان‌های روشن نشان می‌دهد و هر زبان بخش‌های خودش را دارد."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "يعرض الكتاب الأدعية بكل لغة مفعّلة، ولكل لغة أقسامها الخاصة."
           }
         }
       }
@@ -7269,6 +8013,12 @@
             "state": "translated",
             "value": "دعاها در کتاب می‌مانند؛ فقط این فهرست حذف می‌شود."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تبقى الأدعية في الكتاب؛ وتُحذف هذه القائمة فقط."
+          }
         }
       }
     },
@@ -7326,6 +8076,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "پوسته‌ها و تنظیمات"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "السمات والإعدادات"
           }
         }
       }
@@ -7385,6 +8141,12 @@
             "state": "translated",
             "value": "این برنامه هیچ اطلاعات شخصی‌ای را جمع‌آوری، ذخیره یا هم‌رسانی نمی‌کند. حساب کاربری، تبلیغات، تحلیل آماری یا ردیابی ندارد. نشانک‌ها، پیشرفت خواندن و تنظیمات شما فقط روی دستگاه خودتان ذخیره می‌شوند و به هیچ جا فرستاده نمی‌شوند."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لا يجمع هذا التطبيق أي معلومات شخصية ولا يخزّنها ولا يشاركها. لا توجد فيه حسابات ولا إعلانات ولا تحليلات ولا تتبّع. تُحفظ إشاراتك المرجعية وتقدّم قراءتك وإعداداتك على جهازك فقط ولا تُرسل إلى أي مكان."
+          }
         }
       }
     },
@@ -7442,6 +8204,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "این برنامه یک ابتکار فردی است. نشریهٔ رسمی آیین بهائی نیست و مورد تأیید هیچ مؤسسهٔ بهائی قرار ندارد."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "هذا التطبيق مبادرة فردية، وليس منشورًا رسميًا للدين البهائي ولا تعتمده أي مؤسسة بهائية."
           }
         }
       }
@@ -7501,6 +8269,12 @@
             "state": "translated",
             "value": "این برنامه از یک کتاب مناجات چاپی الهام گرفته و می‌تواند بسیاری از همان کارها را انجام دهد، مانند نشانک‌گذاری، یادداشت‌نویسی و موارد دیگر.\n\nبرای شروع، دکمهٔ منو را در پایین بزنید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "استُوحي هذا التطبيق من كتاب أدعية مطبوع، ويمكنه أن يفعل كثيرًا مما يفعله، مثل وضع الإشارات المرجعية وكتابة الملاحظات وغير ذلك.\n\nاضغط على زر القائمة في الأسفل للبدء."
+          }
         }
       }
     },
@@ -7558,6 +8332,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "این برنامه با «وایب‌کدینگ» و با عشق ساخته شده است، به دست [نیسان ندیمی](https://naisaannadimi.net)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "صُنع هذا التطبيق بمحبة على يد [Naisaan Nadimi](https://naisaannadimi.net)"
           }
         }
       }
@@ -7617,6 +8397,12 @@
             "state": "translated",
             "value": "برای نشانک‌گذاری یک مناجات، دکمهٔ نشانک را بزنید. برای ساختن فهرست نشانک‌ها، علامت به‌علاوه را بزنید و برای فهرست تازه نامی بگذارید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "لوضع إشارة مرجعية على دعاء، اضغط على زر الإشارة المرجعية. لإنشاء قائمة إشارات مرجعية، اضغط على علامة الزائد وسمِّ قائمتك الجديدة."
+          }
         }
       }
     },
@@ -7674,6 +8460,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "برای برجسته‌کردن و نوشتن یادداشت، متنی را انتخاب کنید و سپس «برجسته‌سازی» یا «افزودن یادداشت» را بزنید."
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "للتمييز وكتابة الملاحظات، حدّد النص ثم اضغط على «تمييز» أو «إضافة ملاحظة»."
           }
         }
       }
@@ -7733,6 +8525,12 @@
             "state": "translated",
             "value": "تقدیم به خانواده‌ام: جلال، بهمن و لیلا، به دوستانم و به جامعه‌های بهائی ترایانگل و تورپینیاتارا. سپاسگزارم که همیشه در کنارم بوده‌اید."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "إلى عائلتي: جلال وبهمن وليلى، وإلى أصدقائي، وإلى الجامعتين البهائيتين في Triangle وTorpignattara. شكرًا لأنكم كنتم دائمًا إلى جانبي."
+          }
         }
       }
     },
@@ -7790,6 +8588,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "زیرخط"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "تسطير"
           }
         }
       }
@@ -7849,6 +8653,12 @@
             "state": "translated",
             "value": "نسخهٔ %@"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "الإصدار %@"
+          }
         }
       }
     },
@@ -7906,6 +8716,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "بهائیان به چه باور دارند؟"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "بماذا يؤمن البهائيون؟"
           }
         }
       }
@@ -7965,6 +8781,12 @@
             "state": "translated",
             "value": "می‌خواهید نام این فهرست چه باشد؟"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ما الاسم الذي تريده لهذه القائمة؟"
+          }
         }
       }
     },
@@ -8022,6 +8844,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "سفید"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أبيض"
           }
         }
       }
@@ -8081,6 +8909,12 @@
             "state": "translated",
             "value": "مهره‌های چوبی"
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "حبات خشبية"
+          }
         }
       }
     },
@@ -8138,6 +8972,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "زرد"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "أصفر"
           }
         }
       }
@@ -8197,6 +9037,12 @@
             "state": "translated",
             "value": "نشانک‌ها و دعاهای اخیر شما حفظ می‌شوند."
           }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "ستبقى إشاراتك المرجعية والأدعية الأخيرة محفوظة."
+          }
         }
       }
     },
@@ -8254,6 +9100,12 @@
           "stringUnit": {
             "state": "translated",
             "value": "bahaiprayers.net (برای ترجمه‌های مناجات‌ها)"
+          }
+        },
+        "ar": {
+          "stringUnit": {
+            "state": "translated",
+            "value": "bahaiprayers.net (لترجمات الأدعية)"
           }
         }
       }
