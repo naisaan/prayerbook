@@ -1,5 +1,6 @@
 import SwiftUI
 import UIKit
+import ImageIO
 
 /// The steps of the tutorial shown the first time someone opens the book.
 enum TutorialStep: Int, CaseIterable {
@@ -117,19 +118,17 @@ struct TutorialCard: View {
         .padding(.horizontal, 20)
     }
 
-    /// The step's screenshot, from the asset catalog as "Tutorial1" to "Tutorial6". Until one is
-    /// added there, a placeholder of the same size shows where it will go.
+    /// The step's moving picture, in light or dark to match the app: TutorialPage, TutorialHighlight
+    /// and TutorialZoom (-LM or -DM) GIFs in Resources/Tutorial. A step without one shows a
+    /// placeholder of the same size.
     @ViewBuilder
     private var screenshot: some View {
-        let name = "Tutorial\(step.dot + 1)"
         RoundedRectangle(cornerRadius: 20, style: .continuous)
             .fill(Color(uiColor: .tertiarySystemFill))
             .aspectRatio(1, contentMode: .fit)
             .overlay {
-                if UIImage(named: name) != nil {
-                    Image(name)
-                        .resizable()
-                        .scaledToFill()
+                if let url = animationURL {
+                    AnimatedGIF(url: url)
                 } else {
                     Image(systemName: "photo")
                         .font(.largeTitle)
@@ -138,6 +137,21 @@ struct TutorialCard: View {
             }
             .clipShape(.rect(cornerRadius: 20, style: .continuous))
             .accessibilityHidden(true)
+    }
+
+    @Environment(\.colorScheme) private var colorScheme
+
+    private var animationURL: URL? {
+        let name: String
+        switch step {
+        case .welcome: name = "TutorialPage"
+        case .highlights: name = "TutorialHighlight"
+        case .done: name = "TutorialZoom"
+        default: return nil
+        }
+        let mode = colorScheme == .dark ? "DM" : "LM"
+        return Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "gif")
+            ?? Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "gif", subdirectory: "Tutorial")
     }
 }
 
@@ -239,5 +253,48 @@ struct TutorialSpotlightBacking: View {
         .frame(maxWidth: .infinity, maxHeight: .infinity)
         .allowsHitTesting(false)
         .accessibilityHidden(true)
+    }
+}
+
+/// Plays a GIF over and over with Apple's own animated image player (ImageIO), one frame at a
+/// time, so even long GIFs use little memory.
+struct AnimatedGIF: View {
+    let url: URL
+    @State private var frame: CGImage?
+    @State private var player = Player()
+
+    /// Lets the frames stop coming once the picture is gone.
+    final class Player {
+        var isStopped = false
+    }
+
+    var body: some View {
+        Group {
+            if let frame {
+                Image(decorative: frame, scale: 1)
+                    .resizable()
+                    .scaledToFill()
+            } else {
+                Color.clear
+            }
+        }
+        .onAppear { start() }
+        .onDisappear { player.isStopped = true }
+        .onChange(of: url) {
+            player.isStopped = true
+            start()
+        }
+    }
+
+    private func start() {
+        let player = Player()
+        self.player = player
+        CGAnimateImageAtURLWithBlock(url as CFURL, nil) { _, image, stop in
+            if player.isStopped {
+                stop.pointee = true
+                return
+            }
+            frame = image
+        }
     }
 }
