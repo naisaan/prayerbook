@@ -25,7 +25,7 @@ enum TutorialStep: Int, CaseIterable {
         case .prayerListOpen:
             "Feel free to throw this back when you’re done."
         case .done:
-            "Feel free to pinch to make the text bigger.\n\nI hope you enjoy this app!"
+            "Feel free to pinch to make the text bigger or smaller.\n\nI hope you enjoy this app!"
         }
     }
 

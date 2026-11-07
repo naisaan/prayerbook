@@ -2745,60 +2745,60 @@
         }
       }
     },
-    "Feel free to pinch to make the text bigger.\n\nI hope you enjoy this app!": {
+    "Feel free to pinch to make the text bigger or smaller.\n\nI hope you enjoy this app!": {
       "localizations": {
         "de": {
           "stringUnit": {
             "state": "translated",
-            "value": "Zieh die Finger auseinander, um den Text zu vergrößern.\n\nIch hoffe, dir gefällt diese App!"
+            "value": "Zieh die Finger auf oder zusammen, um den Text zu vergrößern oder zu verkleinern.\n\nIch hoffe, dir gefällt diese App!"
           }
         },
         "es": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pellizca para agrandar el texto.\n\n¡Espero que disfrutes de esta app!"
+            "value": "Pellizca para agrandar o reducir el texto.\n\n¡Espero que disfrutes de esta app!"
           }
         },
         "fr": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pincez pour agrandir le texte.\n\nJ’espère que vous apprécierez cette app !"
+            "value": "Pincez pour agrandir ou réduire le texte.\n\nJ’espère que vous apprécierez cette app !"
           }
         },
         "it": {
           "stringUnit": {
             "state": "translated",
-            "value": "Pizzica per ingrandire il testo.\n\nSpero che questa app ti piaccia!"
+            "value": "Pizzica per ingrandire o rimpicciolire il testo.\n\nSpero che questa app ti piaccia!"
           }
         },
         "nl": {
           "stringUnit": {
             "state": "translated",
-            "value": "Knijp om de tekst groter te maken.\n\nIk hoop dat je van deze app geniet!"
+            "value": "Knijp om de tekst groter of kleiner te maken.\n\nIk hoop dat je van deze app geniet!"
           }
         },
         "is": {
           "stringUnit": {
             "state": "translated",
-            "value": "Klíptu til að stækka textann.\n\nÉg vona að þú njótir þessa forrits!"
+            "value": "Klíptu til að stækka eða minnka textann.\n\nÉg vona að þú njótir þessa forrits!"
           }
         },
         "cs": {
           "stringUnit": {
             "state": "translated",
-            "value": "Roztažením prstů text zvětšíte.\n\nDoufám, že se vám tato aplikace bude líbit!"
+            "value": "Roztažením nebo sevřením prstů text zvětšíte či zmenšíte.\n\nDoufám, že se vám tato aplikace bude líbit!"
           }
         },
         "sk": {
           "stringUnit": {
             "state": "translated",
-            "value": "Roztiahnutím prstov text zväčšíte.\n\nDúfam, že sa vám táto aplikácia bude páčiť!"
+            "value": "Roztiahnutím alebo stiahnutím prstov text zväčšíte či zmenšíte.\n\nDúfam, že sa vám táto aplikácia bude páčiť!"
           }
         },
         "fa": {
           "stringUnit": {
             "state": "translated",
-            "value": "با دو انگشت متن را بزرگ‌تر کنید.\n\nامیدوارم از این برنامه لذت ببرید!"
+            "value": "با دو انگشت متن را بزرگ‌تر یا کوچک‌تر کنید.\n\nامیدوارم از این برنامه لذت ببرید!"
           }
         }
       }
