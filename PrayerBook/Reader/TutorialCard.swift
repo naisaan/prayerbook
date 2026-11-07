@@ -1,6 +1,6 @@
 import SwiftUI
 import UIKit
-import ImageIO
+import AVFoundation
 
 /// The steps of the tutorial shown the first time someone opens the book.
 enum TutorialStep: Int, CaseIterable {
@@ -119,7 +119,7 @@ struct TutorialCard: View {
     }
 
     /// The step's moving picture, in light or dark to match the app: TutorialPage, TutorialHighlight
-    /// and TutorialZoom (-LM or -DM) GIFs in Resources/Tutorial. A step without one shows a
+    /// and TutorialZoom (-LM or -DM) videos in Resources/Tutorial. A step without one shows a
     /// placeholder of the same size.
     @ViewBuilder
     private var screenshot: some View {
@@ -128,7 +128,7 @@ struct TutorialCard: View {
             .aspectRatio(1, contentMode: .fit)
             .overlay {
                 if let url = animationURL {
-                    AnimatedGIF(url: url)
+                    LoopingVideo(url: url)
                 } else {
                     Image(systemName: "photo")
                         .font(.largeTitle)
@@ -150,8 +150,8 @@ struct TutorialCard: View {
         default: return nil
         }
         let mode = colorScheme == .dark ? "DM" : "LM"
-        return Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "gif")
-            ?? Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "gif", subdirectory: "Tutorial")
+        return Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "mp4")
+            ?? Bundle.main.url(forResource: "\(name)-\(mode)", withExtension: "mp4", subdirectory: "Tutorial")
     }
 }
 
@@ -256,45 +256,54 @@ struct TutorialSpotlightBacking: View {
     }
 }
 
-/// Plays a GIF over and over with Apple's own animated image player (ImageIO), one frame at a
-/// time, so even long GIFs use little memory.
-struct AnimatedGIF: View {
+/// Plays a short silent video over and over, with no controls, like a moving picture. Videos
+/// are far smaller than GIFs, so the app stays light.
+struct LoopingVideo: UIViewRepresentable {
     let url: URL
-    @State private var frame: CGImage?
-    @State private var player = Player()
 
-    /// Lets the frames stop coming once the picture is gone.
-    final class Player {
-        var isStopped = false
+    func makeUIView(context: Context) -> PlayerView {
+        let view = PlayerView()
+        view.play(url)
+        return view
     }
 
-    var body: some View {
-        Group {
-            if let frame {
-                Image(decorative: frame, scale: 1)
-                    .resizable()
-                    .scaledToFill()
-            } else {
-                Color.clear
-            }
-        }
-        .onAppear { start() }
-        .onDisappear { player.isStopped = true }
-        .onChange(of: url) {
-            player.isStopped = true
-            start()
-        }
+    func updateUIView(_ view: PlayerView, context: Context) {
+        view.play(url)
     }
 
-    private func start() {
-        let player = Player()
-        self.player = player
-        CGAnimateImageAtURLWithBlock(url as CFURL, nil) { _, image, stop in
-            if player.isStopped {
-                stop.pointee = true
-                return
-            }
-            frame = image
+    static func dismantleUIView(_ view: PlayerView, coordinator: ()) {
+        view.stop()
+    }
+
+    final class PlayerView: UIView {
+        override static var layerClass: AnyClass { AVPlayerLayer.self }
+        private var playerLayer: AVPlayerLayer { layer as! AVPlayerLayer }
+        private var player: AVQueuePlayer?
+        private var looper: AVPlayerLooper?
+        private var url: URL?
+
+        func play(_ url: URL) {
+            guard url != self.url else { return }
+            stop()
+            self.url = url
+            let player = AVQueuePlayer()
+            // Silent, so it never stops music or a podcast that's playing.
+            player.isMuted = true
+            player.preventsDisplaySleepDuringVideoPlayback = false
+            looper = AVPlayerLooper(player: player, templateItem: AVPlayerItem(url: url))
+            playerLayer.videoGravity = .resizeAspectFill
+            playerLayer.player = player
+            self.player = player
+            player.play()
+        }
+
+        func stop() {
+            player?.pause()
+            looper?.disableLooping()
+            looper = nil
+            player = nil
+            playerLayer.player = nil
+            url = nil
         }
     }
 }
