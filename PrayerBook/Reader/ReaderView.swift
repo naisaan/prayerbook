@@ -434,7 +434,8 @@ struct ReaderView: View {
             return holes.isEmpty ? nil : holes
         case .bookmarks:
             // The menu's bookmark and + buttons, where they're drawn.
-            let holes = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }.map(SpotlightHole.init(around:))
+            let frames: [CGRect] = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }
+            let holes: [SpotlightHole] = frames.map { frame in SpotlightHole(around: frame) }
             return holes.isEmpty ? nil : holes
         case .prayerList where settings.showsPrayerList:
             // The part of the tilted card that peeks in from the top right corner.
