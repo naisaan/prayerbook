@@ -99,34 +99,72 @@ final class Library {
         sections = result
     }
 
-    /// Each language's section of obligatory prayers (short, medium and long, or just the short
-    /// one where that's all the language has). They open the book, right after its title page,
-    /// and are pinned to the top of Contents with the Alláh-u-Abhá counter.
-    nonisolated static let obligatorySections: [String: String] = [
-        "en": "Obligatory Prayers",
-        "cs": "Krátká denní modlitba",
-        "de": "Pflichtgebet",
-        "es": "Obligatorias",
-        "fr": "Prières obligatoires",
-        "is": "Skyldubænir",
-        "it": "Preghiere obbligatorie",
-        "kl": "Pinngitsoorani Qinnutissat",
-        "nl": "Verplichte Gebeden",
-        "sk": "Každodenná modlitba",
-        "ar": "الصلوات المفروضة",
+    /// Each language's obligatory prayers: the sections that hold them, short to long, as each
+    /// language's book names them. They open the book, right after its title page, and are
+    /// pinned to the top of Contents with the Alláh-u-Abhá counter.
+    nonisolated static let obligatorySections: [String: [String]] = [
+        "en": ["Obligatory Prayers"],
+        "cs": ["Krátká denní modlitba"],
+        "de": ["Pflichtgebet"],
+        "es": ["Obligatorias"],
+        "is": ["Skyldubænir"],
+        "it": ["Preghiere obbligatorie"],
+        "kl": ["Pinngitsoorani Qinnutissat"],
+        "sk": ["Každodenná modlitba"],
+        "ar": ["الصلاة الصغيرة", "الصّلاة الوسطى", "الصّلاة الكبرى"],
+        "ny": ["PEMPHERO LOKAKAMIZA LALIFUPI", "PEMPHERO LOKAKAMIZA LAPAKATI", "PEMPHERO LOKAKAMIZA LALITALI"],
+        "zh-Hans": ["短篇必诵祷文", "中篇必诵祷文", "长篇必诵祷文"],
+        "nl": ["Het korte Verplichte Gebed", "Het middellange Verplichte Gebed", "Het lange Verplichte Gebed"],
+        "fil": ["Maikling Dalanging Katungkulang Isagawa", "Katamtamang Dalanging Katungkulang Isagawa"],
+        "fr": ["Prières prescrites"],
+        "ht": ["Kout Priyè Obligatwa", "Mwayen Priyè Obligatwa", "Long Priyè Obligatwa"],
+        "hi": ["लघु अनिवार्य प्रार्थना", "मध्यम अनिवार्य प्रार्थना", "लम्बी अनिवार्य प्रार्थना"],
+        "id": ["Sembahyang Pendek", "Sembahyang Menengah", "Sembahyang Panjang"],
+        "ja": ["短い必須の祈り", "中位の必須の祈り", "長い必須の祈り"],
+        "kn": ["ಅನಿವಾರ್ಯ ಪ್ರಾರ್ಥನೆ"],
+        "gil": ["Te Tataro ae Kabaebae ae Uarereke", "Te Tataro ae Kabaebae ae Buburatau", "Te Tataro ae Kabaebae ae Abwabwaki"],
+        "ko": ["단편 필수기도", "중편 필수기도", "장편 필수기도"],
+        "ml": ["ചെറിയകടപ്രാര്‍ത്ഥന", "മദ്ധ്യമ കടപ്രാര്‍ത്ഥന", "നീണ്ട കടപ്രാര്‍ത്ഥന"],
+        "mi": ["TE KARAKIA POTO ME TAKI", "TE KARAKIA ĀHUA ROA ME TAKI", "TE KARAKIA ROA ME TAKI"],
+        "mr": ["लघु अनिवार्य प्रार्थना", "मध्यम अनिवार्य प्रार्थना", "दिर्घ अनिवार्य प्रार्थना"],
+        "mh": ["JAR EO EKADU"],
+        "ne": ["छोटो अनिवार्य प्रार्थना", "मध्यम अनिवार्य प्रार्थना", "लामो अनिवार्य प्रार्थना"],
+        "or": ["ଅନିବାର୍ଯ୍ୟ ପ୍ରାର୍ଥନାବଳୀ", "ମଧ୍ୟମ ଅନିବାର୍ଯ୍ୟ ପ୍ରାର୍ଥନା", "ଦୀଘ ଅନିବାର୍ଯ୍ୟ ପ୍ରାର୍ଥନା ର୍"],
+        "pt-BR": ["Orações Obrigatórias"],
+        "ru": ["Краткая обязательная молитва", "Средняя обязательная молитва", "Пространная обязательная молитва"],
+        "sm": ["Tatalo Puupuu Faapoloa’iga", "Tatalo Faaleogalua Faapoloa’iga", "Tatalo Umi Faapoloa’iga"],
+        "sw": ["SALA FUPI YA FARADHI"],
+        "ta": ["சுருக்கமான கட்டாயப்பிரார்த்தனை", "நடுத்தரக் கட்டாயப் பிரார்த்தனை", "நீண்ட கட்டாயப் பிரார்த்தனை"],
+        "te": ["అనివార్య ప్రార్థన"],
+        "tpi": ["SHORT OBLIGATORY PRAYER"],
+        "to": ["LOTU TU'UTU'UNIA NOUNOU", "LOTU TU'UTU'UNIA LOTOLOTO", "KO E LOTU TU'UTU'UNIA LÖLOA"],
+        "tr": ["Küçük Namaz", "Orta Namaz", "Büyük Namaz"],
+        "bi": ["SOTFALA OBLIGATORI PREA", "MEDEL SAES OBLIGATORI PREA", "LONGFALA OBLIGATORI PREA"],
+        "vi": ["Ngắn Nhất", "Dài Trung Bình", "Dài Nhất"],
     ]
-    nonisolated private static let firstSections = Set(obligatorySections.values)
+    /// Where each obligatory section goes at the front of its book.
+    nonisolated private static let firstSections: [String: Int] = {
+        var ranks: [String: Int] = [:]
+        for names in obligatorySections.values {
+            for (rank, name) in names.enumerated() { ranks[name] = rank }
+        }
+        return ranks
+    }()
 
-    /// A language's obligatory prayers, if it has them and it's turned on.
-    func obligatorySection(for language: Language) -> BookSection? {
-        guard let name = Self.obligatorySections[language.code] else { return nil }
-        return sections.first { $0.language == language && $0.name == name }
+    /// A language's obligatory prayer sections, short to long, if it has them and it's turned on.
+    func obligatorySections(for language: Language) -> [BookSection] {
+        (Self.obligatorySections[language.code] ?? []).compactMap { name in
+            sections.first { $0.language == language && $0.name == name }
+        }
     }
 
     /// The obligatory prayers first, then alphabetical, ignoring a leading "The", like the original app.
     nonisolated private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {
-        if firstSections.contains(lhs) != firstSections.contains(rhs) {
-            return firstSections.contains(lhs)
+        switch (firstSections[lhs], firstSections[rhs]) {
+        case let (l?, r?): return l < r
+        case (_?, nil): return true
+        case (nil, _?): return false
+        case (nil, nil): break
         }
         func key(_ name: String) -> String {
             name.hasPrefix("The ") ? String(name.dropFirst(4)) : name

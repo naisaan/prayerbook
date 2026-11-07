@@ -52,11 +52,12 @@ struct ContentsView: View {
                 // Alláh-u-Abhá counter, pinned to the top.
                 ForEach(library.enabledLanguages) { language in
                     Section {
-                        if let obligatory = library.obligatorySection(for: language) {
+                        ForEach(library.obligatorySections(for: language)) { obligatory in
                             ForEach(obligatory.prayers) { prayer in
                                 Button { onOpen(prayer.id) } label: {
                                     HStack {
-                                        Text(prayer.title)
+                                        // A section of its own is named for its prayer.
+                                        Text(obligatory.prayers.count == 1 ? obligatory.name : prayer.title)
                                         Spacer()
                                         if prayer.id == currentPrayerID {
                                             Image(systemName: "book.fill")
@@ -212,8 +213,8 @@ struct ContentsView: View {
 
     /// A language's sections, without its obligatory prayers, which are pinned above.
     private func sections(in language: Language) -> [BookSection] {
-        let obligatory = library.obligatorySection(for: language)
-        return library.sections.filter { $0.language == language && $0 != obligatory }
+        let obligatory = library.obligatorySections(for: language)
+        return library.sections.filter { $0.language == language && !obligatory.contains($0) }
     }
 
     /// A section of prayers, with how many prayers it holds.
