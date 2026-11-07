@@ -99,8 +99,29 @@ final class Library {
         sections = result
     }
 
-    /// The obligatory prayers open the book, right after its title page.
-    nonisolated private static let firstSections: Set<String> = ["Obligatory Prayers", "Preghiere obbligatorie", "Pinngitsoorani Qinnutissat", "الصلوات المفروضة"]
+    /// Each language's section of obligatory prayers (short, medium and long, or just the short
+    /// one where that's all the language has). They open the book, right after its title page,
+    /// and are pinned to the top of Contents with the Alláh-u-Abhá counter.
+    nonisolated static let obligatorySections: [String: String] = [
+        "en": "Obligatory Prayers",
+        "cs": "Krátká denní modlitba",
+        "de": "Pflichtgebet",
+        "es": "Obligatorias",
+        "fr": "Prières obligatoires",
+        "is": "Skyldubænir",
+        "it": "Preghiere obbligatorie",
+        "kl": "Pinngitsoorani Qinnutissat",
+        "nl": "Verplichte Gebeden",
+        "sk": "Každodenná modlitba",
+        "ar": "الصلوات المفروضة",
+    ]
+    nonisolated private static let firstSections = Set(obligatorySections.values)
+
+    /// A language's obligatory prayers, if it has them and it's turned on.
+    func obligatorySection(for language: Language) -> BookSection? {
+        guard let name = Self.obligatorySections[language.code] else { return nil }
+        return sections.first { $0.language == language && $0.name == name }
+    }
 
     /// The obligatory prayers first, then alphabetical, ignoring a leading "The", like the original app.
     nonisolated private static func sectionOrder(_ lhs: String, _ rhs: String) -> Bool {

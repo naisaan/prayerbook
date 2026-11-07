@@ -48,21 +48,25 @@ struct ContentsView: View {
                         .foregroundStyle(.secondary)
                     }
                 }
-                if let obligatory {
-                    Section("Daily Prayers") {
-                        ForEach(obligatory.prayers) { prayer in
-                            Button { onOpen(prayer.id) } label: {
-                                HStack {
-                                    Text(prayer.title)
-                                    Spacer()
-                                    if prayer.id == currentPrayerID {
-                                        Image(systemName: "book.fill")
-                                            .font(.footnote)
-                                            .foregroundStyle(.secondary)
+                // Each language's obligatory prayers, short, medium and long, with the
+                // Alláh-u-Abhá counter, pinned to the top.
+                ForEach(library.enabledLanguages) { language in
+                    Section {
+                        if let obligatory = library.obligatorySection(for: language) {
+                            ForEach(obligatory.prayers) { prayer in
+                                Button { onOpen(prayer.id) } label: {
+                                    HStack {
+                                        Text(prayer.title)
+                                        Spacer()
+                                        if prayer.id == currentPrayerID {
+                                            Image(systemName: "book.fill")
+                                                .font(.footnote)
+                                                .foregroundStyle(.secondary)
+                                        }
                                     }
                                 }
+                                .tint(.primary)
                             }
-                            .tint(.primary)
                         }
                         // Opens full screen, on the page's own black or white.
                         Button { fullScreen = .counter } label: {
@@ -76,6 +80,14 @@ struct ContentsView: View {
                             .contentShape(Rectangle())
                         }
                         .tint(.primary)
+                    } header: {
+                        // With more than one language on, each block says whose it is.
+                        HStack(spacing: 4) {
+                            Text("Daily Prayers")
+                            if library.enabledLanguages.count > 1 {
+                                Text(verbatim: "· \(language.name)")
+                            }
+                        }
                     }
                 }
                 if !library.bookmarkedPrayers.isEmpty || !library.bookmarkLists.isEmpty {
@@ -198,8 +210,10 @@ struct ContentsView: View {
         }
     }
 
+    /// A language's sections, without its obligatory prayers, which are pinned above.
     private func sections(in language: Language) -> [BookSection] {
-        library.sections.filter { $0.language == language && $0 != obligatory }
+        let obligatory = library.obligatorySection(for: language)
+        return library.sections.filter { $0.language == language && $0 != obligatory }
     }
 
     /// A section of prayers, with how many prayers it holds.
@@ -231,11 +245,6 @@ struct ContentsView: View {
 
     private func isPresenting(_ item: Binding<BookmarkList?>) -> Binding<Bool> {
         Binding(get: { item.wrappedValue != nil }, set: { if !$0 { item.wrappedValue = nil } })
-    }
-
-    /// The English obligatory prayers, pinned to the top with the Alláh-u-Abhá counter.
-    private var obligatory: BookSection? {
-        library.sections.first { $0.language.code == "en" && $0.name == "Obligatory Prayers" }
     }
 }
 
