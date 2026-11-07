@@ -111,10 +111,15 @@ struct TutorialCard: View {
         }
         .padding(16)
         .padding(.top, 4)
-        .frame(maxWidth: 360, alignment: .leading)
-        .background(Color(uiColor: .secondarySystemGroupedBackground), in: .rect(cornerRadius: 32))
-        // Floats above the page.
-        .shadow(color: .black.opacity(0.3), radius: 30, y: 12)
+        // Always the full width, so a short message doesn't make a narrower card.
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .frame(maxWidth: 360)
+        .background {
+            // Floats above the page. Only the card casts a shadow, so the picture sits flush.
+            RoundedRectangle(cornerRadius: 32, style: .continuous)
+                .fill(Color(uiColor: .secondarySystemGroupedBackground))
+                .shadow(color: .black.opacity(0.3), radius: 30, y: 12)
+        }
         .padding(.horizontal, 20)
     }
 
@@ -167,11 +172,27 @@ struct SpotlightHole: Equatable {
     let rect: CGRect
     /// In dark mode, the bright shape drawn under the button: snug, so neighbors don't run together.
     let backing: CGRect
+    /// The corners' roundness; nil makes the short ends fully round.
+    var cornerRadius: CGFloat? = nil
 
     /// Around a button, with a little room to spare.
-    init(around frame: CGRect, margin: CGFloat = 14, backingMargin: CGFloat = 4) {
+    init(around frame: CGRect, margin: CGFloat = 14, backingMargin: CGFloat = 4, cornerRadius: CGFloat? = nil) {
         rect = frame.insetBy(dx: -margin, dy: -margin)
         backing = frame.insetBy(dx: -backingMargin, dy: -backingMargin)
+        self.cornerRadius = cornerRadius
+    }
+
+    /// Just the bright shape under a button, for a spot whose undimmed part is drawn by another hole.
+    init(backingAround frame: CGRect, margin: CGFloat = 2) {
+        rect = .null
+        backing = frame.insetBy(dx: -margin, dy: -margin)
+    }
+
+    /// Just the undimmed part, with no bright shape: dark mode lights its buttons one by one instead.
+    init(onlyAround frame: CGRect, margin: CGFloat, cornerRadius: CGFloat) {
+        rect = frame.insetBy(dx: -margin, dy: -margin)
+        backing = .null
+        self.cornerRadius = cornerRadius
     }
 
     /// A circle, with its bright backing the same size.
@@ -181,9 +202,9 @@ struct SpotlightHole: Equatable {
     }
 }
 
-/// A rounded shape filling `rect`, round at its short ends.
-private func roundedShape(_ rect: CGRect) -> some View {
-    RoundedRectangle(cornerRadius: min(rect.width, rect.height) / 2, style: .continuous)
+/// A rounded shape filling `rect`, round at its short ends unless given a corner radius.
+private func roundedShape(_ rect: CGRect, cornerRadius: CGFloat? = nil) -> some View {
+    RoundedRectangle(cornerRadius: cornerRadius ?? min(rect.width, rect.height) / 2, style: .continuous)
         .frame(width: rect.width, height: rect.height)
         .position(x: rect.midX, y: rect.midY)
 }
@@ -225,9 +246,11 @@ struct TutorialSpotlight: View {
                 Rectangle()
                     .overlay {
                         ForEach(holes.indices, id: \.self) { index in
-                            roundedShape(holes[index].rect)
-                                .blur(radius: 3)
-                                .blendMode(.destinationOut)
+                            if !holes[index].rect.isNull {
+                                roundedShape(holes[index].rect, cornerRadius: holes[index].cornerRadius)
+                                    .blur(radius: 3)
+                                    .blendMode(.destinationOut)
+                            }
                         }
                     }
                     .compositingGroup()
@@ -245,9 +268,11 @@ struct TutorialSpotlightBacking: View {
     var body: some View {
         ZStack {
             ForEach(holes.indices, id: \.self) { index in
-                roundedShape(holes[index].backing)
-                    .foregroundStyle(Color.white.opacity(0.8))
-                    .blur(radius: 2)
+                if !holes[index].backing.isNull {
+                    roundedShape(holes[index].backing, cornerRadius: holes[index].cornerRadius)
+                        .foregroundStyle(Color.white.opacity(0.8))
+                        .blur(radius: 2)
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

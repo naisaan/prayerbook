@@ -34,7 +34,6 @@ struct ReaderView: View {
     /// Where the menu's bookmark and + buttons are, for the tutorial's spotlight.
     @State private var tutorialTargets: [TutorialTarget: CGRect] = [:]
     /// Where the prayer list step's card starts on screen, so the next card can start there too.
-    @State private var prayerListCardTop: CGFloat?
     /// The text size a pinch would set, while fingers are on the screen.
     @State private var pinchSize: CGFloat?
     /// The text size when the pinch started.
@@ -149,9 +148,6 @@ struct ReaderView: View {
                 if let tutorialStep, !isOnCover {
                     let place = cardPlacement(for: tutorialStep, in: metrics)
                     TutorialCard(step: tutorialStep, onNext: advanceTutorial)
-                        .onGeometryChange(for: CGFloat.self) { $0.frame(in: .global).minY } action: { top in
-                            if tutorialStep == .prayerList { prayerListCardTop = top }
-                        }
                         .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: place.alignment)
                         .padding(.top, place.top)
                         .padding(.bottom, place.bottom)
@@ -398,21 +394,18 @@ struct ReaderView: View {
         let safeBottom = metrics.size.height - metrics.safeArea.bottom
         switch step.placement {
         case .top:
-            // Just above the open menu's first row, with a little room.
+            // A little above the open menu's first row.
             if let menu = tutorialTargets[.menu] {
-                return (.bottom, 0, max(safeBottom - menu.minY + 16, 0))
+                return (.bottom, 0, max(safeBottom - menu.minY + 40, 0))
             }
             return (.top, 8, 0)
         case .center:
             return (.center, 0, 0)
         case .bottom:
-            // The "throw it back" card starts on the same line as the card before it, and
-            // being shorter, ends higher.
-            if step == .prayerListOpen, let top = prayerListCardTop {
-                return (.top, max(top - metrics.safeArea.top, 0), 0)
-            }
-            // Above the menu button.
-            return (.bottom, 0, 72)
+            // Both prayer list cards keep their top edge on the same line, low on the screen,
+            // so the card doesn't move when the list opens.
+            let safeHeight = safeBottom - metrics.safeArea.top
+            return (.top, max(safeHeight - 300, safeHeight / 2), 0)
         }
     }
 
@@ -427,11 +420,13 @@ struct ReaderView: View {
             let button = CGRect(x: size.width - safe.right - 20 - 52, y: size.height - safe.bottom - 4 - 52, width: 52, height: 52)
             return [SpotlightHole(around: button)]
         case .menu:
-            // Everything in the menu: its rows and its round buttons.
-            let holes = tutorialTargets.compactMap { target, frame -> SpotlightHole? in
-                target == .menu ? nil : SpotlightHole(around: frame, margin: 6, backingMargin: 2)
+            // One rounded rectangle around the whole menu. In dark mode each button still gets
+            // its own bright shape underneath.
+            guard let menu = tutorialTargets[.menu] else { return nil }
+            let backings: [SpotlightHole] = tutorialTargets.compactMap { target, frame in
+                target == .menu ? nil : SpotlightHole(backingAround: frame)
             }
-            return holes.isEmpty ? nil : holes
+            return [SpotlightHole(onlyAround: menu, margin: 12, cornerRadius: 36)] + backings
         case .bookmarks:
             // The menu's bookmark and + buttons, where they're drawn.
             let frames: [CGRect] = [tutorialTargets[.bookmark], tutorialTargets[.newList]].compactMap { $0 }
